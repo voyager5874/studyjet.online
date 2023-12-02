@@ -5,7 +5,7 @@ import { AppRoutes } from '@/app/app-routes'
 import { changeAppUnlockStatus } from '@/app/app-state-slice'
 import { useAppUnlockStatus } from '@/app/mocks-n-stubs'
 import { useAppDispatch } from '@/app/store'
-import { Button } from '@/ui/button/button'
+import { Button } from '@/ui/button'
 
 import s from './main-layout.module.scss'
 
