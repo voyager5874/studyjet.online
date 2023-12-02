@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 // module.exports = {
 //   root: true,
 //   env: { browser: true, es2020: true },
@@ -19,13 +20,13 @@
 
 
 module.exports = {
-  extends: '@it-incubator/eslint-config',
+  extends: ['@it-incubator/eslint-config', 'plugin:storybook/recommended'],
   overrides: [
     {
       files: ['**/*.stories.tsx'],
       rules: {
-        'react-hooks/rules-of-hooks': 'off',
-        'no-console': 'off',
+        'react-hooks/rules-of-hooks': 'warn',
+        'no-console': 'warn',
       },
     },
     {
@@ -33,8 +34,17 @@ module.exports = {
       rules: {
         '@typescript-eslint/consistent-type-imports': ['error', {
           prefer: 'type-imports'
-        }]
+        }],
+        'no-duplicate-imports': ["off"],
+        'import/no-duplicates': ["error"],
+        "perfectionist/sort-objects": ["warn"]
       },
-    }
+    },
+    // {
+    //   files: ['router-config.tsx'],
+    //   rules: {
+    //     "perfectionist/sort-objects": ["off"]
+    //   },
+    // }
   ],
 }
