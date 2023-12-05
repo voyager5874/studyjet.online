@@ -1,0 +1,22 @@
+.sortableColumnHeader {
+  cursor: pointer;
+
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.flexContainer {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.justifyEnd {
+  justify-content: flex-end;
+}
+
+.pointer {
+  cursor: pointer;
+}

@@ -1,0 +1,30 @@
+.root {
+  border-collapse: collapse;
+  width: 100%;
+  border: 1px solid;
+  border-color: var(--color-border);
+}
+
+.header {
+  background-color: var(--color-bg-tertiary);
+}
+
+.sortableColumnHeader {
+  text-align: left;
+}
+
+.row {
+  border: 1px solid;
+  border-color: var(--color-border);
+}
+
+.cell {
+  padding: 6px 24px;
+  text-align: left;
+}
+
+.bodyCell {
+  font-size: var(--font-size-s);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-normal);
+}
