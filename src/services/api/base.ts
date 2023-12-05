@@ -1,4 +1,4 @@
-import type { GetDecksResponse } from '@/services/api/types'
+import type { GetDecksResponse } from '@/features/decks/types'
 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
