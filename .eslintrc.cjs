@@ -26,7 +26,7 @@ module.exports = {
       files: ['**/*.stories.tsx'],
       rules: {
         'react-hooks/rules-of-hooks': 'warn',
-        'no-console': 'warn',
+        'no-console': 'off',
       },
     },
     {
@@ -35,9 +35,10 @@ module.exports = {
         '@typescript-eslint/consistent-type-imports': ['error', {
           prefer: 'type-imports'
         }],
-        'no-duplicate-imports': ["off"],
-        'import/no-duplicates': ["error"],
-        "perfectionist/sort-objects": ["warn"]
+        'no-duplicate-imports': 'off',
+        'import/no-duplicates': 'error',
+        'perfectionist/sort-objects': 'off',
+        // 'perfectionist/sort-jsx-props': 'off'
       },
     },
     // {
