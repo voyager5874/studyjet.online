@@ -1,12 +1,12 @@
 import type { DeckItem } from '@/features/decks/types'
-import type { Column, Sort, TableProps } from '@/ui/table'
+import type { Column, Sort, TableProps } from '@/ui/table/index'
 import type { Meta, StoryObj } from '@storybook/react'
 
 import type { CSSProperties } from 'react'
 
 import { decksList } from '@/mocks-n-stubs'
 import { Button } from '@/ui/button'
-import { Table } from '@/ui/table'
+import { Table } from '@/ui/table/index'
 import { TableCell } from '@/ui/table/table-blocks'
 import { Typography } from '@/ui/typography'
 import { getFormattedDate } from '@/utils/dates'
