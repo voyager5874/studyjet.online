@@ -1,8 +1,7 @@
 import type { ComponentPropsWithoutRef, ForwardedRef, ReactNode } from 'react'
-import { Children, createContext, forwardRef, useContext } from 'react'
+import { forwardRef } from 'react'
 
 import { Typography } from '@/ui/typography'
-import { isReactNode } from '@/utils'
 import { clsx } from 'clsx'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 
@@ -19,14 +18,14 @@ import {
 } from './table-blocks'
 
 export type Column<T extends { id: string }> = {
-  /* a function to show some Component based on the data or to just transform it **/
-  adapter?: (input: any) => ReactNode
-  className?: string
-  key: keyof T
   onClick?: (id: string, key: number | string | symbol) => void
-  sortable?: boolean
   title: string
-}
+} & (
+  | { key: keyof T; render: (data: T) => ReactNode; sortable?: boolean }
+  | { key: keyof T; render?: never; sortable: true }
+  | { key: keyof T; render?: never; sortable?: false }
+  | { key?: string; render: (data: T) => ReactNode; sortable?: false }
+)
 
 export type Sort<T> = {
   direction: 'asc' | 'desc'
@@ -35,11 +34,9 @@ export type Sort<T> = {
 
 export type TableProps<T extends { id: string }> = {
   caption?: string
-  // children?: Array<ReactElement<typeof TableCell>> | ReactElement<typeof TableCell> //still any ReactElement passes
   columns: Column<T>[]
   data: T[]
   onChangeSort?: (sort: Sort<T>) => void
-  setRef?: (ref: any) => void
   sort?: Sort<T>
 } & ComponentPropsWithoutRef<'table'>
 
@@ -47,13 +44,13 @@ const RenderFunction = <T extends { id: string }>(
   props: TableProps<T>,
   ref: ForwardedRef<HTMLTableElement>
 ) => {
-  const { caption, children, columns, data, onChangeSort, setRef, sort, ...restProps } = props
+  const { caption, children, columns, data, onChangeSort, sort, ...restProps } = props
 
   const handleSort = (column: Column<T>) => () => {
-    if (!column.sortable || !onChangeSort) {
+    if (!column.sortable || !onChangeSort || !column?.key) {
       return
     }
-    if (sort?.key !== column.key) {
+    if (!sort) {
       return onChangeSort({ direction: 'asc', key: column.key })
     }
     if (sort?.key === column.key && sort.direction === 'asc') {
@@ -83,28 +80,27 @@ const RenderFunction = <T extends { id: string }>(
               </div>
             </Typography>
           ))}
-          {Children.map(children, _ => (
-            <Typography as={TableHead} />
-          ))}
         </TableRow>
       </TableHeader>
       <TableBody>
         {data.map(item => (
           <TableRow key={item.id}>
-            {columns.map(({ adapter, key, onClick }) => (
-              <Typography
-                as={TableCell}
-                className={clsx(onClick && s.pointer)}
-                key={key as string}
-                onClick={onClick && (() => onClick(item.id, key))}
-                variant={'body2'}
-              >
-                {getCellContent(item[key], adapter)}
-              </Typography>
+            {columns.map(({ render, key, onClick }) => (
+              <>
+                {!render && (
+                  <Typography
+                    as={TableCell}
+                    className={clsx(onClick && s.pointer)}
+                    key={key as string}
+                    onClick={onClick && (() => onClick(item.id, key))}
+                    variant={'body2'}
+                  >
+                    {item[key]}
+                  </Typography>
+                )}
+                {render && render(item)}
+              </>
             ))}
-            <RowContext.Provider value={{ deckId: item.id, setRef: setRef }}>
-              {children}
-            </RowContext.Provider>
           </TableRow>
         ))}
       </TableBody>
@@ -115,40 +111,6 @@ const RenderFunction = <T extends { id: string }>(
 const Table = forwardRef(RenderFunction) as <T extends { id: string }>(
   props: TableProps<T> & { ref?: ForwardedRef<HTMLTableElement> }
 ) => ReturnType<typeof RenderFunction>
-
-type RowContextType = {
-  deckId: null | string
-  setRef: ((ref: any) => void) | undefined
-}
-
-const RowContext = createContext<RowContextType>({ deckId: null, setRef: undefined })
-
-const ExtraColumn = forwardRef<HTMLTableCellElement, ComponentPropsWithoutRef<typeof TableCell>>(
-  (props, ref) => {
-    const { deckId, setRef } = useContext(RowContext)
-    const handleSetRef = () => {
-      setRef && setRef(deckId)
-    }
-
-    return <TableCell {...props} className={s.bodyCell} onMouseEnter={handleSetRef} ref={ref} />
-  }
-)
-
-function getCellContent(rawData: any, transformer?: Column<any>['adapter']): ReactNode {
-  if (transformer && (isReactNode(rawData) || typeof rawData === 'object')) {
-    return transformer(rawData)
-  }
-  if (!transformer && isReactNode(rawData)) {
-    return rawData
-  }
-  if (!transformer && typeof rawData === 'object') {
-    return JSON.stringify(rawData)
-  }
-
-  return "the data couldn't be rendered"
-}
-
-export { ExtraColumn, Table }
 
 function getSortSign<T extends { id: string }>(sort: Sort<T>, column: Column<T>) {
   if (!sort) {
@@ -163,3 +125,5 @@ function getSortSign<T extends { id: string }>(sort: Sort<T>, column: Column<T>)
     }
   }
 }
+
+export { Table }
