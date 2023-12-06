@@ -50,7 +50,7 @@ const RenderFunction = <T extends { id: string }>(
     if (!column.sortable || !onChangeSort || !column?.key) {
       return
     }
-    if (!sort) {
+    if (!sort || sort?.key !== column.key) {
       return onChangeSort({ direction: 'asc', key: column.key })
     }
     if (sort?.key === column.key && sort.direction === 'asc') {
