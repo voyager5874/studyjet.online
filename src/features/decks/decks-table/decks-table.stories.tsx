@@ -2,17 +2,16 @@ import type { DeckItem } from '@/features/decks/types'
 import type { Column, Sort, TableProps } from '@/ui/table'
 import type { Meta, StoryObj } from '@storybook/react'
 
+import type { CSSProperties } from 'react'
+
 import { decksList } from '@/mocks-n-stubs'
 import { Button } from '@/ui/button'
+import { Table } from '@/ui/table'
 import { TableCell } from '@/ui/table/table-blocks'
 import { Typography } from '@/ui/typography'
 import { getFormattedDate } from '@/utils/dates'
 import { useArgs } from '@storybook/preview-api'
 import { PenLine, PlayCircle, Trash } from 'lucide-react'
-
-import s from '@/features/decks/decks-table/decks-table.module.scss'
-
-import { DecksTable } from './decks-table'
 
 const meta = {
   argTypes: {
@@ -22,10 +21,10 @@ const meta = {
       },
     },
   },
-  component: DecksTable,
+  component: Table<DeckItem>,
   tags: ['autodocs'],
   title: 'App/DecksTable',
-} satisfies Meta<typeof DecksTable>
+} satisfies Meta<typeof Table<DeckItem>>
 
 export default meta
 
@@ -37,6 +36,13 @@ const onLearn = (id: string) => {
 
 const userId = '0afa4517-54e8-4b13-a9a6-01fde9e42f76'
 
+const flexContainer: CSSProperties = {
+  display: 'flex',
+  gap: '4px',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+}
+
 function renderDeckActions(deck: DeckItem) {
   // const authorId = deck?.author?.id
   const authorId = deck?.userId
@@ -44,7 +50,7 @@ function renderDeckActions(deck: DeckItem) {
   return (
     <>
       <TableCell>
-        <div className={s.actions}>
+        <div style={flexContainer}>
           <Button onClick={() => onLearn(deck.id)} variant={'icon'}>
             <PlayCircle size={14} />
           </Button>
@@ -124,6 +130,6 @@ export const Overview: Story = {
       setArgs({ ...args, sort })
     }
 
-    return <DecksTable columns={columns} data={data} {...restProps} onChangeSort={changeSort} />
+    return <Table columns={columns} data={data} {...restProps} onChangeSort={changeSort} />
   },
 }
