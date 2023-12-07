@@ -1,13 +1,10 @@
 import type { CardItem } from '@/features/cards/types'
-import type { Column, Sort, TableProps } from '@/ui/table/index'
+import type { Sort, TableProps } from '@/ui/table/index'
 import type { Meta, StoryObj } from '@storybook/react'
 
+import { cardsTableColumn } from '@/features/cards/cards-table-columns'
 import { cardsList } from '@/mocks-n-stubs/cards-list'
-import { Grade } from '@/ui/grade'
 import { Table } from '@/ui/table/index'
-import { TableCell } from '@/ui/table/table-blocks'
-import { Typography } from '@/ui/typography'
-import { getFormattedDate } from '@/utils/dates'
 import { useArgs } from '@storybook/preview-api'
 
 const meta = {
@@ -27,41 +24,9 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-const columns: Column<CardItem>[] = [
-  {
-    key: 'question',
-    sortable: true,
-    title: 'Question',
-  },
-  {
-    key: 'answer',
-    sortable: true,
-    title: 'Answer',
-  },
-  {
-    render: card => (
-      <Typography as={TableCell} style={{ verticalAlign: 'baseline' }} variant={'body2'}>
-        {getFormattedDate(card.updated)}
-      </Typography>
-    ),
-    key: 'updated',
-    title: 'Last Updated',
-  },
-  {
-    key: 'grade',
-    render: card => (
-      <Typography as={TableCell} style={{ verticalAlign: 'baseline' }} variant={'body2'}>
-        {<Grade grade={card.grade} />}
-      </Typography>
-    ),
-    sortable: true,
-    title: 'Acquisition',
-  },
-]
-
 export const Overview: Story = {
   args: {
-    columns,
+    columns: cardsTableColumn,
     data: cardsList,
 
     sort: { direction: 'asc', key: 'answer' },

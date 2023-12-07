@@ -1,12 +1,21 @@
 .header {
+  height: 100px;
+  padding-right: 10vw;
+  padding-left: 10vw;
+
   color: var(--color-text-normal);
+
   background-color: var(--color-bg-primary);
   border: 1px solid var(--color-border-primary);
 }
 
 .main {
-  min-height: 80vh;
+  min-height: calc(100vh - 100px);
+  padding-right: 10vw;
+  padding-left: 10vw;
+
   color: var(--color-text-normal);
+
   background-color: var(--color-bg-primary);
 }
 

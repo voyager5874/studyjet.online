@@ -1,4 +1,6 @@
+import { decksTableColumns } from '@/features/decks/table-columns'
 import { useGetDecksQuery } from '@/services/api'
+import { Table } from '@/ui/table'
 
 export const Page = () => {
   const { data, error, isFetching, isLoading } = useGetDecksQuery()
@@ -8,11 +10,8 @@ export const Page = () => {
 
   return (
     <>
-      <div>Deck page</div>
-      <div>
-        {data?.items?.length && data.items.map(item => <div key={item.id}>{item?.name}</div>)}
-        {(isFetching || isLoading) && 'loading...'}
-      </div>
+      <Table caption={'Decks'} columns={decksTableColumns} data={data?.items || []} />
+      <div>{(isFetching || isLoading) && 'loading...'}</div>
     </>
   )
 }

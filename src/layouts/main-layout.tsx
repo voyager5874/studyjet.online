@@ -5,6 +5,7 @@ import { AppRoutes } from '@/app/app-routes'
 import { changeAppUnlockStatus } from '@/app/app-state-slice'
 import { useAppUnlockStatus } from '@/app/mocks-n-stubs'
 import { useAppDispatch } from '@/app/store'
+import { useLogoutMutation } from '@/features/user/api'
 import { Button } from '@/ui/button'
 
 import s from './main-layout.module.scss'
@@ -12,11 +13,11 @@ import s from './main-layout.module.scss'
 export const MainLayout = () => {
   const appUnlocked = useAppUnlockStatus()
   const dispatch = useAppDispatch()
+  const [logout] = useLogoutMutation()
   const handleLogout = () => {
-    dispatch(changeAppUnlockStatus(false))
-  }
-  const handleLogin = () => {
-    dispatch(changeAppUnlockStatus(true))
+    logout()
+      .unwrap()
+      .then(_ => dispatch(changeAppUnlockStatus(false)))
   }
 
   return (
@@ -40,15 +41,10 @@ export const MainLayout = () => {
         </nav>
         <div className={s.elementsList}>
           <ThemeToggler />
-          {appUnlocked ? (
-            <Button onClick={handleLogout}>Logout</Button>
-          ) : (
-            <Button onClick={handleLogin}>Sign in</Button>
-          )}
+          {appUnlocked && <Button onClick={handleLogout}>Logout</Button>}
         </div>
       </header>
       <main className={s.main}>
-        <div>content:</div>
         <Outlet />
       </main>
     </>
