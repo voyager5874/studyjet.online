@@ -4,7 +4,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  appUnlocked: true,
+  appUnlocked: false,
 }
 
 export const appSlice = createSlice({

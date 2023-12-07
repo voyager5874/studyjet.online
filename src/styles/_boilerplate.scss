@@ -66,6 +66,7 @@ body {
   &[data-theme='light'] {
     --color-bg-primary: var(--color-light-300);
     --color-primary: var(--color-accent-500);
+    --color-bg-tertiary: var(--color-light-900);
 
     // text
     --color-text-normal: var(--color-dark-700);

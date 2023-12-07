@@ -22,8 +22,9 @@ export type Column<T extends { id: string }> = {
   title: string
 } & (
   | { key: keyof T; render: (data: T) => ReactNode; sortable?: boolean }
-  | { key: keyof T; render?: never; sortable: true }
-  | { key: keyof T; render?: never; sortable?: false }
+  // | { key: keyof T; render?: never; sortable: true }
+  // | { key: keyof T; render?: never; sortable?: false }
+  | { key: keyof T; render?: never; sortable?: boolean }
   | { key?: string; render: (data: T) => ReactNode; sortable?: false }
 )
 
