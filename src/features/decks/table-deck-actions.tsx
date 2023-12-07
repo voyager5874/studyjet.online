@@ -1,33 +1,29 @@
 import type { DeckItem } from '@/features/decks/types'
 
-import type { CSSProperties } from 'react'
-
 import { useMeQuery } from '@/features/user/api'
 import { Button } from '@/ui/button'
 import { TableCell } from '@/ui/table/table-blocks'
 import { PenLine, PlayCircle, Trash } from 'lucide-react'
 
-const flexContainer: CSSProperties = {
-  display: 'flex',
-  gap: '4px',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
-}
+import s from './table-deck-actions.module.scss'
 
 const onLearn = (id: string) => {
   alert(`onLearn called with deck id: ${id}`)
 }
 
-export function DeckActions(deck: DeckItem) {
+type Props = {
+  deck: DeckItem
+}
+
+export function DeckActions({ deck }: Props) {
+  const authorId = deck?.userId
   const { data } = useMeQuery()
   const userId = data?.id
-
-  const authorId = deck?.userId
 
   return (
     <>
       <TableCell>
-        <div style={flexContainer}>
+        <div className={s.flexContainer}>
           <Button onClick={() => onLearn(deck.id)} variant={'icon'}>
             <PlayCircle size={14} />
           </Button>

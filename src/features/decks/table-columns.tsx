@@ -1,7 +1,6 @@
 import type { DeckItem } from '@/features/decks/types'
 import type { Column } from '@/ui/table'
 
-import { DeckActions } from '@/features/decks/deck-actions'
 import { TableCell } from '@/ui/table/table-blocks'
 import { Typography } from '@/ui/typography'
 import { getFormattedDate } from '@/utils/dates'
@@ -44,8 +43,8 @@ export const decksTableColumns: Column<DeckItem>[] = [
     sortable: true,
     title: 'Created by',
   },
-  {
-    render: deck => DeckActions(deck),
-    title: '',
-  },
+  // {
+  //   render: deck => renderDeckActions(deck, '0afa4517-54e8-4b13-a9a6-01fde9e42f76'),
+  //   title: '',
+  // },
 ]
