@@ -1,0 +1,105 @@
+.root {
+  color: var(--color-dark-100);
+
+  &:focus-within {
+    color: var(--color-text-normal);
+  }
+}
+
+.inputContainer {
+  position: relative;
+}
+
+.label {
+  color: var(--color-dark-100);
+}
+
+.prefixIcon {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 0.3em;
+  transform: translateY(-50%);
+}
+
+.suffixIcon {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  right: 0.3em;
+  transform: translateY(-50%);
+}
+
+.input {
+  width: 100%;
+  padding: 6px;
+
+  color: var(--color-dark-100);
+
+  background-color: transparent;
+  border: 0;
+  border-radius: 2px;
+  outline: 1px solid var(--color-dark-100);
+
+  &::-webkit-search-cancel-button {
+    appearance: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-outline-focus);
+
+    // &:not(:placeholder-shown) {
+    //   color: var(--color-light-100);
+    // }
+  }
+
+  &:disabled {
+    pointer-events: none;
+    color: var(--color-dark-300);
+    outline: 1px solid var(--color-dark-300);
+  }
+
+  &:hover:not(:focus) {
+    background-color: var(--color-dark-700);
+    outline: 1px solid var(--color-dark-100);
+  }
+}
+
+.errorInput {
+  color: red;
+  outline: 1px solid red;
+
+  &:hover {
+    outline: 1px solid red;
+  }
+
+  &:focus {
+    outline: 1px solid red;
+  }
+}
+
+.transparent {
+  color: transparent;
+}
+
+.inputWithPrefix {
+  padding-left: 24px;
+}
+
+.inputWithSuffix {
+  padding-right: 24px;
+}
+
+.disabled {
+  color: var(--color-dark-300);
+}
+
+.whiteOutline {
+  color: var(--color-light-100);
+  outline: 1px solid var(--color-light-100);
+
+  &:focus {
+    color: var(--color-light-100);
+    outline: 1px solid var(--color-light-100);
+  }
+}
