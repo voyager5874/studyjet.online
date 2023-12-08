@@ -5,11 +5,14 @@ import { LogOut, Trash } from 'lucide-react'
 import { Button } from './button'
 
 const meta = {
-  // includeStories: ['Primary', 'Secondary'],
   argTypes: {
     variant: {
-      control: { type: 'radio' },
+      control: 'radio',
       options: ['primary', 'secondary', 'tertiary', 'ghost', 'icon'],
+    },
+    size: {
+      control: 'radio',
+      options: ['default', 'dense', 'fill'],
     },
   },
   component: Button,
