@@ -5,7 +5,7 @@ import { Typography, TypographyVariants } from './typography'
 const meta = {
   argTypes: {
     variant: {
-      control: { type: 'radio' },
+      control: 'radio',
       options: TypographyVariants,
     },
   },

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
+import type { ChangeEvent } from 'react'
 import { useState } from 'react'
 
 import { Button } from '@/ui/button'
@@ -38,7 +39,7 @@ const Template: Story = {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [, setArgs] = useArgs()
 
-    const updateValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const updateValue = (e: ChangeEvent<HTMLInputElement>) => {
       setArgs({ ...args, value: e.target.value })
     }
 

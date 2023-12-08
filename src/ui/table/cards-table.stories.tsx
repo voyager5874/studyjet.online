@@ -10,9 +10,7 @@ import { useArgs } from '@storybook/preview-api'
 const meta = {
   argTypes: {
     sort: {
-      control: {
-        type: 'object',
-      },
+      control: 'object',
     },
   },
   component: Table<CardItem>,
