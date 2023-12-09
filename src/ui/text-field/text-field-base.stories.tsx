@@ -32,7 +32,7 @@ type Story = StoryObj<typeof meta>
 
 const Template: Story = {
   render: args => {
-    const { type, value, ...restArgs } = args
+    const { disabled, type, value, ...restArgs } = args
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const [showContent, setShowContent] = useState(false)
 
@@ -57,18 +57,30 @@ const Template: Story = {
     const getSuffix = () => {
       if (type === 'password') {
         return showContent ? (
-          <Button onClick={() => setShowContent(prev => !prev)} variant={'icon'}>
+          <Button
+            disabled={disabled}
+            onClick={() => setShowContent(prev => !prev)}
+            variant={'icon'}
+          >
             <Eye size={14} />
           </Button>
         ) : (
-          <Button onClick={() => setShowContent(prev => !prev)} variant={'icon'}>
+          <Button
+            disabled={disabled}
+            onClick={() => setShowContent(prev => !prev)}
+            variant={'icon'}
+          >
             <EyeOff size={14} />
           </Button>
         )
       }
       if (type === 'search' && args.value) {
         return (
-          <Button onClick={() => setArgs({ ...args, value: '' })} variant={'icon'}>
+          <Button
+            disabled={disabled}
+            onClick={() => setArgs({ ...args, value: '' })}
+            variant={'icon'}
+          >
             <X size={14} />
           </Button>
         )
@@ -88,6 +100,7 @@ const Template: Story = {
     return (
       <TextFieldBase
         {...restArgs}
+        disabled={disabled}
         onChange={updateValue}
         prefixIcon={getPrefix()}
         suffixIcon={getSuffix()}
