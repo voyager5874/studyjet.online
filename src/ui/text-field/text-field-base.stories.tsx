@@ -120,11 +120,12 @@ export const Overview: Story = {
 }
 
 export const Password: Story = {
+  ...Template,
+  parameters: { controls: { exclude: ['type'] } },
   args: {
-    label: 'Label',
-    placeholder: 'Password',
+    label: 'Password',
+    placeholder: 'enter your password',
     type: 'password',
-    suffixIcon: <EyeOff size={14} />,
   },
 }
 
