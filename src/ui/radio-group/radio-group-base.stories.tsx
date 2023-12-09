@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
-import { RadioGroup } from './radio-group'
+import { RadioGroupItem, RadioGroupRoot } from '@/ui/radio-group'
 
 const meta = {
-  title: 'App/RadioGroup',
+  title: 'Components/RadioGroup',
   tags: ['autodocs'],
-  component: RadioGroup,
+  component: RadioGroupRoot,
   argTypes: {
     disabled: {
       control: 'boolean',
@@ -15,7 +15,7 @@ const meta = {
       control: 'radio',
     },
   },
-} satisfies Meta<typeof RadioGroup>
+} satisfies Meta<typeof RadioGroupRoot>
 
 export default meta
 
@@ -30,8 +30,20 @@ const items = [
   { value: 'affffaa', key: 'item6' },
 ]
 
-export const Overview: Story = {
-  args: {
-    items,
+const Template: Story = {
+  render: args => {
+    const { disabled, ...rest } = args
+
+    return (
+      <RadioGroupRoot {...rest} disabled={disabled}>
+        {items.map(item => (
+          <RadioGroupItem disabled={disabled} id={item.key} key={item.key} value={item.value} />
+        ))}
+      </RadioGroupRoot>
+    )
   },
+}
+
+export const Overview: Story = {
+  ...Template,
 }
