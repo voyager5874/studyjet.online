@@ -4,7 +4,7 @@
   font-size: $fontSize;
   font-weight: $fontWeight;
   line-height: $lineHeight;
-  color: var(--color-text-primary);
+  color: var(--color-text-normal);
 }
 
 @mixin link($fontSize, $color, $fontWeight, $decoration: none) {
