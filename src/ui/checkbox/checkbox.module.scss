@@ -1,0 +1,137 @@
+button {
+  all: unset;
+}
+
+.label {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  height: 2.4em;
+}
+
+.root {
+  cursor: pointer;
+
+  position: relative;
+
+  display: flex;
+  flex-shrink: 0;
+  place-items: center center;
+
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+
+  background-color: transparent;
+  border: 2px solid var(--color-text-normal);
+  border-radius: 2px;
+
+  &::after {
+    content: '';
+
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 100%;
+    height: 100%;
+
+    background-color: transparent;
+    border-radius: 50%;
+
+    transition: all 100ms;
+  }
+
+  &:not([data-disabled]):hover::after {
+    transform: translate(-50%, -50%) scale(2.5);
+    background-color: var(--color-bg-tertiary);
+    transition: all 30ms;
+  }
+
+  &:not([data-disabled]):active::after {
+    background-color: var(--color-text-subdued);
+    transition: all 0ms;
+  }
+
+  &:not([data-disabled]):focus-visible::after {
+    transform: translate(-50%, -50%) scale(2.5);
+    background-color: var(--color-text-subdued);
+    transition: all 0ms;
+  }
+
+  &:not([data-disabled])[data-state='checked'] {
+    color: var(--color-text-inverted);
+    background-color: var(--color-text-normal);
+    border-color: var(--color-text-normal);
+  }
+
+  &[data-disabled][data-state='checked'] {
+    color: var(--color-text-inverted);
+    background-color: var(--color-text-subdued);
+    border-color: var(--color-text-subdued);
+  }
+
+  &[data-disabled] {
+    pointer-events: none;
+    border: 2px solid var(--color-text-subdued);
+  }
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+
+  &[data-state='checked'] {
+    animation: rotate 250ms ease-out;
+  }
+
+  &[data-state='unchecked'] {
+    animation: uncheck 100ms ease-in;
+  }
+}
+
+.labelText {
+  color: var(--color-text-normal);
+}
+
+@keyframes check {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes uncheck {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(-90deg);
+    opacity: 0;
+  }
+
+  to {
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.disabled {
+  color: var(--color-light-900);
+}
