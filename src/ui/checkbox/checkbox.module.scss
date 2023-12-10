@@ -69,13 +69,13 @@ button {
 
   &[data-disabled][data-state='checked'] {
     color: var(--color-text-inverted);
-    background-color: var(--color-text-subdued);
-    border-color: var(--color-text-subdued);
+    background-color: var(--color-text-disabled);
+    border-color: var(--color-text-disabled);
   }
 
   &[data-disabled] {
     pointer-events: none;
-    border: 2px solid var(--color-text-subdued);
+    border: 2px solid var(--color-text-disabled);
   }
 }
 
@@ -133,5 +133,5 @@ button {
 }
 
 .disabled {
-  color: var(--color-light-900);
+  color: var(--color-text-disabled);
 }
