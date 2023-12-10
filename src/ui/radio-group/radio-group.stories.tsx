@@ -6,6 +6,7 @@ const meta = {
   title: 'App/RadioGroup',
   tags: ['autodocs'],
   component: RadioGroup,
+  parameters: { controls: { exclude: ['asChild', 'ref'] } },
   argTypes: {
     disabled: {
       control: 'boolean',
