@@ -1,0 +1,40 @@
+.container {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.pageButton {
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+
+  font-size: 14px;
+  color: var(--color-text-normal);
+
+  &:hover {
+    color: var(--color-text-normal);
+    background-color: var(--color-dark-500);
+  }
+
+  &:active {
+    color: var(--color-text-inverted);
+    background-color: var(--color-text-normal);
+  }
+
+  &:focus-visible {
+    color: var(--color-text-normal);
+    border-radius: 4px;
+  }
+}
+
+.current {
+  pointer-events: none;
+  color: var(--color-text-inverted);
+  background-color: var(--color-text-normal);
+}
+
+.dots {
+  color: var(--color-text-normal);
+}
