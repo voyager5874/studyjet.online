@@ -29,7 +29,8 @@
   }
 }
 
-.current {
+.current,
+.current:hover {
   pointer-events: none;
   color: var(--color-text-inverted);
   background-color: var(--color-text-normal);
