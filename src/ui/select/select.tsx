@@ -23,12 +23,13 @@ export const Select = forwardRef<ElementRef<typeof SelectPrimitive.Trigger>, Sel
       value: clsx(disabled && disabled),
       triggerIcon: clsx(s.triggerIcon),
       label: clsx(s.label, disabled && s.disabled),
+      container: clsx(fullWidth && s.fullWidth),
     }
 
     return (
       <SelectPrimitive.Root {...props} disabled={disabled}>
         {label ? (
-          <label>
+          <label className={classNames.container}>
             <Typography as={'span'} className={classNames.label} variant={'body2'}>
               {label}
             </Typography>
