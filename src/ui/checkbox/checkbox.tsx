@@ -31,7 +31,7 @@ const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, CheckboxP
           disabled={disabled}
         >
           <CheckboxPrimitive.Indicator className={classNames.indicator}>
-            <Check className={classNames.icon} strokeWidth={3.5} />
+            <Check className={classNames.icon} size={14} strokeWidth={3.5} />
           </CheckboxPrimitive.Indicator>
         </CheckboxPrimitive.Root>
         <span className={classNames.labelText}>{label}</span>
