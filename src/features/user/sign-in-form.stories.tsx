@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
+import { withRouter } from 'storybook-addon-react-router-v6'
+
 import { SignInForm } from './sign-in-form'
 
 const meta = {
@@ -20,6 +22,7 @@ type Story = StoryObj<typeof meta>
 export const Overview: Story = {
   args: {},
   decorators: [
+    withRouter,
     Story => (
       <div
         style={{
