@@ -47,6 +47,7 @@ export function SignInForm({
     form: clsx(s.form),
     formItem: clsx(s.formItem),
     button: clsx(s.formItem, s.button),
+    footer: clsx(s.footer),
     footerItem: clsx(s.footerItem),
   }
 
@@ -105,12 +106,7 @@ export function SignInForm({
             )}
           />
           <div className={classNames.formItem}>
-            <Typography
-              as={Link}
-              className={s.restoreLink}
-              to={'/password-reset'}
-              variant={'link1'}
-            >
+            <Typography as={Link} to={'/password-reset'} variant={'link1'}>
               Forgot password?
             </Typography>
           </div>
@@ -121,7 +117,7 @@ export function SignInForm({
             </Button>
           </div>
         </form>
-        <section className={s.footer}>
+        <section className={classNames.footer}>
           <Typography className={classNames.footerItem} variant={'body2'}>
             Don&apos;t have an account yet?
           </Typography>
