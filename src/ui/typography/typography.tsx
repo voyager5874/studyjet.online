@@ -64,7 +64,7 @@ function getElementType(
 // }
 //
 // export const Typography = forwardRef(RenderFunction) as <T extends ElementType = 'p'>(
-//   props: TypographyProps<T>
+//   props: TypographyProps<T> & { ref?: ForwardedRef<ElementType<T>> }
 // ) => ReturnType<typeof RenderFunction>
 
 export const Typography = forwardRef(function RenderFunction<T extends ElementType>(
