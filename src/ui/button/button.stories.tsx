@@ -2,19 +2,35 @@ import type { Meta, StoryObj } from '@storybook/react'
 
 import { LogOut, Trash } from 'lucide-react'
 
-import { Button } from './button'
+import { Button, buttonSizes, buttonVariants } from './button'
 
 const meta = {
   argTypes: {
     variant: {
       control: 'radio',
-      options: ['primary', 'secondary', 'tertiary', 'ghost', 'icon'],
+      options: buttonVariants,
     },
     size: {
       control: 'radio',
-      options: ['default', 'dense', 'fill'],
+      options: buttonSizes,
     },
   },
+  decorators: [
+    Story => (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+          outline: '1px solid grey',
+          padding: '20px',
+        }}
+      >
+        <Story />
+      </div>
+    ),
+  ],
   component: Button,
   tags: ['autodocs'],
   title: 'Components/Button',
