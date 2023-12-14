@@ -108,7 +108,7 @@ export function SignInForm({
             <Typography
               as={Link}
               className={s.restoreLink}
-              href={'/password-reset'}
+              to={'/password-reset'}
               variant={'link1'}
             >
               Forgot password?
