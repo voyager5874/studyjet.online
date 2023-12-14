@@ -2,6 +2,7 @@ import type { LoginParameters } from '@/features/user/sign-in-form-shema'
 
 import type { ComponentPropsWithoutRef } from 'react'
 import { useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
 
 import { LoginFormSchema } from '@/features/user/sign-in-form-shema'
 import { Button } from '@/ui/button'
@@ -119,7 +120,7 @@ export function SignInForm({
           <Typography className={classNames.footerItem} variant={'body2'}>
             Don&apos;t have an account yet?
           </Typography>
-          <Typography className={classNames.footerItem} href={'/sign-up'} variant={'link2'}>
+          <Typography as={Link} className={classNames.footerItem} to={'/sign-up'} variant={'link2'}>
             Sign up
           </Typography>
         </section>
