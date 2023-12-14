@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef, ElementType, ForwardedRef, ReactNode } from 'react'
+import type { ComponentPropsWithoutRef, ElementRef, ElementType, ReactNode } from 'react'
 import { forwardRef } from 'react'
 
 import { clsx } from 'clsx'
@@ -69,7 +69,7 @@ function getElementType(
 
 export const Typography = forwardRef(function RenderFunction<T extends ElementType>(
   { as, className, variant = 'body1', ...restProps }: TypographyProps<T>,
-  ref: ForwardedRef<ElementType<T>>
+  ref: ElementRef<T>
 ) {
   const classNames = clsx(s[variant], className)
   const Component = getElementType(variant, as)

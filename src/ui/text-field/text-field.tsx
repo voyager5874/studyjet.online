@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef, ForwardedRef } from 'react'
+import type { ComponentPropsWithoutRef, ElementRef } from 'react'
 import { forwardRef, useState } from 'react'
 
 import { Button } from '@/ui/button'
@@ -7,7 +7,7 @@ import { Eye, EyeOff, Search, X } from 'lucide-react'
 
 export type Props = { onClear?: () => void } & ComponentPropsWithoutRef<typeof TextFieldBase>
 
-const RenderFunction = (props: Props) => {
+const TextField = forwardRef<ElementRef<typeof TextFieldBase>, Props>((props, ref) => {
   const { disabled, type, value, onClear, ...restProps } = props
   const [showContent, setShowContent] = useState(false)
 
@@ -51,16 +51,13 @@ const RenderFunction = (props: Props) => {
       {...restProps}
       disabled={disabled}
       prefixIcon={getPrefix()}
+      ref={ref}
       suffixIcon={getSuffix()}
       type={getInputType(type, showContent)}
       value={value}
     />
   )
-}
-
-const TextField = forwardRef(RenderFunction) as (
-  props: Props & { ref?: ForwardedRef<typeof TextFieldBase> }
-) => ReturnType<typeof RenderFunction>
+})
 
 function getInputType<T>(initialType: T, showContent: boolean): T {
   if (initialType === 'password' && !showContent) {
