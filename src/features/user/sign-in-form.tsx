@@ -105,7 +105,12 @@ export function SignInForm({
             )}
           />
           <div className={classNames.formItem}>
-            <Typography className={s.restoreLink} href={'password-reset'} variant={'link1'}>
+            <Typography
+              as={Link}
+              className={s.restoreLink}
+              href={'/password-reset'}
+              variant={'link1'}
+            >
               Forgot password?
             </Typography>
           </div>
