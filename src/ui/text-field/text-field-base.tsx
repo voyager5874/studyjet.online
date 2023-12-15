@@ -1,4 +1,4 @@
-import { forwardRef, useState } from 'react'
+import { forwardRef, useId, useState } from 'react'
 import type { ComponentProps, ElementRef, FocusEvent, ReactElement } from 'react'
 
 import { Typography } from '@/ui/typography'
@@ -18,6 +18,7 @@ export type TextFieldProps = {
 const TextFieldBase = forwardRef<ElementRef<'input'>, TextFieldProps>(
   (props: TextFieldProps, forwardedRef) => {
     const {
+      id,
       onBlur,
       prefixIcon,
       suffixIcon,
@@ -51,10 +52,16 @@ const TextFieldBase = forwardRef<ElementRef<'input'>, TextFieldProps>(
       onBlur && onBlur(e)
       setActive(false)
     }
+    const autoId = useId()
 
     return (
       <div className={s.root}>
-        <Typography as={'label'} className={classNames.label} variant={'body2'}>
+        <Typography
+          as={'label'}
+          className={classNames.label}
+          htmlFor={id || autoId}
+          variant={'body2'}
+        >
           {label}
         </Typography>
         <div className={s.inputContainer}>
@@ -62,6 +69,7 @@ const TextFieldBase = forwardRef<ElementRef<'input'>, TextFieldProps>(
           <input
             className={classNames.input}
             disabled={disabled}
+            id={id || autoId}
             onBlur={handleBlur}
             onClick={() => setActive(true)}
             onKeyDown={() => setActive(true)}
