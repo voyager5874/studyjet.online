@@ -13,7 +13,7 @@ export type CheckboxProps = { label?: string } & ComponentPropsWithoutRef<
 >
 
 const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, CheckboxProps>(
-  ({ disabled, label, className, ...props }, ref) => {
+  ({ id, disabled, label, className, ...props }, ref) => {
     const classNames = {
       container: clsx(s.container),
       root: clsx(s.root, className, disabled && s.disabled),
@@ -23,7 +23,7 @@ const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, CheckboxP
       icon: clsx(s.icon),
     }
 
-    const id = useId()
+    const autoId = useId()
 
     return (
       <div className={classNames.container}>
@@ -32,14 +32,19 @@ const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, CheckboxP
           ref={ref}
           {...props}
           disabled={disabled}
-          id={id}
+          id={id || autoId}
         >
           <div className={classNames.square} />
           <CheckboxPrimitive.Indicator className={classNames.indicator}>
             <Check className={classNames.icon} size={14} strokeWidth={3.5} />
           </CheckboxPrimitive.Indicator>
         </CheckboxPrimitive.Root>
-        <Typography as={'label'} className={classNames.label} htmlFor={id} variant={'body2'}>
+        <Typography
+          as={'label'}
+          className={classNames.label}
+          htmlFor={id || autoId}
+          variant={'body2'}
+        >
           {label}
         </Typography>
       </div>

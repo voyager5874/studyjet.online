@@ -1,6 +1,7 @@
 import type { LoginParameters } from '@/features/user/sign-in-form-shema'
 
 import type { ComponentPropsWithoutRef } from 'react'
+import { useId } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 
@@ -50,6 +51,7 @@ export function SignInForm({
     footer: clsx(s.footer),
     footerItem: clsx(s.footerItem),
   }
+  const formId = useId()
 
   return (
     <Form {...form}>
@@ -69,6 +71,7 @@ export function SignInForm({
                     placeholder={'email'}
                     {...field}
                     errorMessage={fieldState.error?.message}
+                    id={`${formId}-email`}
                   />
                 </FormControl>
               </FormItem>
@@ -84,6 +87,7 @@ export function SignInForm({
                     label={'Password'}
                     placeholder={'password'}
                     {...field}
+                    id={`${formId}-password`}
                     type={'password'}
                   />
                 </FormControl>
@@ -98,6 +102,7 @@ export function SignInForm({
                 <FormControl>
                   <Checkbox
                     checked={field.value}
+                    id={`${formId}-rememberMe`}
                     label={'remember me'}
                     onCheckedChange={field.onChange}
                   />
