@@ -60,7 +60,8 @@
   }
 
   &:hover:not(:focus) {
-    background-color: var(--color-dark-700);
+    // background-color: var(--color-dark-700); // forms have the same background
+    background-color: var(--color-dark-500);
     outline: 1px solid var(--color-dark-100);
   }
 }
