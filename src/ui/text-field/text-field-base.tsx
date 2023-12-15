@@ -1,5 +1,12 @@
 import { forwardRef, useId, useState } from 'react'
-import type { ComponentProps, ElementRef, FocusEvent, ReactElement } from 'react'
+import type {
+  ComponentProps,
+  ElementRef,
+  FocusEvent,
+  KeyboardEvent,
+  MouseEvent,
+  ReactElement,
+} from 'react'
 
 import { Typography } from '@/ui/typography'
 import { clsx } from 'clsx'
@@ -18,6 +25,8 @@ export type TextFieldProps = {
 const TextFieldBase = forwardRef<ElementRef<'input'>, TextFieldProps>(
   (props: TextFieldProps, forwardedRef) => {
     const {
+      onKeyDown,
+      onClick,
       id,
       onBlur,
       prefixIcon,
@@ -32,6 +41,16 @@ const TextFieldBase = forwardRef<ElementRef<'input'>, TextFieldProps>(
     } = props
 
     const [active, setActive] = useState(false)
+
+    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+      onKeyDown && onKeyDown(e)
+      setActive(true)
+    }
+
+    const handleClick = (e: MouseEvent<HTMLInputElement>) => {
+      onClick && onClick(e)
+      setActive(true)
+    }
 
     const classNames = {
       input: clsx(
@@ -72,8 +91,8 @@ const TextFieldBase = forwardRef<ElementRef<'input'>, TextFieldProps>(
             disabled={disabled}
             id={id || autoId}
             onBlur={handleBlur}
-            onClick={() => setActive(true)}
-            onKeyDown={() => setActive(true)}
+            onClick={handleClick}
+            onKeyDown={handleKeyDown}
             ref={forwardedRef}
             type={type}
             value={value}
