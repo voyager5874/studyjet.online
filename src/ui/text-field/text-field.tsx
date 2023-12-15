@@ -26,18 +26,28 @@ const TextField = forwardRef<ElementRef<typeof TextFieldBase>, Props>((props, re
   const getSuffix = () => {
     if (type === 'password') {
       return showContent ? (
-        <Button disabled={disabled} onClick={() => setShowContent(prev => !prev)} variant={'icon'}>
+        <Button
+          disabled={disabled}
+          onClick={() => setShowContent(prev => !prev)}
+          type={'button'}
+          variant={'icon'}
+        >
           <Eye size={14} />
         </Button>
       ) : (
-        <Button disabled={disabled} onClick={() => setShowContent(prev => !prev)} variant={'icon'}>
+        <Button
+          disabled={disabled}
+          onClick={() => setShowContent(prev => !prev)}
+          type={'button'}
+          variant={'icon'}
+        >
           <EyeOff size={14} />
         </Button>
       )
     }
     if (type === 'search' && value) {
       return (
-        <Button disabled={disabled} onClick={handleClear} variant={'icon'}>
+        <Button disabled={disabled} onClick={handleClear} type={'button'} variant={'icon'}>
           <X size={14} />
         </Button>
       )
