@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef, ElementRef } from 'react'
-import { forwardRef } from 'react'
+import { forwardRef, useId } from 'react'
 
 import { Typography } from '@/ui/typography'
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox'
@@ -15,33 +15,34 @@ export type CheckboxProps = { label?: string } & ComponentPropsWithoutRef<
 const Checkbox = forwardRef<ElementRef<typeof CheckboxPrimitive.Root>, CheckboxProps>(
   ({ disabled, label, className, ...props }, ref) => {
     const classNames = {
+      container: clsx(s.container),
       root: clsx(s.root, className, disabled && s.disabled),
       label: clsx(s.label, disabled && s.disabled),
-      labelText: clsx(s.labelText, disabled && s.disabled),
+      square: clsx(s.square),
       indicator: clsx(s.indicator),
       icon: clsx(s.icon),
     }
 
-    return label ? (
-      <Typography as={'label'} className={classNames.label} variant={'body2'}>
+    const id = useId()
+
+    return (
+      <div className={classNames.container}>
         <CheckboxPrimitive.Root
           className={classNames.root}
           ref={ref}
           {...props}
           disabled={disabled}
+          id={id}
         >
+          <div className={classNames.square} />
           <CheckboxPrimitive.Indicator className={classNames.indicator}>
             <Check className={classNames.icon} size={14} strokeWidth={3.5} />
           </CheckboxPrimitive.Indicator>
         </CheckboxPrimitive.Root>
-        <span className={classNames.labelText}>{label}</span>
-      </Typography>
-    ) : (
-      <CheckboxPrimitive.Root className={classNames.root} ref={ref} {...props}>
-        <CheckboxPrimitive.Indicator className={classNames.indicator}>
-          <Check className={classNames.icon} strokeWidth={3.5} />
-        </CheckboxPrimitive.Indicator>
-      </CheckboxPrimitive.Root>
+        <Typography as={'label'} className={classNames.label} htmlFor={id} variant={'body2'}>
+          {label}
+        </Typography>
+      </div>
     )
   }
 )

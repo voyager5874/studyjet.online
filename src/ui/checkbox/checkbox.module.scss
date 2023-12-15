@@ -2,7 +2,7 @@ button {
   all: unset;
 }
 
-.label {
+.container {
   display: inline-flex;
   gap: 10px;
   align-items: center;
@@ -18,19 +18,16 @@ button {
   flex-shrink: 0;
   place-items: center center;
 
-  box-sizing: border-box;
   width: 18px;
   height: 18px;
 
   background-color: transparent;
-  border: 2px solid var(--color-text-normal);
-  border-radius: 2px;
 
   &::after {
     content: '';
 
     position: absolute;
-    z-index: -1;
+    z-index: 1;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -44,42 +41,74 @@ button {
     transition: all 100ms;
   }
 
+  .square {
+    position: absolute;
+    z-index: 4;
+
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+
+    border: 2px solid var(--color-text-normal);
+    border-radius: 2px;
+  }
+
   &:not([data-disabled]):hover::after {
-    transform: translate(-50%, -50%) scale(2.5);
+    z-index: 1;
+    transform: translate(-50%, -50%) scale(2.2);
     background-color: var(--color-bg-tertiary);
     transition: all 30ms;
   }
 
   &:not([data-disabled]):active::after {
+    z-index: 1;
     background-color: var(--color-text-subdued);
     transition: all 0ms;
   }
 
   &:not([data-disabled]):focus-visible::after {
-    transform: translate(-50%, -50%) scale(2.5);
+    transform: translate(-50%, -50%) scale(2.2);
     background-color: var(--color-text-subdued);
     transition: all 0ms;
+  }
+
+  &[data-disabled] {
+    pointer-events: none;
+
+    .square {
+      pointer-events: none;
+      border-color: var(--color-text-disabled);
+    }
   }
 
   &:not([data-disabled])[data-state='checked'] {
     color: var(--color-text-inverted);
     background-color: var(--color-text-normal);
     border-color: var(--color-text-normal);
+
+    .square {
+      color: var(--color-text-inverted);
+      background-color: var(--color-text-normal);
+      border-color: var(--color-text-normal);
+    }
   }
 
   &[data-disabled][data-state='checked'] {
     color: var(--color-text-inverted);
     background-color: var(--color-text-disabled);
     border-color: var(--color-text-disabled);
-  }
 
-  &[data-disabled] {
-    pointer-events: none;
-    border: 2px solid var(--color-text-disabled);
+    .square {
+      color: var(--color-text-inverted);
+      background-color: var(--color-text-disabled);
+      border-color: var(--color-text-disabled);
+    }
   }
 }
 
 .indicator {
+  z-index: 5;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -96,7 +125,9 @@ button {
   }
 }
 
-.labelText {
+.label {
+  cursor: pointer;
+  z-index: 4;
   color: var(--color-text-normal);
 }
 
@@ -133,5 +164,6 @@ button {
 }
 
 .disabled {
+  pointer-events: none;
   color: var(--color-text-disabled);
 }
