@@ -3,7 +3,6 @@ import type { DeckItem } from '@/features/decks/types'
 import type { CSSProperties } from 'react'
 
 import { Button } from '@/ui/button'
-import { TableCell } from '@/ui/table/table-blocks'
 import { PenLine, PlayCircle, Trash } from 'lucide-react'
 
 const flexContainer: CSSProperties = {
@@ -22,23 +21,21 @@ export function renderDeckActions(deck: DeckItem, userId: string) {
 
   return (
     <>
-      <TableCell>
-        <div style={flexContainer}>
-          <Button onClick={() => onLearn(deck.id)} variant={'icon'}>
-            <PlayCircle size={14} />
+      <div style={flexContainer}>
+        <Button onClick={() => onLearn(deck.id)} variant={'icon'}>
+          <PlayCircle size={14} />
+        </Button>
+        {authorId === userId && (
+          <Button variant={'icon'}>
+            <PenLine size={14} />
           </Button>
-          {authorId === userId && (
-            <Button variant={'icon'}>
-              <PenLine size={14} />
-            </Button>
-          )}
-          {authorId === userId && (
-            <Button variant={'icon'}>
-              <Trash size={14} />
-            </Button>
-          )}
-        </div>
-      </TableCell>
+        )}
+        {authorId === userId && (
+          <Button variant={'icon'}>
+            <Trash size={14} />
+          </Button>
+        )}
+      </div>
     </>
   )
 }

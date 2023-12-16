@@ -1,7 +1,6 @@
 import type { DeckItem } from '@/features/decks/types'
 import type { Column } from '@/ui/table'
 
-import { TableCell } from '@/ui/table/table-blocks'
 import { Typography } from '@/ui/typography'
 import { getFormattedDate } from '@/utils/dates'
 
@@ -23,7 +22,7 @@ export const decksTableColumns: Column<DeckItem>[] = [
   },
   {
     render: deck => (
-      <Typography as={TableCell} style={{ verticalAlign: 'baseline' }} variant={'body2'}>
+      <Typography style={{ verticalAlign: 'baseline' }} variant={'body2'}>
         {getFormattedDate(deck.updated)}
       </Typography>
     ),
@@ -36,7 +35,7 @@ export const decksTableColumns: Column<DeckItem>[] = [
       console.log('column click', id, key)
     },
     render: deck => (
-      <Typography as={TableCell} style={{ verticalAlign: 'baseline' }} variant={'body2'}>
+      <Typography style={{ verticalAlign: 'baseline' }} variant={'body2'}>
         {deck.author?.name}
       </Typography>
     ),

@@ -25,8 +25,8 @@ export type Column<T extends { id: string }> = {
   // | { key: keyof T; render?: never; sortable: true }
   // | { key: keyof T; render?: never; sortable?: false }
   | { key: keyof T; render?: never; sortable?: boolean }
-  | { key?: string; render: (data: T) => ReactNode; sortable?: false }
-)
+  | { key: string; render: (data: T) => ReactNode; sortable?: false }
+) //key is necessary for mapping over (key prop)
 
 export type Sort<T> = {
   direction: 'asc' | 'desc'
@@ -68,18 +68,18 @@ const RenderFunction = <T extends { id: string }>(
       {caption && <TableCaption>{caption}</TableCaption>}
       <TableHeader>
         <TableRow>
-          {columns.map(column => (
-            <Typography
-              as={TableHead}
-              key={column.title}
-              onClick={handleSort(column)}
-              variant={'subtitle2'}
-            >
-              <div className={clsx(column.sortable && s.sortableColumnHeader)}>
+          {columns.map((column, idx) => (
+            <TableHead key={`${column.key as string}-${idx}`}>
+              <Typography
+                as={'div'}
+                className={clsx(column.sortable && s.sortableColumnHeader)}
+                onClick={handleSort(column)}
+                variant={'subtitle2'}
+              >
                 {column.title}
                 {sort && getSortSign(sort, column)}
-              </div>
-            </Typography>
+              </Typography>
+            </TableHead>
           ))}
         </TableRow>
       </TableHeader>
@@ -87,12 +87,10 @@ const RenderFunction = <T extends { id: string }>(
         {data.map(item => (
           <TableRow key={item.id}>
             {columns.map(({ render, key, onClick }) => (
-              <>
+              <TableCell key={`${item.id}-${key as string}`}>
                 {!render && (
                   <Typography
-                    as={TableCell}
                     className={clsx(onClick && s.pointer)}
-                    key={key as string}
                     onClick={onClick && (() => onClick(item.id, key))}
                     variant={'body2'}
                   >
@@ -100,7 +98,7 @@ const RenderFunction = <T extends { id: string }>(
                   </Typography>
                 )}
                 {render && render(item)}
-              </>
+              </TableCell>
             ))}
           </TableRow>
         ))}

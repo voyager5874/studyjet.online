@@ -17,7 +17,7 @@ TableRoot.displayName = 'Table'
 
 const TableHeader = forwardRef<HTMLTableSectionElement, HTMLAttributes<HTMLTableSectionElement>>(
   ({ className, ...props }, ref) => (
-    <thead className={clsx(s.header, s.row, '[&_tr]:border-b', className)} ref={ref} {...props} />
+    <thead className={clsx(s.header, s.row, className)} ref={ref} {...props} />
   )
 )
 

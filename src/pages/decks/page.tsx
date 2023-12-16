@@ -12,6 +12,7 @@ export const Page = () => {
     ...decksTableColumns,
 
     {
+      key: 'actions',
       render: deck => <DeckActions deck={deck} />,
       title: '',
     },
