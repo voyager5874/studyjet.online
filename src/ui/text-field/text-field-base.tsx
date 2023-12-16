@@ -1,5 +1,12 @@
 import { forwardRef, useId, useState } from 'react'
-import type { ComponentProps, ElementRef, FocusEvent, ReactElement } from 'react'
+import type {
+  ComponentProps,
+  ElementRef,
+  FocusEvent,
+  KeyboardEvent,
+  MouseEvent,
+  ReactElement,
+} from 'react'
 
 import { Typography } from '@/ui/typography'
 import { clsx } from 'clsx'
@@ -18,6 +25,8 @@ export type TextFieldProps = {
 const TextFieldBase = forwardRef<ElementRef<'input'>, TextFieldProps>(
   (props: TextFieldProps, forwardedRef) => {
     const {
+      onKeyDown,
+      onClick,
       id,
       onBlur,
       prefixIcon,
@@ -32,6 +41,16 @@ const TextFieldBase = forwardRef<ElementRef<'input'>, TextFieldProps>(
     } = props
 
     const [active, setActive] = useState(false)
+
+    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+      onKeyDown && onKeyDown(e)
+      setActive(true)
+    }
+
+    const handleClick = (e: MouseEvent<HTMLInputElement>) => {
+      onClick && onClick(e)
+      setActive(true)
+    }
 
     const classNames = {
       input: clsx(
@@ -67,12 +86,13 @@ const TextFieldBase = forwardRef<ElementRef<'input'>, TextFieldProps>(
         <div className={s.inputContainer}>
           {prefixIcon && <span className={classNames.prefixIcon}>{prefixIcon}</span>}
           <input
+            aria-describedby={`${id || autoId}-field-message`}
             className={classNames.input}
             disabled={disabled}
             id={id || autoId}
             onBlur={handleBlur}
-            onClick={() => setActive(true)}
-            onKeyDown={() => setActive(true)}
+            onClick={handleClick}
+            onKeyDown={handleKeyDown}
             ref={forwardedRef}
             type={type}
             value={value}
@@ -80,9 +100,21 @@ const TextFieldBase = forwardRef<ElementRef<'input'>, TextFieldProps>(
           />
           {suffixIcon && <span className={classNames.suffixIcon}>{suffixIcon}</span>}
         </div>
-        <Typography className={classNames.error} variant={'error'}>
-          {errorMessage || 'placeholder'}
-        </Typography>
+        {errorMessage && (
+          <Typography
+            aria-live={'assertive'}
+            className={classNames.error}
+            id={`${id || autoId}-field-message`}
+            variant={'error'}
+          >
+            {errorMessage}
+          </Typography>
+        )}
+        {!errorMessage && (
+          <Typography className={s.transparent} variant={'body2'}>
+            placeholder
+          </Typography>
+        )}
       </div>
     )
   }
