@@ -1,6 +1,6 @@
 import * as z from 'zod'
 
-export const LoginFormSchema = z.object({
+export const signInFormSchema = z.object({
   email: z.string().email({
     message: 'Enter a valid email',
   }),
@@ -10,4 +10,4 @@ export const LoginFormSchema = z.object({
   rememberMe: z.boolean().optional(),
 })
 
-export type LoginParameters = z.infer<typeof LoginFormSchema>
+export type SignInData = z.infer<typeof signInFormSchema>
