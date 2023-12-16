@@ -5,7 +5,6 @@ import type { CSSProperties } from 'react'
 
 import { Button } from '@/ui/button'
 import { Grade } from '@/ui/grade'
-import { TableCell } from '@/ui/table/table-blocks'
 import { Typography } from '@/ui/typography'
 import { getFormattedDate } from '@/utils/dates'
 import { PenLine, Trash } from 'lucide-react'
@@ -25,7 +24,7 @@ export const cardsTableColumn: Column<CardItem>[] = [
   },
   {
     render: card => (
-      <Typography as={TableCell} style={{ verticalAlign: 'baseline' }} variant={'body2'}>
+      <Typography style={{ verticalAlign: 'baseline' }} variant={'body2'}>
         {getFormattedDate(card.updated)}
       </Typography>
     ),
@@ -35,7 +34,7 @@ export const cardsTableColumn: Column<CardItem>[] = [
   {
     key: 'grade',
     render: card => (
-      <Typography as={TableCell} style={{ verticalAlign: 'baseline' }} variant={'body2'}>
+      <Typography style={{ verticalAlign: 'baseline' }} variant={'body2'}>
         {<Grade grade={card.grade} />}
       </Typography>
     ),
@@ -43,6 +42,7 @@ export const cardsTableColumn: Column<CardItem>[] = [
     title: 'Acquisition',
   },
   {
+    key: 'actions',
     render: card => renderCardActions(card),
     title: '',
   },
@@ -62,16 +62,14 @@ export function renderCardActions(card: CardItem) {
   return (
     <>
       {authorId === userId && (
-        <TableCell>
-          <div style={flexContainer}>
-            <Button variant={'icon'}>
-              <PenLine size={14} />
-            </Button>
-            <Button variant={'icon'}>
-              <Trash size={14} />
-            </Button>
-          </div>
-        </TableCell>
+        <div style={flexContainer}>
+          <Button variant={'icon'}>
+            <PenLine size={14} />
+          </Button>
+          <Button variant={'icon'}>
+            <Trash size={14} />
+          </Button>
+        </div>
       )}
     </>
   )

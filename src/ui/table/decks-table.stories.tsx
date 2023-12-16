@@ -38,6 +38,7 @@ export const Overview: Story = {
     columns: [
       ...decksTableColumns,
       {
+        key: 'actions',
         render: deck => renderDeckActions(deck, '0afa4517-54e8-4b13-a9a6-01fde9e42f76'),
         // render: deck => <DeckActions deck={deck} />,
         title: '',
