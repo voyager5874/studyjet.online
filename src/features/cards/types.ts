@@ -23,3 +23,11 @@ export type GetCardsOfDeckResponse = {
     totalPages: number
   }
 }
+
+export type GetCardsQueryParams = {
+  answer?: string
+  currentPage?: number
+  itemsPerPage?: number
+  orderBy?: `${keyof Omit<CardItem, 'id'>}-${'asc' | 'desc'}`
+  question?: string
+}

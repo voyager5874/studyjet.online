@@ -4,9 +4,10 @@ import type { RouteObject } from 'react-router-dom'
 import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom'
 
 import { AppRoutes } from '@/app/app-routes'
-import { useAppUnlockStatus } from '@/app/mocks-n-stubs'
+import { useMeQuery } from '@/features/user/api'
 import { MainLayout } from '@/layouts/main-layout'
 import { NotFoundPage } from '@/pages/not-found'
+import { Spinner } from '@/ui/spinner'
 
 const generateRedirects = (to: AppRoutesPath) => {
   return [
@@ -26,13 +27,25 @@ const publicRoutes: RouteObject[] = AppRoutes.public.map(item => ({
 }))
 
 function PrivateRoutes() {
-  const isAuthenticated = useAppUnlockStatus()
+  const { data, isLoading } = useMeQuery()
+
+  const isAuthenticated = Boolean(data?.id)
+
+  if (isLoading) {
+    return <Spinner />
+  }
 
   return isAuthenticated ? <MainLayout /> : <Navigate to={'/sign-in'} />
 }
 
 function PublicRoutes() {
-  const isAuthenticated = useAppUnlockStatus()
+  const { data, isLoading } = useMeQuery()
+
+  const isAuthenticated = Boolean(data?.id)
+
+  if (isLoading) {
+    return <Spinner />
+  }
 
   return isAuthenticated ? <Navigate to={'/decks'} /> : <MainLayout />
 }

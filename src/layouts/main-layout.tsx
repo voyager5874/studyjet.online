@@ -2,22 +2,17 @@ import { useEffect, useState } from 'react'
 import { Link, Outlet } from 'react-router-dom'
 
 import { AppRoutes } from '@/app/app-routes'
-import { changeAppUnlockStatus } from '@/app/app-state-slice'
-import { useAppUnlockStatus } from '@/app/mocks-n-stubs'
-import { useAppDispatch } from '@/app/store'
-import { useLogoutMutation } from '@/features/user/api'
+import { useLogoutMutation, useMeQuery } from '@/features/user/api'
 import { Button } from '@/ui/button'
 
 import s from './main-layout.module.scss'
 
 export const MainLayout = () => {
-  const appUnlocked = useAppUnlockStatus()
-  const dispatch = useAppDispatch()
+  const { data } = useMeQuery()
+  const appUnlocked = Boolean(data?.id)
   const [logout] = useLogoutMutation()
   const handleLogout = () => {
     logout()
-      .unwrap()
-      .then(_ => dispatch(changeAppUnlockStatus(false)))
   }
 
   return (

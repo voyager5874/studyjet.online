@@ -1,13 +1,15 @@
 import type { DeckItem } from '@/features/decks/types'
 import type { Column } from '@/ui/table'
 
+import { Link } from 'react-router-dom'
+
 import { Typography } from '@/ui/typography'
 import { getFormattedDate } from '@/utils/dates'
 
 export const decksTableColumns: Column<DeckItem>[] = [
   {
     render: deck => (
-      <Typography href={`/decks/${deck.id}`} variant={'link1'}>
+      <Typography as={Link} to={`/decks/${deck.id}/cards`} variant={'link1'}>
         {deck.name}
       </Typography>
     ),
@@ -28,22 +30,16 @@ export const decksTableColumns: Column<DeckItem>[] = [
     ),
     key: 'updated',
     title: 'Last Updated',
+    sortable: true,
   },
   {
     key: 'author',
-    onClick: (id: string, key: number | string | symbol) => {
-      console.log('column click', id, key)
-    },
     render: deck => (
       <Typography style={{ verticalAlign: 'baseline' }} variant={'body2'}>
         {deck.author?.name}
       </Typography>
     ),
-    sortable: true,
+    sortable: false,
     title: 'Created by',
   },
-  // {
-  //   render: deck => renderDeckActions(deck, '0afa4517-54e8-4b13-a9a6-01fde9e42f76'),
-  //   title: '',
-  // },
 ]

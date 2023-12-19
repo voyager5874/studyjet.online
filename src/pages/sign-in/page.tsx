@@ -1,9 +1,9 @@
-import type { SignInData } from '@/features/user/sign-in-form-shema'
+import type { SignInData } from '@/features/user'
 
 import { changeAppUnlockStatus } from '@/app/app-state-slice'
 import { useAppDispatch } from '@/app/store'
+import { SignInForm } from '@/features/user'
 import { useLoginMutation } from '@/features/user/api'
-import { SignInForm } from '@/features/user/sign-in-form'
 
 export const Page = () => {
   const [login] = useLoginMutation()
