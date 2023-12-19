@@ -1,34 +1,44 @@
-import type { SignUpData } from '@/features/user/sign-up-form-shema'
+import type { SignInData } from '@/features/user/forms/sign-in-form-shema'
 
 import type { ComponentPropsWithoutRef } from 'react'
+import { useId } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 
-import { signUpFormSchema } from '@/features/user/sign-up-form-shema'
+import { signInFormSchema } from '@/features/user/forms/sign-in-form-shema'
 import { Button } from '@/ui/button'
 import { Card } from '@/ui/card'
+import { Checkbox } from '@/ui/checkbox'
 import { Form, FormControl, FormField, FormItem } from '@/ui/form'
 import { TextField } from '@/ui/text-field'
 import { Typography } from '@/ui/typography'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { clsx } from 'clsx'
 
-import s from './sign-up-form.module.scss'
+import s from './sign-in-form.module.scss'
 
 type CustomProps = {
-  onSubmit: (values: SignUpData) => void
+  defaultEmail?: string
+  defaultPassword?: string
+  defaultRememberMe?: boolean
+  onSubmit: (values: SignInData) => void
 }
 
-export type RegisterFormProps = CustomProps &
-  Omit<ComponentPropsWithoutRef<'form'>, keyof CustomProps>
+export type LoginFormProps = CustomProps & Omit<ComponentPropsWithoutRef<'form'>, keyof CustomProps>
 
-function SignUpForm({ onSubmit, ...rest }: RegisterFormProps) {
-  const form = useForm<SignUpData>({
-    resolver: zodResolver(signUpFormSchema),
+export function SignInForm({
+  onSubmit,
+  defaultPassword,
+  defaultEmail,
+  defaultRememberMe,
+  ...rest
+}: LoginFormProps) {
+  const form = useForm<SignInData>({
+    resolver: zodResolver(signInFormSchema),
     defaultValues: {
-      email: '',
-      password: '',
-      repeatPassword: '',
+      email: defaultEmail || '',
+      password: defaultPassword || '',
+      rememberMe: defaultRememberMe || false,
     },
   })
 
@@ -41,6 +51,7 @@ function SignUpForm({ onSubmit, ...rest }: RegisterFormProps) {
     footer: clsx(s.footer),
     footerItem: clsx(s.footerItem),
   }
+  const formId = useId()
 
   return (
     <Form {...form}>
@@ -48,7 +59,7 @@ function SignUpForm({ onSubmit, ...rest }: RegisterFormProps) {
         <Typography as={'h1'} className={classNames.title} variant={'large'}>
           Sign in
         </Typography>
-        <form {...rest} className={classNames.form} onSubmit={form.handleSubmit(onSubmit)}>
+        <form className={classNames.form} onSubmit={form.handleSubmit(onSubmit)} {...rest}>
           <FormField
             control={form.control}
             name={'email'}
@@ -61,6 +72,7 @@ function SignUpForm({ onSubmit, ...rest }: RegisterFormProps) {
                     placeholder={'email'}
                     {...field}
                     errorMessage={fieldState.error?.message}
+                    id={`${formId}-email`}
                   />
                 </FormControl>
               </FormItem>
@@ -69,15 +81,15 @@ function SignUpForm({ onSubmit, ...rest }: RegisterFormProps) {
           <FormField
             control={form.control}
             name={'password'}
-            render={({ field, fieldState: { error } }) => (
+            render={({ field }) => (
               <FormItem className={classNames.formItem}>
                 <FormControl>
                   <TextField
-                    autoComplete={'new-password'}
+                    autoComplete={'current-password'}
                     label={'Password'}
                     placeholder={'password'}
                     {...field}
-                    errorMessage={error?.message}
+                    id={`${formId}-password`}
                     type={'password'}
                   />
                 </FormControl>
@@ -86,41 +98,41 @@ function SignUpForm({ onSubmit, ...rest }: RegisterFormProps) {
           />
           <FormField
             control={form.control}
-            name={'repeatPassword'}
-            render={({ field, fieldState: { error } }) => (
+            name={'rememberMe'}
+            render={({ field }) => (
               <FormItem className={classNames.formItem}>
                 <FormControl>
-                  <TextField
-                    autoComplete={'new-password'}
-                    label={'Confirm password'}
-                    placeholder={'repeat password'}
-                    {...field}
-                    errorMessage={error?.message}
-                    type={'password'}
+                  <Checkbox
+                    checked={field.value}
+                    id={`${formId}-rememberMe`}
+                    label={'remember me'}
+                    onCheckedChange={field.onChange}
                   />
                 </FormControl>
               </FormItem>
             )}
           />
+          <div className={classNames.formItem}>
+            <Typography as={Link} to={'/password-reset'} variant={'link1'}>
+              Forgot password?
+            </Typography>
+          </div>
+
           <div className={classNames.button}>
             <Button size={'fill'} type={'submit'}>
-              Sign up
+              Sign in
             </Button>
           </div>
         </form>
         <section className={classNames.footer}>
           <Typography className={classNames.footerItem} variant={'body2'}>
-            Already have an account?
+            Don&apos;t have an account yet?
           </Typography>
-          <Typography as={Link} className={classNames.footerItem} to={'/sign-in'} variant={'link2'}>
-            Sign in
+          <Typography as={Link} className={classNames.footerItem} to={'/sign-up'} variant={'link2'}>
+            Sign up
           </Typography>
         </section>
       </Card>
     </Form>
   )
 }
-
-SignUpForm.displayName = 'SignUpForm'
-
-export { SignUpForm }

@@ -1,22 +1,10 @@
-import type { GetDecksResponse } from '@/features/decks/types'
+import { createApi } from '@reduxjs/toolkit/query/react'
 
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { baseQueryWithReauth } from './base-query-with-reauth'
 
 export const baseApi = createApi({
-  tagTypes: ['User', 'Decks'],
-  baseQuery: fetchBaseQuery({
-    baseUrl: 'https://api.flashcards.andrii.es/',
-    credentials: 'include',
-  }),
-  endpoints: builder => {
-    return {
-      getDecks: builder.query<GetDecksResponse, void>({
-        query: () => `v1/decks`,
-        providesTags: ['Decks'],
-      }),
-    }
-  },
+  tagTypes: ['User', 'Decks', 'Cards'],
+  baseQuery: baseQueryWithReauth,
+  endpoints: () => ({}),
   reducerPath: 'baseApi',
 })
-
-export const { useGetDecksQuery } = baseApi

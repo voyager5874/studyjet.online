@@ -1,18 +1,18 @@
 import type { LoginResponse, SignUpResponse, UserData } from './types'
-import type { SignInData } from '@/features/user/sign-in-form-shema'
-import type { SignUpData } from '@/features/user/sign-up-form-shema'
+import type { SignInData } from '@/features/user/forms/sign-in-form-shema'
+import type { SignUpData } from '@/features/user/forms/sign-up-form-shema'
 
 import { baseApi } from '@/services/api'
 
 const api = baseApi.injectEndpoints({
   endpoints: builder => ({
-    me: builder.query<UserData, void>({
-      query: () => 'v1/auth/me',
+    me: builder.query<UserData | null, void>({
+      query: () => 'auth/me',
       providesTags: ['User'],
     }),
     login: builder.mutation<LoginResponse, SignInData>({
       query: body => ({
-        url: 'v1/auth/login',
+        url: 'auth/login',
         method: 'POST',
         body,
       }),
@@ -20,14 +20,23 @@ const api = baseApi.injectEndpoints({
     }),
     logout: builder.mutation<void, void>({
       query: () => ({
-        url: 'v1/auth/logout',
+        url: 'auth/logout',
         method: 'POST',
       }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(api.util.updateQueryData('me', undefined, () => null))
+
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
       invalidatesTags: ['User'],
     }),
     signUp: builder.mutation<SignUpResponse, Pick<SignUpData, 'email' | 'password'>>({
       query: body => ({
-        url: 'v1/auth/sign-up',
+        url: 'auth/sign-up',
         method: 'POST',
         body,
       }),

@@ -1,3 +1,4 @@
+import { CardsOfDeckPage } from '@/pages/cards-of-deck'
 import { DecksPage } from '@/pages/decks'
 import { RequestPasswordResetPage } from '@/pages/password-reset-request'
 import { SetNewPasswordPage } from '@/pages/password-set-new'
@@ -8,8 +9,9 @@ import { UserPage } from '@/pages/user'
 export const AppRoutes = {
   private: [
     { element: <DecksPage />, name: 'Decks', path: '/decks' },
-    // { element: <div>Root</div>, name: 'Root', path: '/' },
     { element: <UserPage />, name: 'User profile', path: '/user' },
+    { element: <CardsOfDeckPage />, name: 'Cards of a deck', path: 'decks/:id/cards' },
+    // { path: 'decks/:id/learn', element: < /> },
   ],
   public: [
     {

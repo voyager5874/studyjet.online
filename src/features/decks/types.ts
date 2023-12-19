@@ -27,3 +27,15 @@ export type GetDecksResponse = {
     totalPages: number
   }
 }
+
+export type GetDecksQueryParams = {
+  authorId?: string
+  currentPage?: number
+  itemsPerPage?: number
+  maxCardsCount?: number
+  minCardsCount?: number
+  name?: string
+  orderBy?:
+    | `${keyof Omit<DeckItem, 'author' | 'id'>}-${'asc' | 'desc'}`
+    | `author.${keyof DeckItem['author']}-${'asc' | 'desc'}`
+}

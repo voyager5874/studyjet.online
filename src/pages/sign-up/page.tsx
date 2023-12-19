@@ -1,9 +1,9 @@
-import type { SignUpData } from '@/features/user/sign-up-form-shema'
+import type { SignUpData } from '@/features/user'
 
 import { changeAppUnlockStatus } from '@/app/app-state-slice'
 import { useAppDispatch } from '@/app/store'
+import { SignUpForm } from '@/features/user'
 import { useLoginMutation, useSignUpMutation } from '@/features/user/api'
-import { SignUpForm } from '@/features/user/sign-up-form'
 
 export const Page = () => {
   const [signUp] = useSignUpMutation()

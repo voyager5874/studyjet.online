@@ -30,7 +30,7 @@ export type Column<T extends { id: string }> = {
 
 export type Sort<T> = {
   direction: 'asc' | 'desc'
-  key: keyof T
+  key: Omit<keyof T, 'id'>
 } | null
 
 export type TableProps<T extends { id: string }> = {

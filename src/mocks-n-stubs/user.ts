@@ -1,0 +1,1 @@
+export const CURRENT_USER = '2311111f-61b6-4168-91b1-1b2307bcf458'
