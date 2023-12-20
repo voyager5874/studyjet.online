@@ -4,19 +4,19 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  appUnlocked: false,
+  theme: 'dark' as 'dark' | 'light',
 }
 
 export const appSlice = createSlice({
   initialState,
   name: 'app',
   reducers: {
-    changeAppUnlockStatus(state, action: PayloadAction<boolean>) {
-      state.appUnlocked = action.payload
+    changeTheme(state, action: PayloadAction<'dark' | 'light'>) {
+      state.theme = action.payload
     },
   },
 })
 
-export const { changeAppUnlockStatus } = appSlice.actions
+export const { changeTheme } = appSlice.actions
 
-export const selectAppUnlockStatus = (state: RootState): boolean => state.app.appUnlocked
+export const selectAppTheme = (state: RootState): 'dark' | 'light' => state.app.theme

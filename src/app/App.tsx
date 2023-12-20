@@ -1,12 +1,18 @@
-import { Provider } from 'react-redux'
-
 import { AppContent } from '@/app/router-config'
-import { store } from '@/app/store'
+import { useMeQuery } from '@/features/user/api'
+import { useLocalStorage } from '@/hooks'
+import { Spinner } from '@/ui/spinner'
 
 export function App() {
-  return (
-    <Provider store={store}>
-      <AppContent />
-    </Provider>
-  )
+  const { isLoading } = useMeQuery()
+
+  const [value] = useLocalStorage('theme', 'dark')
+
+  document.body.dataset.theme = value
+
+  if (isLoading) {
+    return <Spinner />
+  }
+
+  return <AppContent />
 }
