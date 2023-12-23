@@ -119,7 +119,6 @@ const Template: Story = {
           {...restArgs}
           onChange={handleImageSelect}
           onClear={handleCancelSelect}
-          // onImageEdit={handleImageEdit}
           onImageCropSave={handleImageCropSave}
         />
       </div>
