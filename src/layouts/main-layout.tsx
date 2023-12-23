@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
 import { Link, Outlet } from 'react-router-dom'
 
 import { AppRoutes } from '@/app/app-routes'
 import { useLogoutMutation, useMeQuery } from '@/features/user/api'
+import { useLocalStorage } from '@/hooks/use-local-storage'
 import { Button } from '@/ui/button'
 
 import s from './main-layout.module.scss'
@@ -47,12 +47,13 @@ export const MainLayout = () => {
 }
 
 function ThemeToggler() {
-  const [theme, setTheme] = useState('dark')
-  const nextTheme = theme === 'light' ? 'dark' : 'light'
+  const [value, setValue] = useLocalStorage('theme', 'dark')
 
-  useEffect(() => {
-    document.body.dataset.theme = theme
-  }, [theme])
+  const nextTheme = value === 'light' ? 'dark' : 'light'
 
-  return <Button onClick={() => setTheme(nextTheme)}>Change to {nextTheme} mode</Button>
+  if (document.body.dataset.theme !== value) {
+    document.body.dataset.theme = value
+  }
+
+  return <Button onClick={() => setValue(nextTheme)}>Change to {nextTheme} mode</Button>
 }

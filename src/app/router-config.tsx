@@ -7,7 +7,6 @@ import { AppRoutes } from '@/app/app-routes'
 import { useMeQuery } from '@/features/user/api'
 import { MainLayout } from '@/layouts/main-layout'
 import { NotFoundPage } from '@/pages/not-found'
-import { Spinner } from '@/ui/spinner'
 
 const generateRedirects = (to: AppRoutesPath) => {
   return [
@@ -27,25 +26,17 @@ const publicRoutes: RouteObject[] = AppRoutes.public.map(item => ({
 }))
 
 function PrivateRoutes() {
-  const { data, isLoading } = useMeQuery()
+  const { isError } = useMeQuery()
 
-  const isAuthenticated = Boolean(data?.id)
-
-  if (isLoading) {
-    return <Spinner />
-  }
+  const isAuthenticated = !isError
 
   return isAuthenticated ? <MainLayout /> : <Navigate to={'/sign-in'} />
 }
 
 function PublicRoutes() {
-  const { data, isLoading } = useMeQuery()
+  const { isError } = useMeQuery()
 
-  const isAuthenticated = Boolean(data?.id)
-
-  if (isLoading) {
-    return <Spinner />
-  }
+  const isAuthenticated = !isError
 
   return isAuthenticated ? <Navigate to={'/decks'} /> : <MainLayout />
 }
