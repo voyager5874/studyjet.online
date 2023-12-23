@@ -1,6 +1,6 @@
 import type { Area } from 'react-easy-crop'
 
-import { loadImageFromFile } from '@/utils'
+import { createImageHtmlElementFromDataUrl } from './image-files'
 
 export function getRadianAngle(degreeValue: number) {
   return (degreeValue * Math.PI) / 180
@@ -18,22 +18,13 @@ export function rotateSize(width: number, height: number, rotation: number) {
   }
 }
 
-export async function getCroppedImgFileFromOriginalFileObject(
-  imageFile: File,
+export async function getCroppedImageDataUrl(
+  imageSrc: string,
   pixelCrop: Area,
   rotation = 0,
   flip = { horizontal: false, vertical: false }
-): Promise<File | null> {
-  let image = null
-
-  try {
-    image = await loadImageFromFile(imageFile)
-  } catch (e) {
-    console.log(e)
-
-    return null
-  }
-
+): Promise<null | string> {
+  const image = await createImageHtmlElementFromDataUrl(imageSrc)
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
 
@@ -84,39 +75,14 @@ export async function getCroppedImgFileFromOriginalFileObject(
     pixelCrop.height
   )
 
-  // Convert canvas to a Blob
-  const blob = await new Promise<Blob | null>((resolve, _reject) => {
-    croppedCanvas.toBlob(file => {
-      if (file) {
-        resolve(file)
-      }
-    }, imageFile.type)
-  })
-
-  // Create a File object with the Blob and additional properties
-  if (blob) {
-    return new File([blob], 'cropped_image', {
-      type: blob.type,
-      lastModified: Date.now(),
-    })
-  }
-
-  return null
+  return croppedCanvas.toDataURL('image/jpeg')
 }
 
-export async function getRotatedImageFileFromOriginalFileObject(
-  imageFile: File,
+export async function getRotatedImageDataUrl(
+  imageSrc: string,
   rotation = 0
-): Promise<File | null> {
-  let image = null
-
-  try {
-    image = await loadImageFromFile(imageFile)
-  } catch (e) {
-    console.log(e)
-
-    return null
-  }
+): Promise<null | string> {
+  const image = await createImageHtmlElementFromDataUrl(imageSrc)
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
 
@@ -136,22 +102,5 @@ export async function getRotatedImageFileFromOriginalFileObject(
     ctx.drawImage(image, -image.width / 2, -image.height / 2)
   }
 
-  // Convert canvas to a Blob
-  const blob = await new Promise<Blob | null>((resolve, _reject) => {
-    canvas.toBlob(file => {
-      if (file) {
-        resolve(file)
-      }
-    }, imageFile.type)
-  })
-
-  // Create a File object with the Blob and additional properties
-  if (blob) {
-    return new File([blob], 'rotated_image', {
-      type: blob.type,
-      lastModified: Date.now(),
-    })
-  }
-
-  return null
+  return canvas.toDataURL('image/jpeg')
 }

@@ -2,44 +2,39 @@ import type { Orientation } from 'get-orientation/browser'
 import type { Area, Point } from 'react-easy-crop'
 
 import type { ChangeEvent, ComponentPropsWithoutRef } from 'react'
-import { useMemo, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import Cropper from 'react-easy-crop'
 
 import { Button } from '@/ui/button'
 import { Slider } from '@/ui/slider'
 import { Typography } from '@/ui/typography'
-import { createObjectUrl } from '@/utils'
+import { getBase64DataUrl, getCroppedImageDataUrl, getRotatedImageDataUrl } from '@/utils'
 import { clsx } from 'clsx'
 import { getOrientation } from 'get-orientation/browser'
 import { Image, ImageDown } from 'lucide-react'
 
 import s from './image-input.module.scss'
 
-import {
-  getCroppedImgFileFromOriginalFileObject,
-  getRotatedImageFileFromOriginalFileObject,
-} from './canvas-utils'
-
 type Base = {
   cropAspect?: number
   cropShape?: 'rect' | 'round'
-  currentImage?: File | null
+  currentImageUrl?: null | string
   emptyInputButtonText?: string
   imageCropSaved?: boolean
   itemName?: string
   nonEmptyInputButtonText?: string
-  onChange: (file: File | null) => void
+  onChange: (file: null | string) => void
   onClear?: () => void
 }
 
 type CustomComponentPropsWithEdit = Base & {
-  onImageCropEdit: (file: File | null) => void
+  onImageCropEdit: (file: null | string) => void
   onImageCropSave?: never
 }
 
 type CustomComponentPropsWithSave = Base & {
   onImageCropEdit?: never
-  onImageCropSave: (file: File | null) => void
+  onImageCropSave: (file: null | string) => void
 }
 
 type CustomComponentProps = CustomComponentPropsWithEdit | CustomComponentPropsWithSave
@@ -54,7 +49,7 @@ export type ImageInputProps = CustomComponentProps &
   Omit<ComponentPropsWithoutRef<'input'>, keyof CustomComponentProps>
 export const ImageInput = ({
   onChange,
-  currentImage,
+  currentImageUrl,
   itemName,
   emptyInputButtonText,
   nonEmptyInputButtonText,
@@ -72,22 +67,16 @@ export const ImageInput = ({
 
   const croppedAreaPixels = useRef<Area | null>()
 
-  const imageUrl = useMemo(() => {
-    console.log('memo callback')
-
-    return currentImage ? createObjectUrl(currentImage) : null
-  }, [currentImage])
-
   const onCropComplete = async (_croppedArea: Area, newCroppedAreaPixels: Area) => {
     if (croppedAreaPixels) {
       croppedAreaPixels.current = newCroppedAreaPixels
     }
-    if (!currentImage || !croppedAreaPixels?.current) {
+    if (!currentImageUrl || !croppedAreaPixels?.current) {
       return
     }
     try {
-      const croppedImageFile = await getCroppedImgFileFromOriginalFileObject(
-        currentImage,
+      const croppedImageFile = await getCroppedImageDataUrl(
+        currentImageUrl,
         croppedAreaPixels.current,
         rotation[0]
       )
@@ -100,12 +89,12 @@ export const ImageInput = ({
   }
 
   const handleSaveCrop = async () => {
-    if (!currentImage || !croppedAreaPixels?.current) {
+    if (!currentImageUrl || !croppedAreaPixels?.current) {
       return
     }
     try {
-      const croppedImage = await getCroppedImgFileFromOriginalFileObject(
-        currentImage,
+      const croppedImage = await getCroppedImageDataUrl(
+        currentImageUrl,
         croppedAreaPixels.current,
         rotation[0]
       )
@@ -130,31 +119,30 @@ export const ImageInput = ({
 
   const onFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     handleResetCrop()
-    imageUrl && URL.revokeObjectURL(imageUrl)
-
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0]
 
       if (!file || !file.type.includes('image')) {
         return
       }
+      const imageDataUrl = await getBase64DataUrl(file)
 
       try {
         // apply rotation if needed
         const orientation = await getOrientation(file)
-        const rotation = ORIENTATION_TO_ANGLE[orientation]
+        const exifRotation = ORIENTATION_TO_ANGLE[orientation]
 
-        if (rotation) {
-          const imageData = await getRotatedImageFileFromOriginalFileObject(file, rotation)
+        if (exifRotation && imageDataUrl) {
+          const ExifRotatedImageDataUrl = await getRotatedImageDataUrl(imageDataUrl, exifRotation)
 
-          onChange(imageData)
+          onChange(ExifRotatedImageDataUrl)
 
           return
         }
       } catch (e) {
         console.warn('failed to detect the orientation')
       }
-      onChange(file)
+      imageDataUrl && onChange(imageDataUrl)
     }
   }
 
@@ -179,12 +167,12 @@ export const ImageInput = ({
   return (
     <>
       <div className={classNames.cropperContainer}>
-        {imageUrl && (
+        {currentImageUrl && (
           <Cropper
             aspect={cropAspect}
             crop={crop}
             cropShape={cropShape}
-            image={imageUrl}
+            image={currentImageUrl}
             maxZoom={5}
             objectFit={'cover'}
             onCropChange={setCrop}
@@ -197,13 +185,13 @@ export const ImageInput = ({
         <div className={classNames.savedCropIndicator}>
           <Typography variant={'body1'}>Crop saved</Typography>
         </div>
-        {!imageUrl && (
+        {!currentImageUrl && (
           <div className={classNames.imagePlaceholderContainer}>
             <ImageDown size={70} />
           </div>
         )}
       </div>
-      {imageUrl && (
+      {currentImageUrl && (
         <div className={classNames.imageControlsContainer}>
           <Typography as={'h3'} variant={'body2'}>
             rotation
@@ -225,7 +213,7 @@ export const ImageInput = ({
           </div>
         </div>
       )}
-      {!imageUrl && (
+      {!currentImageUrl && (
         <Button asChild className={classNames.buttonWithIcon} variant={'secondary'}>
           <label>
             <Image size={'1em'} />
@@ -234,7 +222,7 @@ export const ImageInput = ({
           </label>
         </Button>
       )}
-      {imageUrl && (
+      {currentImageUrl && (
         <div className={s.buttonWidthFix}>
           <Button onClick={handleClear} size={'fill'} variant={'secondary'}>
             {finalNonEmptyInputButtonText}

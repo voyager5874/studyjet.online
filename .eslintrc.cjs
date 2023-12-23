@@ -25,7 +25,7 @@ module.exports = {
     {
       files: ['**/*.stories.tsx'],
       rules: {
-        'react-hooks/rules-of-hooks': 'warn',
+        'react-hooks/rules-of-hooks': 'off',
         'no-console': 'off',
       },
     },
