@@ -94,11 +94,11 @@ const TemplateWithDebug: Story = {
         />
         <div style={{ border: '1px solid white', padding: '10px', marginBlock: '10px' }}>
           <div>{`saved crop: ${cropFile}`}</div>
-          <a href={crop || '#'}>crop base64 data url</a>
+          <a href={crop || '#'}>{crop ? 'crop base64 data url' : 'no data url'}</a>
         </div>
         <div style={{ border: '1px solid white', padding: '10px' }}>
           <div>{`chosen image: ${originalFile}`}</div>
-          <a href={image || '#'}>original image base64 data url</a>
+          <a href={image || '#'}>{image ? 'original image base64 data url' : 'no data url'}</a>
         </div>
       </div>
     )
