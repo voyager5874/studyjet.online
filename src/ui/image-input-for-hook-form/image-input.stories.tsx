@@ -8,7 +8,7 @@ import { useArgs } from '@storybook/preview-api'
 import { ImageInput } from './image-input'
 
 const meta = {
-  title: 'Components/ImageInputStringIO',
+  title: 'Components/ImageInputHookForm',
   component: ImageInput,
   tags: ['autodocs'],
 } satisfies Meta<typeof ImageInput>

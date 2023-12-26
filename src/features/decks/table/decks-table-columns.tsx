@@ -1,18 +1,13 @@
 import type { DeckItem } from '@/features/decks/types'
 import type { Column } from '@/ui/table'
 
-import { Link } from 'react-router-dom'
-
+import { DeckCover } from '@/features/decks/table/deck-cover'
 import { Typography } from '@/ui/typography'
 import { getFormattedDate } from '@/utils/dates'
 
 export const decksTableColumns: Column<DeckItem>[] = [
   {
-    render: deck => (
-      <Typography as={Link} to={`/decks/${deck.id}/cards`} variant={'link1'}>
-        {deck.name}
-      </Typography>
-    ),
+    render: deck => <DeckCover deck={deck} />,
     key: 'name',
     sortable: true,
     title: 'Name',

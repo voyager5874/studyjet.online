@@ -17,12 +17,19 @@ export type ButtonProps = {
 } & ComponentPropsWithoutRef<'button'>
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
-  const { asChild = false, className, size = 'default', variant = 'primary', ...rest } = props
+  const {
+    type = 'button',
+    asChild = false,
+    className,
+    size = 'default',
+    variant = 'primary',
+    ...rest
+  } = props
 
   const Component = asChild ? Slot : 'button'
   const classNames = clsx(s.base, s[size], s[variant], className)
 
-  return <Component className={classNames} ref={ref} {...rest} />
+  return <Component className={classNames} ref={ref} {...rest} type={type} />
 })
 
 Button.displayName = 'Button'
