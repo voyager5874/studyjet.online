@@ -2,47 +2,30 @@ import type { Orientation } from 'get-orientation/browser'
 import type { Area, Point } from 'react-easy-crop'
 
 import type { ChangeEvent, ComponentPropsWithoutRef } from 'react'
-import { useMemo, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import Cropper from 'react-easy-crop'
 
 import { Button } from '@/ui/button'
 import { Slider } from '@/ui/slider'
 import { Typography } from '@/ui/typography'
-import { createObjectUrl } from '@/utils'
+import { getBase64DataUrl, getCroppedImageDataUrl, getRotatedImageDataUrl } from '@/utils'
 import { clsx } from 'clsx'
 import { getOrientation } from 'get-orientation/browser'
 import { Image, ImageDown } from 'lucide-react'
 
 import s from './image-input.module.scss'
 
-import {
-  getCroppedImgFileFromOriginalFileObject,
-  getRotatedImageFileFromOriginalFileObject,
-} from './canvas-utils'
-
-type Base = {
+type CustomComponentProps = {
   cropAspect?: number
   cropShape?: 'rect' | 'round'
-  currentImage?: File | null
   emptyInputButtonText?: string
-  imageCropSaved?: boolean
   itemName?: string
   nonEmptyInputButtonText?: string
-  onChange: (file: File | null) => void
+  onChange: (url: readonly string[]) => void
   onClear?: () => void
+  onSave?: (url: readonly string[]) => void
+  value?: readonly string[]
 }
-
-type CustomComponentPropsWithEdit = Base & {
-  onImageCropEdit: (file: File | null) => void
-  onImageCropSave?: never
-}
-
-type CustomComponentPropsWithSave = Base & {
-  onImageCropEdit?: never
-  onImageCropSave: (file: File | null) => void
-}
-
-type CustomComponentProps = CustomComponentPropsWithEdit | CustomComponentPropsWithSave
 
 const ORIENTATION_TO_ANGLE = {
   '3': 180,
@@ -53,74 +36,73 @@ const ORIENTATION_TO_ANGLE = {
 export type ImageInputProps = CustomComponentProps &
   Omit<ComponentPropsWithoutRef<'input'>, keyof CustomComponentProps>
 export const ImageInput = ({
+  value,
   onChange,
-  currentImage,
   itemName,
   emptyInputButtonText,
   nonEmptyInputButtonText,
   onClear,
-  onImageCropSave,
-  imageCropSaved,
+  onSave,
   cropAspect = 4 / 3,
-  onImageCropEdit,
   cropShape = 'rect',
   ...restProps
 }: ImageInputProps) => {
-  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 })
+  const [cropParams, setCropParams] = useState<Point>({ x: 0, y: 0 })
   const [rotation, setRotation] = useState<number[]>([0])
   const [zoom, setZoom] = useState<number[]>([1])
 
   const croppedAreaPixels = useRef<Area | null>()
 
-  const imageUrl = useMemo(() => {
-    console.log('memo callback')
-
-    return currentImage ? createObjectUrl(currentImage) : null
-  }, [currentImage])
-
   const onCropComplete = async (_croppedArea: Area, newCroppedAreaPixels: Area) => {
     if (croppedAreaPixels) {
       croppedAreaPixels.current = newCroppedAreaPixels
     }
-    if (!currentImage || !croppedAreaPixels?.current) {
+    if (!value || !croppedAreaPixels?.current) {
       return
     }
     try {
-      const croppedImageFile = await getCroppedImgFileFromOriginalFileObject(
-        currentImage,
+      const croppedImageFile = await getCroppedImageDataUrl(
+        value[0],
         croppedAreaPixels.current,
         rotation[0]
       )
 
-      imageCropSaved && onImageCropSave && onImageCropSave(null)
-      onImageCropEdit && onImageCropEdit(croppedImageFile)
+      // reset saved crop status
+      // Boolean(value[1]) && onImageCropSave && onImageCropSave(null)
+      Boolean(value[1]) && onSave && onSave([value[0], ''])
+
+      // save new image url if corresponding callback is provided
+      !onSave && onChange([value[0], croppedImageFile || ''])
     } catch (e) {
       console.error(e)
     }
   }
 
   const handleSaveCrop = async () => {
-    if (!currentImage || !croppedAreaPixels?.current) {
+    if (!value || !croppedAreaPixels?.current) {
       return
     }
     try {
-      const croppedImage = await getCroppedImgFileFromOriginalFileObject(
-        currentImage,
+      const croppedImage = await getCroppedImageDataUrl(
+        value[0],
         croppedAreaPixels.current,
         rotation[0]
       )
 
-      onImageCropSave && onImageCropSave(croppedImage)
+      onSave && onSave([value[0], croppedImage || ''])
     } catch (e) {
       console.error(e)
     }
   }
 
   const handleResetCrop = () => {
-    onImageCropSave && onImageCropSave(null)
-    onImageCropEdit && onImageCropEdit(null)
+    if (value) {
+      onSave && onSave([value[0], ''])
+      !onSave && onChange([value[0], ''])
+    }
+
     setZoom([1])
-    setCrop({ x: 0, y: 0 })
+    setCropParams({ x: 0, y: 0 })
     setRotation([0])
   }
 
@@ -130,39 +112,44 @@ export const ImageInput = ({
 
   const onFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     handleResetCrop()
-    imageUrl && URL.revokeObjectURL(imageUrl)
-
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0]
 
       if (!file || !file.type.includes('image')) {
         return
       }
+      const imageDataUrl = await getBase64DataUrl(file)
 
       try {
-        // apply rotation if needed
+        // apply exif rotation if needed
         const orientation = await getOrientation(file)
-        const rotation = ORIENTATION_TO_ANGLE[orientation]
+        const exifRotation = ORIENTATION_TO_ANGLE[orientation]
 
-        if (rotation) {
-          const imageData = await getRotatedImageFileFromOriginalFileObject(file, rotation)
+        if (exifRotation && imageDataUrl) {
+          const ExifRotatedImageDataUrl = await getRotatedImageDataUrl(imageDataUrl, exifRotation)
 
-          onChange(imageData)
+          if (ExifRotatedImageDataUrl) {
+            onChange([ExifRotatedImageDataUrl, ''])
+          }
 
           return
         }
       } catch (e) {
         console.warn('failed to detect the orientation')
       }
-      onChange(file)
+      imageDataUrl && onChange([imageDataUrl, ''])
     }
   }
 
   const handleClear = () => {
-    onClear && onClear()
+    if (onClear) {
+      onClear()
+    }
+    if (!onClear) {
+      onSave && onSave(['', ''])
+      onChange(['', ''])
+    }
   }
-
-  console.log('render image-input component')
 
   const finalEmptyInputButtonText = emptyInputButtonText || `Add ${itemName ? itemName : ''} image`
   const finalNonEmptyInputButtonText =
@@ -170,7 +157,11 @@ export const ImageInput = ({
 
   const classNames = {
     cropperContainer: clsx(s.imageContainer),
-    savedCropIndicator: clsx(s.savedSignContainer, !imageCropSaved && s.hidden),
+    savedCropIndicator: clsx(
+      s.savedSignContainer,
+      value && !value[1] && s.hidden,
+      !onSave && s.hidden
+    ),
     imagePlaceholderContainer: clsx(s.imagePlaceholderContainer),
     imageControlsContainer: clsx(s.imageControlsContainer),
     buttonWithIcon: clsx(s.buttonWithIcon),
@@ -179,15 +170,15 @@ export const ImageInput = ({
   return (
     <>
       <div className={classNames.cropperContainer}>
-        {imageUrl && (
+        {value && value[0] && (
           <Cropper
             aspect={cropAspect}
-            crop={crop}
+            crop={cropParams}
             cropShape={cropShape}
-            image={imageUrl}
+            image={value[0]}
             maxZoom={5}
             objectFit={'cover'}
-            onCropChange={setCrop}
+            onCropChange={setCropParams}
             onCropComplete={onCropComplete}
             onZoomChange={handleZoomChange}
             rotation={rotation[0]}
@@ -197,13 +188,13 @@ export const ImageInput = ({
         <div className={classNames.savedCropIndicator}>
           <Typography variant={'body1'}>Crop saved</Typography>
         </div>
-        {!imageUrl && (
+        {(!value || !value[0]) && (
           <div className={classNames.imagePlaceholderContainer}>
             <ImageDown size={70} />
           </div>
         )}
       </div>
-      {imageUrl && (
+      {value && value[0] && (
         <div className={classNames.imageControlsContainer}>
           <Typography as={'h3'} variant={'body2'}>
             rotation
@@ -219,13 +210,15 @@ export const ImageInput = ({
             zoom
           </Typography>
           <Slider max={5} min={1} onValueChange={setZoom} step={0.01} title={'zoom'} value={zoom} />
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            {!onImageCropEdit && <Button onClick={handleSaveCrop}>Save crop</Button>}
-            <Button onClick={handleResetCrop}>reset crop</Button>
-          </div>
+          {onSave && (
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Button onClick={handleSaveCrop}>Save crop</Button>
+              <Button onClick={handleResetCrop}>reset crop</Button>
+            </div>
+          )}
         </div>
       )}
-      {!imageUrl && (
+      {(!value || !value[0]) && (
         <Button asChild className={classNames.buttonWithIcon} variant={'secondary'}>
           <label>
             <Image size={'1em'} />
@@ -234,7 +227,7 @@ export const ImageInput = ({
           </label>
         </Button>
       )}
-      {imageUrl && (
+      {value && value[0] && (
         <div className={s.buttonWidthFix}>
           <Button onClick={handleClear} size={'fill'} variant={'secondary'}>
             {finalNonEmptyInputButtonText}

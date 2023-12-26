@@ -39,3 +39,31 @@ export type GetDecksQueryParams = {
     | `${keyof Omit<DeckItem, 'author' | 'id'>}-${'asc' | 'desc'}`
     | `author.${keyof DeckItem['author']}-${'asc' | 'desc'}`
 }
+
+export type CreateDeckResponse = {
+  author: {
+    id: string
+    name: string
+  }
+  cardsCount: number
+  cover: string
+  created: string
+  id: string
+  isPrivate: boolean
+  name: string
+  shots: number
+  updated: string
+  userId: string
+}
+
+export type CreateDeckData = {
+  cover?: File | null
+  isPrivate?: boolean
+  name: string
+}
+
+export type CreateDeckFormData = {
+  cover?: readonly string[]
+  isPrivate?: boolean
+  name: string
+}
