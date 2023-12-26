@@ -14,6 +14,5 @@ export default meta
 export const Overview: Story = {
   args: {
     title: 'Add new deck?',
-    itemName: 'deck',
   },
 }
