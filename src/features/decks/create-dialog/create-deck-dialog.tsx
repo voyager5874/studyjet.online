@@ -15,7 +15,7 @@ import {
   DialogTrigger,
 } from '@/ui/dialog'
 import { Form, FormControl, FormField, FormItem } from '@/ui/form'
-import { ImageInput } from '@/ui/image-input-for-hook-form'
+import { ImageInput } from '@/ui/image-input'
 import { TextField } from '@/ui/text-field'
 import { Typography } from '@/ui/typography'
 import { X } from 'lucide-react'
@@ -111,20 +111,4 @@ export function CreateDeckDialog(props: CreateDeckDialogProps) {
       </Form>
     </Dialog>
   )
-}
-
-function getUrlFromFieldValue(
-  fieldValue: number | readonly string[] | string | undefined
-): null | string {
-  if (!fieldValue) {
-    return null
-  }
-  if (Array.isArray(fieldValue)) {
-    return fieldValue[0]
-  }
-  if (typeof fieldValue === 'string') {
-    return fieldValue
-  }
-
-  return String(fieldValue)
 }
