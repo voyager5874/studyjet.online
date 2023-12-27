@@ -9,16 +9,18 @@ import { CreateDeckDialog } from '@/features/decks/create-dialog/create-deck-dia
 import { decksTableColumns } from '@/features/decks/table/decks-table-columns'
 import { DeckActions } from '@/features/decks/table/table-deck-actions'
 import { usePageSearchParams } from '@/hooks'
+import { Button } from '@/ui/button'
 import { Pagination } from '@/ui/pagination'
 import { Table } from '@/ui/table'
 import { getFileFromUrl, parseNumber } from '@/utils'
+import { LucideAtom } from 'lucide-react'
 
 export const Page = () => {
   const { pageQueryParams, handlePageChange, handlePerPageChange, handleSortChange, sortProp } =
     usePageSearchParams()
 
   const { data, isFetching, isLoading } = useGetDecksQuery(pageQueryParams)
-  const [createDeck] = useCreateDecksMutation()
+  const [createDeck, { isSuccess }] = useCreateDecksMutation()
 
   const [addDeckDialogOpen, setAddDeckDialogOpen] = useState<boolean>(false)
 
@@ -33,7 +35,6 @@ export const Page = () => {
   ]
 
   const handleNewDeckDataSubmit = async (data: CreateDeckData) => {
-    console.log('deck page -> create', data)
     const formData = new FormData()
 
     formData.append('name', data.name)
@@ -61,10 +62,16 @@ export const Page = () => {
   return (
     <>
       <CreateDeckDialog
+        isSuccess={isSuccess}
         onOpenChange={setAddDeckDialogOpen}
         onSubmit={handleNewDeckDataSubmit}
         open={addDeckDialogOpen}
         title={'add deck'}
+        trigger={
+          <Button variant={'icon'}>
+            <LucideAtom />
+          </Button>
+        }
       />
       <Table
         caption={'Decks'}

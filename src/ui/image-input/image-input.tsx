@@ -164,6 +164,8 @@ export const ImageInput = ({
   useEffect(() => {
     async function getFileSize(dataUrl: null | string) {
       if (!dataUrl) {
+        setCropFileSize(null)
+
         return
       }
       const file = await getFileFromUrl(dataUrl)
