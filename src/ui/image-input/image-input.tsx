@@ -2,13 +2,19 @@ import type { Orientation } from 'get-orientation/browser'
 import type { Area, Point } from 'react-easy-crop'
 
 import type { ChangeEvent, ComponentPropsWithoutRef } from 'react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Cropper from 'react-easy-crop'
 
+import { BYTES_IN_MB } from '@/common/const/file-size-units'
 import { Button } from '@/ui/button'
 import { Slider } from '@/ui/slider'
 import { Typography } from '@/ui/typography'
-import { getBase64DataUrl, getCroppedImageDataUrl, getRotatedImageDataUrl } from '@/utils'
+import {
+  getBase64DataUrl,
+  getCroppedImageDataUrl,
+  getFileFromUrl,
+  getRotatedImageDataUrl,
+} from '@/utils'
 import { clsx } from 'clsx'
 import { getOrientation } from 'get-orientation/browser'
 import { Image, ImageDown } from 'lucide-react'
@@ -52,6 +58,7 @@ export const ImageInput = ({
   const [cropParams, setCropParams] = useState<Point>({ x: 0, y: 0 })
   const [rotation, setRotation] = useState<number[]>([0])
   const [zoom, setZoom] = useState<number[]>([1])
+  const [cropFileSize, setCropFileSize] = useState<null | number>(null)
 
   const croppedAreaPixels = useRef<Area | null>()
 
@@ -152,6 +159,22 @@ export const ImageInput = ({
     }
   }
 
+  const imageCrop = value ? value[1] : null
+
+  useEffect(() => {
+    async function getFileSize(dataUrl: null | string) {
+      if (!dataUrl) {
+        return
+      }
+      const file = await getFileFromUrl(dataUrl)
+
+      if (file) {
+        setCropFileSize(file.size / BYTES_IN_MB)
+      }
+    }
+    getFileSize(imageCrop)
+  }, [imageCrop])
+
   const finalEmptyInputButtonText = emptyInputButtonText || `Add ${itemName ? itemName : ''} image`
   const finalNonEmptyInputButtonText =
     nonEmptyInputButtonText || `Clear ${itemName ? itemName : ''} image`
@@ -166,7 +189,7 @@ export const ImageInput = ({
     imagePlaceholderContainer: clsx(s.imagePlaceholderContainer),
     imageControlsContainer: clsx(s.imageControlsContainer),
     buttonWithIcon: clsx(s.buttonWithIcon),
-    imageError: clsx(s.imageErrorContainer),
+    imageInfo: clsx(s.imageInfoContainer),
   }
 
   return (
@@ -196,8 +219,13 @@ export const ImageInput = ({
           </div>
         )}
       </div>
-      <div className={classNames.imageError}>
-        <Typography variant={'error'}>{errorMessage}</Typography>
+      <div className={classNames.imageInfo}>
+        {errorMessage && <Typography variant={'error'}>{errorMessage}</Typography>}
+        {!errorMessage && cropFileSize && (
+          <Typography variant={'body2'}>
+            output file size: {`${cropFileSize.toFixed(2)}MB`}
+          </Typography>
+        )}
       </div>
       {value && value[0] && (
         <div className={classNames.imageControlsContainer}>

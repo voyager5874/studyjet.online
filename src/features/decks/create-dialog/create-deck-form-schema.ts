@@ -1,9 +1,7 @@
+import { MAX_FILE_SIZE } from '@/common/app-settings'
+import { BYTES_IN_MB, MAX_IMAGE_SIZE_MB } from '@/common/const/file-size-units'
 import { getFileFromUrl } from '@/utils'
 import * as z from 'zod'
-
-const BYTES_IN_MB = 1024 * 1024
-const MAX_IMAGE_SIZE_MB = 1
-const MAX_FILE_SIZE = BYTES_IN_MB * MAX_IMAGE_SIZE_MB
 
 export const createDeckFormSchema = z.object({
   name: z.string().min(3, { message: '3 or more' }).max(30, { message: '30 or less' }),
@@ -30,7 +28,6 @@ export const createDeckFormSchema = z.object({
               `file size: ${(file.size / BYTES_IN_MB).toFixed(2)}MB`
             )
           }
-          console.log(`file size: ${(file.size / BYTES_IN_MB).toFixed(2)}MB`)
 
           return file.size <= MAX_FILE_SIZE
         }
