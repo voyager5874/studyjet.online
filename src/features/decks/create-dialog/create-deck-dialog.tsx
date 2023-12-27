@@ -1,6 +1,8 @@
 import type { CreateDeckData } from '@/features/decks/create-dialog/create-deck-form-schema'
 import type { DialogProps } from '@radix-ui/react-dialog'
 
+import type { ReactNode } from 'react'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { createDeckFormSchema } from '@/features/decks/create-dialog/create-deck-form-schema'
@@ -26,12 +28,13 @@ import s from './create-deck-dialog.module.scss'
 
 export type CreateDeckDialogProps = {
   disabled?: boolean
-  /** item category i.e (card, deck ...) */
+  isSuccess?: boolean
   onSubmit: (data: CreateDeckData) => void
   title: string
+  trigger?: ReactNode
 } & DialogProps
 export function CreateDeckDialog(props: CreateDeckDialogProps) {
-  const { disabled, onSubmit, title, ...restProps } = props
+  const { trigger, isSuccess, disabled, onSubmit, title, ...restProps } = props
 
   const form = useForm<CreateDeckData>({
     resolver: zodResolver(createDeckFormSchema),
@@ -48,11 +51,13 @@ export function CreateDeckDialog(props: CreateDeckDialogProps) {
     form.getValues().name === '' ||
     form.formState.isValidating
 
+  useEffect(() => {
+    isSuccess && form.reset()
+  }, [form, isSuccess])
+
   return (
     <Dialog {...restProps} modal>
-      <DialogTrigger asChild>
-        <Button>Add new deck</Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger ? trigger : <Button>Add new deck</Button>}</DialogTrigger>
       <Form {...form}>
         <DialogContent asChild className={s.content}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
