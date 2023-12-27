@@ -1,5 +1,6 @@
 import type { DeckItem } from '@/features/decks/types'
 
+import { useDeleteDeckMutation } from '@/features/decks/api'
 import { useMeQuery } from '@/features/user/api'
 import { Button } from '@/ui/button'
 import { PenLine, PlayCircle, Trash } from 'lucide-react'
@@ -17,6 +18,7 @@ type Props = {
 export function DeckActions({ deck }: Props) {
   const authorId = deck?.userId
   const { data } = useMeQuery()
+  const [deleteDeck] = useDeleteDeckMutation()
   const userId = data?.id
 
   return (
@@ -31,7 +33,12 @@ export function DeckActions({ deck }: Props) {
           </Button>
         )}
         {authorId === userId && (
-          <Button variant={'icon'}>
+          <Button
+            onClick={() => {
+              deleteDeck(deck?.id)
+            }}
+            variant={'icon'}
+          >
             <Trash size={14} />
           </Button>
         )}

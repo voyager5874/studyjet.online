@@ -55,3 +55,15 @@ export type CreateDeckResponse = {
   updated: string
   userId: string
 }
+
+export type DeleteDeckResponse = {
+  cardsCount: number
+  cover: string
+  created: string
+  id: string
+  isPrivate: boolean
+  name: string
+  shots: number
+  updated: string
+  userId: string
+}

@@ -1,4 +1,9 @@
-import type { CreateDeckResponse, GetDecksQueryParams, GetDecksResponse } from './types'
+import type {
+  CreateDeckResponse,
+  DeleteDeckResponse,
+  GetDecksQueryParams,
+  GetDecksResponse,
+} from './types'
 
 import { baseApi } from '@/services/api'
 
@@ -21,15 +26,15 @@ const api = baseApi.injectEndpoints({
         }),
         invalidatesTags: ['Decks'],
       }),
+      deleteDeck: builder.mutation<DeleteDeckResponse, string>({
+        query: id => ({
+          url: `decks/${id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: ['Decks'],
+      }),
     }
   },
 })
 
-export const { useGetDecksQuery, useCreateDecksMutation } = api
-
-// getDecks: builder.query<DecksResponseType, GetDecksParamsType | void>({
-//   query: params => ({
-//     url: 'decks',
-//     method: 'GET',
-//     params: params ?? {},
-//   }),
+export const { useGetDecksQuery, useCreateDecksMutation, useDeleteDeckMutation } = api
