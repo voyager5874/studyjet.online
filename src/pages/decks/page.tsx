@@ -1,3 +1,4 @@
+import type { CreateDeckData } from '@/features/decks/create-dialog/create-deck-form-schema'
 import type { DeckItem } from '@/features/decks/types'
 import type { Column } from '@/ui/table'
 
@@ -31,20 +32,29 @@ export const Page = () => {
     },
   ]
 
-  const handleNewDeckDataSubmit = async (data: any) => {
+  const handleNewDeckDataSubmit = async (data: CreateDeckData) => {
     console.log('deck page -> create', data)
     const formData = new FormData()
 
-    const image = data.cover[1] ? data.cover[1] : data.cover[0]
-    const cover = await getFileFromUrl(image)
-
     formData.append('name', data.name)
-    formData.append('cover', cover)
-    formData.append('isPrivate', data.isPrivate)
+    formData.append('isPrivate', String(data.isPrivate))
+
+    if (data?.cover) {
+      const image = data?.cover && data.cover[1] ? data.cover[1] : data.cover[0]
+      const cover = await getFileFromUrl(image)
+
+      formData.append('cover', cover)
+    }
+    setAddDeckDialogOpen(false)
+
     createDeck(formData)
       .unwrap()
       .then(() => {
-        setAddDeckDialogOpen(false)
+        alert('success')
+      })
+      .catch(() => {
+        alert('error')
+        setAddDeckDialogOpen(true)
       })
   }
 

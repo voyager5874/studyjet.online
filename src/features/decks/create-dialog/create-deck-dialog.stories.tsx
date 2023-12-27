@@ -14,5 +14,8 @@ export default meta
 export const Overview: Story = {
   args: {
     title: 'Add new deck?',
+    onSubmit: (data: any) => {
+      console.log(data)
+    },
   },
 }

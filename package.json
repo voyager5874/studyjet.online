@@ -28,6 +28,7 @@
     "clsx": "^2.0.0",
     "get-orientation": "^1.1.2",
     "lucide-react": "^0.294.0",
+    "mime": "^4.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-easy-crop": "^5.0.4",
@@ -70,6 +71,6 @@
     "storybook-theme-css-vars": "^0.0.12",
     "stylelint": "^15.11.0",
     "typescript": "^5.2.2",
-    "vite": "^5.0.0"
+    "vite": "^5.0.5"
   }
 }

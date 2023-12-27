@@ -2,13 +2,19 @@ import type { Orientation } from 'get-orientation/browser'
 import type { Area, Point } from 'react-easy-crop'
 
 import type { ChangeEvent, ComponentPropsWithoutRef } from 'react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Cropper from 'react-easy-crop'
 
+import { BYTES_IN_MB } from '@/common/const/file-size-units'
 import { Button } from '@/ui/button'
 import { Slider } from '@/ui/slider'
 import { Typography } from '@/ui/typography'
-import { getBase64DataUrl, getCroppedImageDataUrl, getRotatedImageDataUrl } from '@/utils'
+import {
+  getBase64DataUrl,
+  getCroppedImageDataUrl,
+  getFileFromUrl,
+  getRotatedImageDataUrl,
+} from '@/utils'
 import { clsx } from 'clsx'
 import { getOrientation } from 'get-orientation/browser'
 import { Image, ImageDown } from 'lucide-react'
@@ -19,11 +25,12 @@ type CustomComponentProps = {
   cropAspect?: number
   cropShape?: 'rect' | 'round'
   emptyInputButtonText?: string
+  errorMessage?: string
   itemName?: string
+  manualSave?: boolean
   nonEmptyInputButtonText?: string
   onChange: (url: readonly string[]) => void
   onClear?: () => void
-  onSave?: (url: readonly string[]) => void
   value?: readonly string[]
 }
 
@@ -36,13 +43,14 @@ const ORIENTATION_TO_ANGLE = {
 export type ImageInputProps = CustomComponentProps &
   Omit<ComponentPropsWithoutRef<'input'>, keyof CustomComponentProps>
 export const ImageInput = ({
+  errorMessage,
   value,
   onChange,
   itemName,
   emptyInputButtonText,
   nonEmptyInputButtonText,
   onClear,
-  onSave,
+  manualSave,
   cropAspect = 4 / 3,
   cropShape = 'rect',
   ...restProps
@@ -50,6 +58,7 @@ export const ImageInput = ({
   const [cropParams, setCropParams] = useState<Point>({ x: 0, y: 0 })
   const [rotation, setRotation] = useState<number[]>([0])
   const [zoom, setZoom] = useState<number[]>([1])
+  const [cropFileSize, setCropFileSize] = useState<null | number>(null)
 
   const croppedAreaPixels = useRef<Area | null>()
 
@@ -67,12 +76,10 @@ export const ImageInput = ({
         rotation[0]
       )
 
-      // reset saved crop status
-      // Boolean(value[1]) && onImageCropSave && onImageCropSave(null)
-      Boolean(value[1]) && onSave && onSave([value[0], ''])
+      // reset crop status when Cropper touched
+      Boolean(value[1]) && manualSave && onChange([value[0], ''])
 
-      // save new image url if corresponding callback is provided
-      !onSave && onChange([value[0], croppedImageFile || ''])
+      !manualSave && onChange([value[0], croppedImageFile || ''])
     } catch (e) {
       console.error(e)
     }
@@ -89,7 +96,7 @@ export const ImageInput = ({
         rotation[0]
       )
 
-      onSave && onSave([value[0], croppedImage || ''])
+      manualSave && onChange([value[0], croppedImage || ''])
     } catch (e) {
       console.error(e)
     }
@@ -97,8 +104,7 @@ export const ImageInput = ({
 
   const handleResetCrop = () => {
     if (value) {
-      onSave && onSave([value[0], ''])
-      !onSave && onChange([value[0], ''])
+      onChange([value[0], ''])
     }
 
     setZoom([1])
@@ -116,8 +122,11 @@ export const ImageInput = ({
       const file = e.target.files[0]
 
       if (!file || !file.type.includes('image')) {
+        console.warn('not an image file')
+
         return
       }
+
       const imageDataUrl = await getBase64DataUrl(file)
 
       try {
@@ -146,10 +155,25 @@ export const ImageInput = ({
       onClear()
     }
     if (!onClear) {
-      onSave && onSave(['', ''])
       onChange(['', ''])
     }
   }
+
+  const imageCrop = value ? value[1] : null
+
+  useEffect(() => {
+    async function getFileSize(dataUrl: null | string) {
+      if (!dataUrl) {
+        return
+      }
+      const file = await getFileFromUrl(dataUrl)
+
+      if (file) {
+        setCropFileSize(file.size / BYTES_IN_MB)
+      }
+    }
+    getFileSize(imageCrop)
+  }, [imageCrop])
 
   const finalEmptyInputButtonText = emptyInputButtonText || `Add ${itemName ? itemName : ''} image`
   const finalNonEmptyInputButtonText =
@@ -160,11 +184,12 @@ export const ImageInput = ({
     savedCropIndicator: clsx(
       s.savedSignContainer,
       value && !value[1] && s.hidden,
-      !onSave && s.hidden
+      !manualSave && s.hidden
     ),
     imagePlaceholderContainer: clsx(s.imagePlaceholderContainer),
     imageControlsContainer: clsx(s.imageControlsContainer),
     buttonWithIcon: clsx(s.buttonWithIcon),
+    imageInfo: clsx(s.imageInfoContainer),
   }
 
   return (
@@ -194,6 +219,14 @@ export const ImageInput = ({
           </div>
         )}
       </div>
+      <div className={classNames.imageInfo}>
+        {errorMessage && <Typography variant={'error'}>{errorMessage}</Typography>}
+        {!errorMessage && cropFileSize && (
+          <Typography variant={'body2'}>
+            output file size: {`${cropFileSize.toFixed(2)}MB`}
+          </Typography>
+        )}
+      </div>
       {value && value[0] && (
         <div className={classNames.imageControlsContainer}>
           <Typography as={'h3'} variant={'body2'}>
@@ -210,7 +243,7 @@ export const ImageInput = ({
             zoom
           </Typography>
           <Slider max={5} min={1} onValueChange={setZoom} step={0.01} title={'zoom'} value={zoom} />
-          {onSave && (
+          {manualSave && (
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Button onClick={handleSaveCrop}>Save crop</Button>
               <Button onClick={handleResetCrop}>reset crop</Button>

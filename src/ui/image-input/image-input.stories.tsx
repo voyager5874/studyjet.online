@@ -31,8 +31,8 @@ const TemplateWithDebug: Story = {
   },
 
   render: args => {
-    // if onSave and onClear not extracted and thrown away the component acts as if they were passed
-    const { value, onSave, onClear, ...restArgs } = args
+    // if manualSave and onClear not extracted and thrown away the component acts as if they were passed
+    const { value, manualSave, onClear, ...restArgs } = args
     const [_, setArgs] = useArgs()
 
     const [cropFile, setCropFile] = useState<File | null>(null)
@@ -110,8 +110,8 @@ const Template: Story = {
   },
 
   render: args => {
-    // if onSave and onClear not extracted and thrown away the component acts as if they were passed
-    const { onClear, onSave, value, ...restArgs } = args
+    // if manualSave and onClear not extracted and thrown away the component acts as if they were passed
+    const { onClear, manualSave, value, ...restArgs } = args
     const [_, setArgs] = useArgs()
     const handleImageSelect = (urls: readonly string[]) => {
       setArgs({ ...args, value: urls })
@@ -134,26 +134,16 @@ const ManualCropSaveTemplate: Story = {
   },
 
   render: args => {
-    // if onSave and onClear not extracted and thrown away the component acts as if they were passed
-    const { onClear, onSave, value, ...restArgs } = args
+    // if manualSave and onClear not extracted and thrown away the component acts as if they were passed
+    const { onClear, manualSave, value, ...restArgs } = args
     const [_, setArgs] = useArgs()
     const handleImageSelect = (urls: readonly string[]) => {
       setArgs({ ...args, value: urls })
     }
 
-    const handleCropSave = (urls: readonly string[]) => {
-      console.log(urls)
-      setArgs({ ...args, value: urls })
-    }
-
     return (
       <div style={{ width: '500px' }}>
-        <ImageInput
-          {...restArgs}
-          onChange={handleImageSelect}
-          onSave={handleCropSave}
-          value={value}
-        />
+        <ImageInput {...restArgs} manualSave onChange={handleImageSelect} value={value} />
       </div>
     )
   },

@@ -1,3 +1,6 @@
+import { IMAGE_EXTENSIONS } from '@/common/mime-types'
+import mime from 'mime'
+
 export function createObjectUrl(data: Blob | File | null, previousUrl?: string) {
   if (previousUrl) {
     URL.revokeObjectURL(previousUrl)
@@ -56,15 +59,9 @@ export const createImageHtmlElementFromDataUrl = (url: string): Promise<HTMLImag
   })
 
 function getExtensionFromBlob(blob: Blob): null | string {
-  const extensionByMimeType: { [key: string]: string } = {
-    'image/png': 'png',
-    'image/jpeg': 'jpeg',
-    'image/gif': 'gif',
-    'image/webp': 'webp',
-  }
   const mimeType = blob.type
 
-  return mimeType ? extensionByMimeType[mimeType] : 'jpeg'
+  return mimeType ? IMAGE_EXTENSIONS[mimeType] : mime.getExtension(mimeType)
 }
 
 // get File instance from base64 dataUrl or any other url that leads to an image
