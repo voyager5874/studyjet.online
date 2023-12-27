@@ -55,15 +55,3 @@ export type CreateDeckResponse = {
   updated: string
   userId: string
 }
-
-export type CreateDeckData = {
-  cover?: File | null
-  isPrivate?: boolean
-  name: string
-}
-
-export type CreateDeckFormData = {
-  cover?: readonly string[]
-  isPrivate?: boolean
-  name: string
-}

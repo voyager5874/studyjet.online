@@ -1,8 +1,9 @@
-import type { CreateDeckFormData } from '@/features/decks'
+import type { CreateDeckData } from '@/features/decks/create-dialog/create-deck-form-schema'
 import type { DialogProps } from '@radix-ui/react-dialog'
 
 import { useForm } from 'react-hook-form'
 
+import { createDeckFormSchema } from '@/features/decks/create-dialog/create-deck-form-schema'
 import { Button } from '@/ui/button'
 import { Checkbox } from '@/ui/checkbox'
 import {
@@ -18,25 +19,34 @@ import { Form, FormControl, FormField, FormItem } from '@/ui/form'
 import { ImageInput } from '@/ui/image-input'
 import { TextField } from '@/ui/text-field'
 import { Typography } from '@/ui/typography'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { X } from 'lucide-react'
 
 import s from './create-deck-dialog.module.scss'
 
 export type CreateDeckDialogProps = {
+  disabled?: boolean
   /** item category i.e (card, deck ...) */
-  onSubmit: (data: CreateDeckFormData) => void
+  onSubmit: (data: CreateDeckData) => void
   title: string
 } & DialogProps
 export function CreateDeckDialog(props: CreateDeckDialogProps) {
-  const { onSubmit, title, ...restProps } = props
+  const { disabled, onSubmit, title, ...restProps } = props
 
-  const form = useForm<CreateDeckFormData>({
+  const form = useForm<CreateDeckData>({
+    resolver: zodResolver(createDeckFormSchema),
     defaultValues: {
       name: '',
       cover: ['', ''],
       isPrivate: false,
     },
   })
+
+  const submitButtonDisabled =
+    disabled ||
+    form.formState.isSubmitting ||
+    form.getValues().name === '' ||
+    form.formState.isValidating
 
   return (
     <Dialog {...restProps} modal>
@@ -60,10 +70,14 @@ export function CreateDeckDialog(props: CreateDeckDialogProps) {
               <FormField
                 control={form.control}
                 name={'name'}
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem>
                     <FormControl>
-                      <TextField label={'New deck name'} {...field} />
+                      <TextField
+                        label={'New deck name'}
+                        {...field}
+                        errorMessage={fieldState.error?.message}
+                      />
                     </FormControl>
                   </FormItem>
                 )}
@@ -71,10 +85,11 @@ export function CreateDeckDialog(props: CreateDeckDialogProps) {
               <FormField
                 control={form.control}
                 name={'cover'}
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <FormItem className={s.imageInputContainer}>
                     <ImageInput
                       cropAspect={2.5}
+                      errorMessage={fieldState.error?.message}
                       itemName={'cover'}
                       name={'cover'}
                       onChange={field.onChange}
@@ -104,7 +119,9 @@ export function CreateDeckDialog(props: CreateDeckDialogProps) {
               <Button type={'button'} variant={'secondary'}>
                 Cancel
               </Button>
-              <Button type={'submit'}>Add new deck</Button>
+              <Button disabled={submitButtonDisabled} type={'submit'}>
+                Add new deck
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

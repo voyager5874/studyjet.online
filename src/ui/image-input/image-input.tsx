@@ -19,11 +19,12 @@ type CustomComponentProps = {
   cropAspect?: number
   cropShape?: 'rect' | 'round'
   emptyInputButtonText?: string
+  errorMessage?: string
   itemName?: string
+  manualSave?: boolean
   nonEmptyInputButtonText?: string
   onChange: (url: readonly string[]) => void
   onClear?: () => void
-  onSave?: (url: readonly string[]) => void
   value?: readonly string[]
 }
 
@@ -36,13 +37,14 @@ const ORIENTATION_TO_ANGLE = {
 export type ImageInputProps = CustomComponentProps &
   Omit<ComponentPropsWithoutRef<'input'>, keyof CustomComponentProps>
 export const ImageInput = ({
+  errorMessage,
   value,
   onChange,
   itemName,
   emptyInputButtonText,
   nonEmptyInputButtonText,
   onClear,
-  onSave,
+  manualSave,
   cropAspect = 4 / 3,
   cropShape = 'rect',
   ...restProps
@@ -67,12 +69,10 @@ export const ImageInput = ({
         rotation[0]
       )
 
-      // reset saved crop status
-      // Boolean(value[1]) && onImageCropSave && onImageCropSave(null)
-      Boolean(value[1]) && onSave && onSave([value[0], ''])
+      // reset crop status when Cropper touched
+      Boolean(value[1]) && manualSave && onChange([value[0], ''])
 
-      // save new image url if corresponding callback is provided
-      !onSave && onChange([value[0], croppedImageFile || ''])
+      !manualSave && onChange([value[0], croppedImageFile || ''])
     } catch (e) {
       console.error(e)
     }
@@ -89,7 +89,7 @@ export const ImageInput = ({
         rotation[0]
       )
 
-      onSave && onSave([value[0], croppedImage || ''])
+      manualSave && onChange([value[0], croppedImage || ''])
     } catch (e) {
       console.error(e)
     }
@@ -97,8 +97,7 @@ export const ImageInput = ({
 
   const handleResetCrop = () => {
     if (value) {
-      onSave && onSave([value[0], ''])
-      !onSave && onChange([value[0], ''])
+      onChange([value[0], ''])
     }
 
     setZoom([1])
@@ -116,8 +115,11 @@ export const ImageInput = ({
       const file = e.target.files[0]
 
       if (!file || !file.type.includes('image')) {
+        console.warn('not an image file')
+
         return
       }
+
       const imageDataUrl = await getBase64DataUrl(file)
 
       try {
@@ -146,7 +148,6 @@ export const ImageInput = ({
       onClear()
     }
     if (!onClear) {
-      onSave && onSave(['', ''])
       onChange(['', ''])
     }
   }
@@ -160,11 +161,12 @@ export const ImageInput = ({
     savedCropIndicator: clsx(
       s.savedSignContainer,
       value && !value[1] && s.hidden,
-      !onSave && s.hidden
+      !manualSave && s.hidden
     ),
     imagePlaceholderContainer: clsx(s.imagePlaceholderContainer),
     imageControlsContainer: clsx(s.imageControlsContainer),
     buttonWithIcon: clsx(s.buttonWithIcon),
+    imageError: clsx(s.imageErrorContainer),
   }
 
   return (
@@ -194,6 +196,9 @@ export const ImageInput = ({
           </div>
         )}
       </div>
+      <div className={classNames.imageError}>
+        <Typography variant={'error'}>{errorMessage}</Typography>
+      </div>
       {value && value[0] && (
         <div className={classNames.imageControlsContainer}>
           <Typography as={'h3'} variant={'body2'}>
@@ -210,7 +215,7 @@ export const ImageInput = ({
             zoom
           </Typography>
           <Slider max={5} min={1} onValueChange={setZoom} step={0.01} title={'zoom'} value={zoom} />
-          {onSave && (
+          {manualSave && (
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Button onClick={handleSaveCrop}>Save crop</Button>
               <Button onClick={handleResetCrop}>reset crop</Button>
