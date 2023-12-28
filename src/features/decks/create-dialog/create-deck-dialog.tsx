@@ -52,7 +52,7 @@ export function CreateDeckDialog(props: CreateDeckDialogProps) {
     form.formState.isValidating
 
   useEffect(() => {
-    isSuccess && form.reset()
+    form.formState.isSubmitted && isSuccess && form.reset()
   }, [form, isSuccess])
 
   return (

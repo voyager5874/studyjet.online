@@ -4,7 +4,11 @@ import type { Column } from '@/ui/table'
 
 import { useState } from 'react'
 
-import { useCreateDecksMutation, useGetDecksQuery } from '@/features/decks/api'
+import {
+  useCreateDecksMutation,
+  useDeleteDeckMutation,
+  useGetDecksQuery,
+} from '@/features/decks/api'
 import { CreateDeckDialog } from '@/features/decks/create-dialog/create-deck-dialog'
 import { decksTableColumns } from '@/features/decks/table/decks-table-columns'
 import { DeckActions } from '@/features/decks/table/table-deck-actions'
@@ -21,6 +25,7 @@ export const Page = () => {
 
   const { data, isFetching, isLoading } = useGetDecksQuery(pageQueryParams)
   const [createDeck, { isSuccess }] = useCreateDecksMutation()
+  const [deleteDeck] = useDeleteDeckMutation()
 
   const [addDeckDialogOpen, setAddDeckDialogOpen] = useState<boolean>(false)
 
@@ -29,7 +34,7 @@ export const Page = () => {
 
     {
       key: 'actions',
-      render: deck => <DeckActions deck={deck} />,
+      render: deck => <DeckActions deck={deck} onDelete={deleteDeck} />,
       title: '',
     },
   ]
@@ -41,7 +46,7 @@ export const Page = () => {
     formData.append('isPrivate', String(data.isPrivate))
 
     if (data?.cover) {
-      const image = data?.cover && data.cover[1] ? data.cover[1] : data.cover[0]
+      const image = data.cover[1] ? data.cover[1] : data.cover[0]
       const cover = await getFileFromUrl(image)
 
       formData.append('cover', cover)
