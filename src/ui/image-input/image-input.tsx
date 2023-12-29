@@ -69,19 +69,25 @@ export const ImageInput = ({
     if (!value || !croppedAreaPixels?.current) {
       return
     }
-    try {
-      const croppedImageFile = await getCroppedImageDataUrl(
-        value[0],
-        croppedAreaPixels.current,
-        rotation[0]
-      )
 
-      // reset crop status when Cropper touched
-      Boolean(value[1]) && manualSave && onChange([value[0], ''])
+    // reset crop status when Cropper touched
+    if (manualSave) {
+      Boolean(value[1]) && onChange([value[0], ''])
+    }
 
-      !manualSave && onChange([value[0], croppedImageFile || ''])
-    } catch (e) {
-      console.error(e)
+    // save new crop every time Cropper touched
+    if (!manualSave) {
+      try {
+        const croppedImageDataUrl = await getCroppedImageDataUrl(
+          value[0],
+          croppedAreaPixels.current,
+          rotation[0]
+        )
+
+        onChange([value[0], croppedImageDataUrl || ''])
+      } catch (e) {
+        console.error(e)
+      }
     }
   }
 

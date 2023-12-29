@@ -2,6 +2,8 @@ import type { Sort } from '@/ui/table'
 
 import { useSearchParams } from 'react-router-dom'
 
+import { getQueryParams } from '@/utils/url-params'
+
 export const usePageSearchParams = () => {
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -56,14 +58,14 @@ function getSortParam<T>(query: null | string): Sort<T> | null {
   return { key, direction } as Sort<T>
 }
 
-function getQueryParams(query: URLSearchParams) {
-  const params = {} as { [key: string]: string }
-
-  query.forEach((value, key) => {
-    if (value) {
-      params[key] = value
-    }
-  })
-
-  return params
-}
+// function getQueryParams(query: URLSearchParams) {
+//   const params = {} as { [key: string]: string }
+//
+//   query.forEach((value, key) => {
+//     if (value) {
+//       params[key] = value
+//     }
+//   })
+//
+//   return params
+// }

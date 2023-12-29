@@ -2,25 +2,45 @@ import type { CreateDeckData } from '@/features/decks/create-dialog/create-deck-
 import type { DeckItem } from '@/features/decks/types'
 import type { Column } from '@/ui/table'
 
+import type { ChangeEvent } from 'react'
 import { useState } from 'react'
 
-import { useCreateDecksMutation, useGetDecksQuery } from '@/features/decks/api'
+import {
+  useCreateDecksMutation,
+  useDeleteDeckMutation,
+  useGetDecksQuery,
+} from '@/features/decks/api'
 import { CreateDeckDialog } from '@/features/decks/create-dialog/create-deck-dialog'
 import { decksTableColumns } from '@/features/decks/table/decks-table-columns'
 import { DeckActions } from '@/features/decks/table/table-deck-actions'
-import { usePageSearchParams } from '@/hooks'
-import { Button } from '@/ui/button'
+import { usePageSearchParams } from '@/features/decks/use-page-search-params'
+import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import { Pagination } from '@/ui/pagination'
 import { Table } from '@/ui/table'
-import { getFileFromUrl, parseNumber } from '@/utils'
-import { LucideAtom } from 'lucide-react'
+import { TextField } from '@/ui/text-field'
+import { getFileFromUrl } from '@/utils'
 
 export const Page = () => {
-  const { pageQueryParams, handlePageChange, handlePerPageChange, handleSortChange, sortProp } =
-    usePageSearchParams()
+  const {
+    handleNameSearchRaw,
+    handleSortChange,
+    tableSortProp,
+    currentPage,
+    itemsPerPage,
+    handlePerPageChange,
+    handlePageChange,
+    orderBy,
+    name,
+  } = usePageSearchParams()
 
-  const { data, isFetching, isLoading } = useGetDecksQuery(pageQueryParams)
+  const { data, isFetching, isLoading } = useGetDecksQuery({
+    currentPage,
+    itemsPerPage,
+    orderBy,
+    name: useDebouncedValue(name, 1300),
+  })
   const [createDeck, { isSuccess }] = useCreateDecksMutation()
+  const [deleteDeck, { isLoading: isDeleting }] = useDeleteDeckMutation()
 
   const [addDeckDialogOpen, setAddDeckDialogOpen] = useState<boolean>(false)
 
@@ -29,7 +49,7 @@ export const Page = () => {
 
     {
       key: 'actions',
-      render: deck => <DeckActions deck={deck} />,
+      render: deck => <DeckActions deck={deck} onDelete={deleteDeck} />,
       title: '',
     },
   ]
@@ -40,9 +60,10 @@ export const Page = () => {
     formData.append('name', data.name)
     formData.append('isPrivate', String(data.isPrivate))
 
-    if (data?.cover) {
-      const image = data?.cover && data.cover[1] ? data.cover[1] : data.cover[0]
-      const cover = await getFileFromUrl(image)
+    const imageDataUrl = (data?.cover && data.cover[1]) || null
+
+    if (imageDataUrl) {
+      const cover = await getFileFromUrl(imageDataUrl)
 
       formData.append('cover', cover)
     }
@@ -59,35 +80,57 @@ export const Page = () => {
       })
   }
 
+  const changeSearchString = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+
+    if (value) {
+      handleNameSearchRaw(value)
+    }
+  }
+
+  const busy = isFetching || isLoading || isDeleting
+
   return (
     <>
-      <CreateDeckDialog
-        isSuccess={isSuccess}
-        onOpenChange={setAddDeckDialogOpen}
-        onSubmit={handleNewDeckDataSubmit}
-        open={addDeckDialogOpen}
-        title={'add deck'}
-        trigger={
-          <Button variant={'icon'}>
-            <LucideAtom />
-          </Button>
-        }
-      />
+      <div>{busy && 'working...'}</div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+        }}
+      >
+        <div style={{ width: '50%' }}>
+          <TextField
+            onChange={changeSearchString}
+            onClear={() => handleNameSearchRaw('')}
+            type={'search'}
+            value={name || ''}
+          />
+        </div>
+        <CreateDeckDialog
+          isSuccess={isSuccess}
+          onOpenChange={setAddDeckDialogOpen}
+          onSubmit={handleNewDeckDataSubmit}
+          open={addDeckDialogOpen}
+          title={'add deck'}
+        />
+      </div>
+
       <Table
         caption={'Decks'}
         columns={columns}
         data={data?.items || []}
         onChangeSort={handleSortChange}
-        sort={sortProp}
+        sort={tableSortProp}
       />
-      <div>{(isFetching || isLoading) && 'loading...'}</div>
       {data?.pagination && (
         <div style={{ padding: '50px 0' }}>
           <Pagination
             onPageChange={handlePageChange}
             onPerPageCountChange={handlePerPageChange}
             pagination={data?.pagination}
-            perPage={parseNumber(pageQueryParams.itemsPerPage) || 10}
+            perPage={itemsPerPage || 10}
           />
         </div>
       )}

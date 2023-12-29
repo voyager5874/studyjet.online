@@ -29,15 +29,16 @@ export type GetDecksResponse = {
 }
 
 export type GetDecksQueryParams = {
-  authorId?: string
-  currentPage?: number
-  itemsPerPage?: number
-  maxCardsCount?: number
-  minCardsCount?: number
-  name?: string
+  authorId?: null | string
+  currentPage?: null | number
+  itemsPerPage?: null | number
+  maxCardsCount?: null | number
+  minCardsCount?: null | number
+  name?: null | string
   orderBy?:
     | `${keyof Omit<DeckItem, 'author' | 'id'>}-${'asc' | 'desc'}`
     | `author.${keyof DeckItem['author']}-${'asc' | 'desc'}`
+    | null
 }
 
 export type CreateDeckResponse = {
@@ -45,6 +46,18 @@ export type CreateDeckResponse = {
     id: string
     name: string
   }
+  cardsCount: number
+  cover: string
+  created: string
+  id: string
+  isPrivate: boolean
+  name: string
+  shots: number
+  updated: string
+  userId: string
+}
+
+export type DeleteDeckResponse = {
   cardsCount: number
   cover: string
   created: string

@@ -8,7 +8,7 @@ import { Eye, EyeOff, Search, X } from 'lucide-react'
 export type Props = { onClear?: () => void } & ComponentPropsWithoutRef<typeof TextFieldBase>
 
 const TextField = forwardRef<ElementRef<typeof TextFieldBase>, Props>((props, ref) => {
-  const { disabled, type, value, onClear, ...restProps } = props
+  const { defaultValue, disabled, type, value, onClear, ...restProps } = props
   const [showContent, setShowContent] = useState(false)
 
   const getPrefix = () => {
@@ -45,7 +45,7 @@ const TextField = forwardRef<ElementRef<typeof TextFieldBase>, Props>((props, re
         </Button>
       )
     }
-    if (type === 'search' && value) {
+    if (type === 'search' && (value || defaultValue)) {
       return (
         <Button disabled={disabled} onClick={handleClear} type={'button'} variant={'icon'}>
           <X size={14} />
@@ -59,6 +59,7 @@ const TextField = forwardRef<ElementRef<typeof TextFieldBase>, Props>((props, re
   return (
     <TextFieldBase
       {...restProps}
+      defaultValue={defaultValue}
       disabled={disabled}
       prefixIcon={getPrefix()}
       ref={ref}
