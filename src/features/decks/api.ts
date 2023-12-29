@@ -4,6 +4,7 @@ import type {
   GetDecksQueryParams,
   GetDecksResponse,
 } from './types'
+import type { RootState } from '@/app/store'
 
 import { baseApi } from '@/services/api'
 
@@ -31,7 +32,39 @@ const api = baseApi.injectEndpoints({
           url: `decks/${id}`,
           method: 'DELETE',
         }),
-        invalidatesTags: ['Decks'],
+        onQueryStarted: async (id, { dispatch, queryFulfilled, getState }) => {
+          const state = getState() as RootState
+
+          const entries = api.util.selectInvalidatedBy(state, ['Decks'])
+          // const args = api.util.selectCachedArgsForQuery(state, 'getDecks') //not a function ??
+
+          console.log({ entries })
+
+          let patch
+
+          for (const { endpointName, originalArgs } of entries) {
+            if (endpointName !== 'getDecks') {
+              continue
+            }
+            patch = dispatch(
+              // todo: Argument type "getDecks" is not assignable to parameter type QueryKeys<Definitions>
+              api.util.updateQueryData('getDecks', originalArgs, draft => {
+                const deckIndex = draft.items.findIndex(deck => deck.id === id)
+
+                if (deckIndex !== -1) {
+                  draft?.items?.splice(deckIndex, 1)
+                }
+              })
+            )
+          }
+
+          try {
+            await queryFulfilled
+          } catch (error) {
+            patch && patch.undo()
+          }
+        },
+        // invalidatesTags: ['Decks'], //do not trigger new request. should I?
       }),
     }
   },
