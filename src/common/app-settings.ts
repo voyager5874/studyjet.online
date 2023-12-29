@@ -1,3 +1,5 @@
-import { BYTES_IN_MB, MAX_IMAGE_SIZE_MB } from '@/common/const/file-size-units'
+import { BYTES_IN_MB } from '@/common/const/file-size-units'
 
-export const MAX_FILE_SIZE = BYTES_IN_MB * MAX_IMAGE_SIZE_MB
+const MAX_IMAGE_SIZE_MB = 1
+
+export const MAX_IMAGE_SIZE_BYTES = BYTES_IN_MB * MAX_IMAGE_SIZE_MB

@@ -1,5 +1,5 @@
-import { MAX_FILE_SIZE } from '@/common/app-settings'
-import { BYTES_IN_MB, MAX_IMAGE_SIZE_MB } from '@/common/const/file-size-units'
+import { MAX_IMAGE_SIZE_BYTES } from '@/common/app-settings'
+import { BYTES_IN_MB } from '@/common/const/file-size-units'
 import { getFileFromUrl } from '@/utils'
 import * as z from 'zod'
 
@@ -19,17 +19,17 @@ export const createDeckFormSchema = z.object({
 
           const file = imageCrop ? await getFileFromUrl(imageCrop) : await getFileFromUrl(images[0])
 
-          if (file.size > MAX_FILE_SIZE) {
+          if (file.size > MAX_IMAGE_SIZE_BYTES) {
             //todo: use a toast
             console.warn(
-              `${
-                imageCrop ? 'even crop of the image' : 'image'
-              } is larger than ${MAX_IMAGE_SIZE_MB} MB - `,
+              `${imageCrop ? 'even crop of the image' : 'image'} is larger than ${
+                MAX_IMAGE_SIZE_BYTES / BYTES_IN_MB
+              } MB - `,
               `file size: ${(file.size / BYTES_IN_MB).toFixed(2)}MB`
             )
           }
 
-          return file.size <= MAX_FILE_SIZE
+          return file.size <= MAX_IMAGE_SIZE_BYTES
         }
       },
       { message: 'Max image size is 1MB. Try zooming in, or use external editor' }
