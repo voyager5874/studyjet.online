@@ -7,6 +7,7 @@ import type {
 import type { RootState } from '@/app/store'
 
 import { baseApi } from '@/services/api'
+import { stripObjectEmptyProperties } from '@/utils/objects'
 
 const api = baseApi.injectEndpoints({
   endpoints: builder => {
@@ -15,7 +16,7 @@ const api = baseApi.injectEndpoints({
         query: params => ({
           url: 'decks',
           method: 'GET',
-          params: params ?? {},
+          params: params ? stripObjectEmptyProperties(params) : {},
         }),
         providesTags: ['Decks'],
       }),

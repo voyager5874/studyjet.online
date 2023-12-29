@@ -2,7 +2,7 @@ import { useCallback, useRef } from 'react'
 
 export function useDebouncedFunction<T>(
   callback: (value: T) => void,
-  delay: number = 100
+  delay: number = 500
 ): (value: T) => void {
   const timer = useRef<any>(null)
 
