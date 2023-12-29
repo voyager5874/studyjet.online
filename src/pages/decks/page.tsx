@@ -25,7 +25,7 @@ export const Page = () => {
 
   const { data, isFetching, isLoading } = useGetDecksQuery(pageQueryParams)
   const [createDeck, { isSuccess }] = useCreateDecksMutation()
-  const [deleteDeck] = useDeleteDeckMutation()
+  const [deleteDeck, { isLoading: isDeleting }] = useDeleteDeckMutation()
 
   const [addDeckDialogOpen, setAddDeckDialogOpen] = useState<boolean>(false)
 
@@ -45,9 +45,10 @@ export const Page = () => {
     formData.append('name', data.name)
     formData.append('isPrivate', String(data.isPrivate))
 
-    if (data?.cover) {
-      const image = data.cover[1] ? data.cover[1] : data.cover[0]
-      const cover = await getFileFromUrl(image)
+    const imageDataUrl = (data?.cover && data.cover[1]) || null
+
+    if (imageDataUrl) {
+      const cover = await getFileFromUrl(imageDataUrl)
 
       formData.append('cover', cover)
     }
@@ -64,8 +65,11 @@ export const Page = () => {
       })
   }
 
+  const busy = isFetching || isLoading || isDeleting
+
   return (
     <>
+      <div>{busy && 'working...'}</div>
       <CreateDeckDialog
         isSuccess={isSuccess}
         onOpenChange={setAddDeckDialogOpen}
@@ -85,7 +89,6 @@ export const Page = () => {
         onChangeSort={handleSortChange}
         sort={sortProp}
       />
-      <div>{(isFetching || isLoading) && 'loading...'}</div>
       {data?.pagination && (
         <div style={{ padding: '50px 0' }}>
           <Pagination
