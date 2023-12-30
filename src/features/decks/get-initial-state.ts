@@ -4,17 +4,11 @@ import { parseNumber } from '@/utils'
 import { getQueryParams } from '@/utils/url-params'
 
 export const getDecksInitialState = () => {
-  // const url = new URL(window.location.href)
-  // const path = url.pathname
-  //
-  // if (path.endsWith('decks')) {
-  //   console.log('decks pathname')
-  // }
   const params = new URLSearchParams(window.location.search)
 
   const paramsObject = getQueryParams(params)
 
-  return getTypedDecksQueryParams(paramsObject)
+  return window.location.pathname.endsWith('decks') ? getTypedDecksQueryParams(paramsObject) : {}
 }
 
 function getTypedDecksQueryParams(data: { [key: string]: string }): GetDecksQueryParams {

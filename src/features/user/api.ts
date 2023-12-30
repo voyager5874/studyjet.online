@@ -6,8 +6,22 @@ import { baseApi } from '@/services/api'
 
 const api = baseApi.injectEndpoints({
   endpoints: builder => ({
-    me: builder.query<UserData | null, void>({
-      query: () => 'auth/me',
+    me: builder.query<{ isError: boolean } | (UserData & { isError: false }) | null, void>({
+      async queryFn(_name, _api, _extraOptions, baseQuery) {
+        const result = await baseQuery({
+          url: `auth/me`,
+          method: 'GET',
+        })
+
+        if (result.error) {
+          return { data: { isError: true } }
+        }
+
+        return { data: result.data, isError: false } as { data: UserData & { isError: false } }
+      },
+      extraOptions: {
+        maxRetries: 0,
+      },
       providesTags: ['User'],
     }),
     login: builder.mutation<LoginResponse, SignInData>({
@@ -32,7 +46,7 @@ const api = baseApi.injectEndpoints({
           patchResult.undo()
         }
       },
-      invalidatesTags: ['User'],
+      invalidatesTags: ['User', 'Decks', 'Cards'],
     }),
     signUp: builder.mutation<SignUpResponse, Pick<SignUpData, 'email' | 'password'>>({
       query: body => ({
