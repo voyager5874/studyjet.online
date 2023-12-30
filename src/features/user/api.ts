@@ -6,7 +6,7 @@ import { baseApi } from '@/services/api'
 
 const api = baseApi.injectEndpoints({
   endpoints: builder => ({
-    me: builder.query<{ isError: boolean } | (UserData & { isError: false }) | null, void>({
+    me: builder.query<UserData | null, void>({
       async queryFn(_name, _api, _extraOptions, baseQuery) {
         const result = await baseQuery({
           url: `auth/me`,
@@ -14,10 +14,10 @@ const api = baseApi.injectEndpoints({
         })
 
         if (result.error) {
-          return { data: { isError: true } }
+          return { data: null }
         }
 
-        return { data: result.data, isError: false } as { data: UserData & { isError: false } }
+        return { data: result.data as UserData }
       },
       extraOptions: {
         maxRetries: 0,
