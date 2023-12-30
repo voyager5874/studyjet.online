@@ -26,17 +26,17 @@ const publicRoutes: RouteObject[] = AppRoutes.public.map(item => ({
 }))
 
 function PrivateRoutes() {
-  const { isError } = useMeQuery()
+  const { data } = useMeQuery()
 
-  const isAuthenticated = !isError
+  const isAuthenticated = !data?.isError
 
   return isAuthenticated ? <MainLayout /> : <Navigate to={'/sign-in'} />
 }
 
 function PublicRoutes() {
-  const { isError } = useMeQuery()
+  const { data } = useMeQuery()
 
-  const isAuthenticated = !isError
+  const isAuthenticated = !data?.isError
 
   return isAuthenticated ? <Navigate to={'/decks'} /> : <MainLayout />
 }
