@@ -12,7 +12,8 @@ type Props = {
 export function CardActions({ card }: Props) {
   const authorId = card?.userId
   const { data } = useMeQuery()
-  const userId = data?.id
+
+  const userId = data?.id || 'n/a'
 
   return (
     <>

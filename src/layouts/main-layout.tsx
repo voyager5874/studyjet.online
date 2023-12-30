@@ -9,7 +9,7 @@ import s from './main-layout.module.scss'
 
 export const MainLayout = () => {
   const { data } = useMeQuery()
-  const appUnlocked = Boolean(!data?.isError)
+  const appUnlocked = Boolean(data?.id)
   const [logout] = useLogoutMutation()
   const handleLogout = () => {
     logout()

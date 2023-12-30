@@ -16,7 +16,8 @@ type Props = {
 export function DeckActions({ deck, onDelete, onEdit, onLearn }: Props) {
   const authorId = deck?.userId
   const { data } = useMeQuery()
-  const userId = data?.id
+
+  const userId = data?.id || 'n/a'
 
   const handleLearn = () => {
     onLearn && onLearn(deck.id)
