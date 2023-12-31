@@ -37,6 +37,7 @@ export function CreateDeckDialog(props: CreateDeckDialogProps) {
   const { trigger, isSuccess, disabled, onSubmit, title, ...restProps } = props
 
   const form = useForm<CreateDeckData>({
+    //todo: rename createDeckFormSchema -> newDeckFormSchema or something like that
     resolver: zodResolver(createDeckFormSchema),
     defaultValues: {
       name: '',
@@ -55,6 +56,7 @@ export function CreateDeckDialog(props: CreateDeckDialogProps) {
     form.formState.isSubmitted && isSuccess && form.reset()
   }, [form, isSuccess])
 
+  // todo: use 'classNames' object
   return (
     <Dialog {...restProps} modal>
       <DialogTrigger asChild>{trigger ? trigger : <Button>Add new deck</Button>}</DialogTrigger>

@@ -33,12 +33,15 @@ export const Page = () => {
     name,
   } = usePageSearchParams()
 
-  const { data, isFetching, isLoading } = useGetDecksQuery({
+  const { data, currentData, isFetching, isLoading } = useGetDecksQuery({
     currentPage,
     itemsPerPage,
     orderBy,
     name: useDebouncedValue(name, 1300),
   })
+
+  const decksData = currentData ?? data
+
   const [createDeck, { isSuccess }] = useCreateDecksMutation()
   const [deleteDeck, { isLoading: isDeleting }] = useDeleteDeckMutation()
 
@@ -89,6 +92,7 @@ export const Page = () => {
   }
 
   const busy = isFetching || isLoading || isDeleting
+  // todo: get rid of inline styles
 
   return (
     <>
@@ -120,16 +124,16 @@ export const Page = () => {
       <Table
         caption={'Decks'}
         columns={columns}
-        data={data?.items || []}
+        data={decksData?.items || []}
         onChangeSort={handleSortChange}
         sort={tableSortProp}
       />
-      {data?.pagination && (
+      {decksData?.pagination && (
         <div style={{ padding: '50px 0' }}>
           <Pagination
             onPageChange={handlePageChange}
             onPerPageCountChange={handlePerPageChange}
-            pagination={data?.pagination}
+            pagination={decksData.pagination}
             perPage={itemsPerPage || 10}
           />
         </div>

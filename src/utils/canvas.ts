@@ -104,3 +104,9 @@ export async function getRotatedImageDataUrl(
 
   return canvas.toDataURL('image/jpeg')
 }
+
+export const ORIENTATION_TO_ANGLE: { [key: string]: number } = {
+  '3': 180,
+  '6': 90,
+  '8': -90,
+} as const
