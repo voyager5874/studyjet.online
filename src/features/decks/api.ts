@@ -41,13 +41,13 @@ const api = baseApi.injectEndpoints({
 
           console.log({ entries })
 
-          let patch
+          const patches = []
 
           for (const { endpointName, originalArgs } of entries) {
             if (endpointName !== 'getDecks') {
               continue
             }
-            patch = dispatch(
+            const patch = dispatch(
               // todo: Argument type "getDecks" is not assignable to parameter type QueryKeys<Definitions>
               api.util.updateQueryData('getDecks', originalArgs, draft => {
                 const deckIndex = draft.items.findIndex(deck => deck.id === id)
@@ -57,15 +57,17 @@ const api = baseApi.injectEndpoints({
                 }
               })
             )
+
+            patches.push(patch)
           }
 
           try {
             await queryFulfilled
           } catch (error) {
-            patch && patch.undo()
+            patches.length && patches.map(patch => patch.undo())
           }
         },
-        // invalidatesTags: ['Decks'], //do not trigger new request. should I?
+        invalidatesTags: ['Decks'],
       }),
     }
   },
