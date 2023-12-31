@@ -38,8 +38,9 @@ const api = baseApi.injectEndpoints({
 
           const entries = api.util.selectInvalidatedBy(state, ['Decks'])
           // const args = api.util.selectCachedArgsForQuery(state, 'getDecks') //not a function ??
-
-          console.log({ entries })
+          //
+          // console.log({ entries })
+          // console.log({ args })
 
           const patches = []
 
@@ -64,7 +65,9 @@ const api = baseApi.injectEndpoints({
           try {
             await queryFulfilled
           } catch (error) {
-            patches.length && patches.map(patch => patch.undo())
+            if (patches.length) {
+              patches.forEach(patch => patch.undo())
+            }
           }
         },
         invalidatesTags: ['Decks'],

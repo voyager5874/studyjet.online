@@ -42,11 +42,11 @@ const api = baseApi.injectEndpoints({
 
         try {
           await queryFulfilled
+          dispatch(api.util.resetApiState())
         } catch {
           patchResult.undo()
         }
       },
-      invalidatesTags: ['User', 'Decks', 'Cards'],
     }),
     signUp: builder.mutation<SignUpResponse, Pick<SignUpData, 'email' | 'password'>>({
       query: body => ({
