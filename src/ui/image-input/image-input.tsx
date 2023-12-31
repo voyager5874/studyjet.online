@@ -200,6 +200,7 @@ export const ImageInput = ({
   const originalFileUrl = value && value[0] ? value[0] : null
   const fileChosen = Boolean(originalFileUrl)
 
+  // todo: https://pqina.nl/blog/set-value-to-file-input/
   return (
     <>
       <div className={classNames.cropperContainer}>
