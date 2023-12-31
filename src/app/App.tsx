@@ -4,13 +4,13 @@ import { useLocalStorage } from '@/hooks'
 import { Spinner } from '@/ui/spinner'
 
 export function App() {
-  const { isLoading, isUninitialized } = useMeQuery()
+  const { isLoading } = useMeQuery()
 
   const [value] = useLocalStorage('theme', 'dark')
 
   document.body.dataset.theme = value
 
-  if (isLoading && isUninitialized) {
+  if (isLoading) {
     return <Spinner />
   }
 
