@@ -9,7 +9,7 @@ import s from './main-layout.module.scss'
 
 export const MainLayout = () => {
   const { data } = useMeQuery()
-  const appUnlocked = Boolean(data?.id)
+  const isAuthenticated = Boolean(data && data?.id)
   const [logout] = useLogoutMutation()
   const handleLogout = () => {
     logout()
@@ -36,7 +36,7 @@ export const MainLayout = () => {
         </nav>
         <div className={s.elementsList}>
           <ThemeToggler />
-          {appUnlocked && <Button onClick={handleLogout}>Logout</Button>}
+          {isAuthenticated && <Button onClick={handleLogout}>Logout</Button>}
         </div>
       </header>
       <main className={s.main}>
