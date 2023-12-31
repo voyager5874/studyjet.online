@@ -1,4 +1,3 @@
-import type { Orientation } from 'get-orientation/browser'
 import type { Area, Point } from 'react-easy-crop'
 
 import type { ChangeEvent, ComponentPropsWithoutRef } from 'react'
@@ -10,6 +9,7 @@ import { Button } from '@/ui/button'
 import { Slider } from '@/ui/slider'
 import { Typography } from '@/ui/typography'
 import {
+  ORIENTATION_TO_ANGLE,
   getBase64DataUrl,
   getCroppedImageDataUrl,
   getFileFromUrl,
@@ -34,12 +34,6 @@ type CustomComponentProps = {
   value?: readonly string[]
 }
 
-const ORIENTATION_TO_ANGLE = {
-  '3': 180,
-  '6': 90,
-  '8': -90,
-} as { [key in Orientation]: number }
-
 export type ImageInputProps = CustomComponentProps &
   Omit<ComponentPropsWithoutRef<'input'>, keyof CustomComponentProps>
 export const ImageInput = ({
@@ -56,8 +50,8 @@ export const ImageInput = ({
   ...restProps
 }: ImageInputProps) => {
   const [cropParams, setCropParams] = useState<Point>({ x: 0, y: 0 })
-  const [rotation, setRotation] = useState<number[]>([0])
-  const [zoom, setZoom] = useState<number[]>([1])
+  const [rotation, setRotation] = useState<number>(0)
+  const [zoom, setZoom] = useState<number>(1)
   const [cropFileSize, setCropFileSize] = useState<null | number>(null)
 
   const croppedAreaPixels = useRef<Area | null>()
@@ -81,7 +75,7 @@ export const ImageInput = ({
         const croppedImageDataUrl = await getCroppedImageDataUrl(
           value[0],
           croppedAreaPixels.current,
-          rotation[0]
+          rotation
         )
 
         onChange([value[0], croppedImageDataUrl || ''])
@@ -99,7 +93,7 @@ export const ImageInput = ({
       const croppedImage = await getCroppedImageDataUrl(
         value[0],
         croppedAreaPixels.current,
-        rotation[0]
+        rotation
       )
 
       manualSave && onChange([value[0], croppedImage || ''])
@@ -113,13 +107,9 @@ export const ImageInput = ({
       onChange([value[0], ''])
     }
 
-    setZoom([1])
+    setZoom(1)
     setCropParams({ x: 0, y: 0 })
-    setRotation([0])
-  }
-
-  const handleZoomChange = (val: number) => {
-    setZoom([val])
+    setRotation(0)
   }
 
   const onFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -183,10 +173,6 @@ export const ImageInput = ({
     getFileSize(imageCrop)
   }, [imageCrop])
 
-  const finalEmptyInputButtonText = emptyInputButtonText || `Add ${itemName ? itemName : ''} image`
-  const finalNonEmptyInputButtonText =
-    nonEmptyInputButtonText || `Clear ${itemName ? itemName : ''} image`
-
   const classNames = {
     cropperContainer: clsx(s.imageContainer),
     savedCropIndicator: clsx(
@@ -200,28 +186,42 @@ export const ImageInput = ({
     imageInfo: clsx(s.imageInfoContainer),
   }
 
+  const handleRotateViaSlider = (sliderValue: number[]) => {
+    setRotation(sliderValue[0])
+  }
+
+  const handleZoomViaSlider = (sliderValue: number[]) => {
+    setZoom(sliderValue[0])
+  }
+  const finalEmptyInputButtonText = emptyInputButtonText || `Add ${itemName ? itemName : ''} image`
+  const finalNonEmptyInputButtonText =
+    nonEmptyInputButtonText || `Clear ${itemName ? itemName : ''} image`
+
+  const originalFileUrl = value && value[0] ? value[0] : null
+  const fileChosen = Boolean(originalFileUrl)
+
   return (
     <>
       <div className={classNames.cropperContainer}>
-        {value && value[0] && (
+        {originalFileUrl && (
           <Cropper
             aspect={cropAspect}
             crop={cropParams}
             cropShape={cropShape}
-            image={value[0]}
+            image={originalFileUrl}
             maxZoom={5}
             objectFit={'cover'}
             onCropChange={setCropParams}
             onCropComplete={onCropComplete}
-            onZoomChange={handleZoomChange}
-            rotation={rotation[0]}
-            zoom={zoom[0]}
+            onZoomChange={setZoom}
+            rotation={rotation}
+            zoom={zoom}
           />
         )}
         <div className={classNames.savedCropIndicator}>
           <Typography variant={'body1'}>Crop saved</Typography>
         </div>
-        {(!value || !value[0]) && (
+        {!fileChosen && (
           <div className={classNames.imagePlaceholderContainer}>
             <ImageDown size={70} />
           </div>
@@ -235,7 +235,7 @@ export const ImageInput = ({
           </Typography>
         )}
       </div>
-      {value && value[0] && (
+      {fileChosen && (
         <div className={classNames.imageControlsContainer}>
           <Typography as={'h3'} variant={'body2'}>
             rotation
@@ -243,14 +243,21 @@ export const ImageInput = ({
           <Slider
             max={90}
             min={-90}
-            onValueChange={setRotation}
+            onValueChange={handleRotateViaSlider}
             title={'rotation'}
-            value={rotation}
+            value={[rotation]}
           />
           <Typography as={'h3'} variant={'body2'}>
             zoom
           </Typography>
-          <Slider max={5} min={1} onValueChange={setZoom} step={0.01} title={'zoom'} value={zoom} />
+          <Slider
+            max={5}
+            min={1}
+            onValueChange={handleZoomViaSlider}
+            step={0.01}
+            title={'zoom'}
+            value={[zoom]}
+          />
           {manualSave && (
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Button onClick={handleSaveCrop}>Save crop</Button>
@@ -259,7 +266,7 @@ export const ImageInput = ({
           )}
         </div>
       )}
-      {(!value || !value[0]) && (
+      {!fileChosen && (
         <Button asChild className={classNames.buttonWithIcon} variant={'secondary'}>
           <label>
             <Image size={'1em'} />
@@ -268,7 +275,7 @@ export const ImageInput = ({
           </label>
         </Button>
       )}
-      {value && value[0] && (
+      {fileChosen && (
         <div className={s.buttonWidthFix}>
           <Button onClick={handleClear} size={'fill'} variant={'secondary'}>
             {finalNonEmptyInputButtonText}
