@@ -6,21 +6,19 @@ import { baseApi } from '@/services/api'
 
 const api = baseApi.injectEndpoints({
   endpoints: builder => ({
-    // me: builder.query<UserData | null, void>({
-    // async queryFn(_name, _api, _extraOptions, baseQuery) {
-    //   const result = await baseQuery({
-    //     url: `auth/me`,
-    //     method: 'GET',
-    //   })
-    //
-    //   if (result.error) {
-    //     return { data: null }
-    //   }
-    //
-    //   return { data: result.data as UserData }
-    // },
     me: builder.query<UserData | null, void>({
-      query: () => 'auth/me',
+      async queryFn(_name, _api, _extraOptions, baseQuery) {
+        const result = await baseQuery({
+          url: `auth/me`,
+          method: 'GET',
+        })
+
+        if (result.error) {
+          return { data: null }
+        }
+
+        return { data: result.data as UserData }
+      },
       extraOptions: {
         maxRetries: 0,
       },
