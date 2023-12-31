@@ -88,6 +88,8 @@ export const Page = () => {
 
     if (value) {
       handleNameSearchRaw(value)
+    } else {
+      handleNameSearchRaw('')
     }
   }
 
