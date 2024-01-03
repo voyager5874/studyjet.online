@@ -1,4 +1,4 @@
-import type { CreateDeckData } from '@/features/decks/create-dialog/create-deck-form-schema'
+import type { DeckFormData } from '@/features/decks/edit-dialog/deck-form-schema'
 import type { DeckItem } from '@/features/decks/types'
 import type { Column } from '@/ui/table'
 
@@ -8,17 +8,24 @@ import { useState } from 'react'
 import {
   useCreateDecksMutation,
   useDeleteDeckMutation,
+  useGetDeckByIdQuery,
   useGetDecksQuery,
+  useUpdateDeckMutation,
 } from '@/features/decks/api'
-import { CreateDeckDialog } from '@/features/decks/create-dialog/create-deck-dialog'
+import { EditDeckDialog } from '@/features/decks/edit-dialog'
+import { IMAGE_WAS_ERASED } from '@/features/decks/edit-dialog/constants'
 import { decksTableColumns } from '@/features/decks/table/decks-table-columns'
 import { DeckActions } from '@/features/decks/table/table-deck-actions'
 import { usePageSearchParams } from '@/features/decks/use-page-search-params'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
+import { Button } from '@/ui/button'
 import { Pagination } from '@/ui/pagination'
 import { Table } from '@/ui/table'
 import { TextField } from '@/ui/text-field'
 import { getFileFromUrl } from '@/utils'
+import { skipToken } from '@reduxjs/toolkit/query'
+
+import s from './page.module.scss'
 
 export const Page = () => {
   const {
@@ -40,24 +47,42 @@ export const Page = () => {
     name: useDebouncedValue(name, 1300),
   })
 
-  const decksData = currentData ?? data
-
   const [createDeck, { isSuccess }] = useCreateDecksMutation()
   const [deleteDeck, { isLoading: isDeleting }] = useDeleteDeckMutation()
+  const [updateDeck, { isLoading: isUpdating, isSuccess: updateSuccessful }] =
+    useUpdateDeckMutation()
+
+  const [selectedDeckId, setSelectedDeckId] = useState<null | string>(null)
+  const { currentData: selectedDeckData } = useGetDeckByIdQuery(selectedDeckId ?? skipToken)
 
   const [addDeckDialogOpen, setAddDeckDialogOpen] = useState<boolean>(false)
+  const [editDeckDialogOpen, setEditDeckDialogOpen] = useState<boolean>(false)
+
+  const handleEditDeck = (id: string) => {
+    setSelectedDeckId(id)
+    setEditDeckDialogOpen(true)
+  }
+
+  const decksDataToDisplayInTheTable = currentData ?? data
+
+  const handleEditDialogOpenChange = (open: boolean) => {
+    if (!open) {
+      setEditDeckDialogOpen(false)
+      setSelectedDeckId(null)
+    }
+  }
 
   const columns: Column<DeckItem>[] = [
     ...decksTableColumns,
 
     {
       key: 'actions',
-      render: deck => <DeckActions deck={deck} onDelete={deleteDeck} />,
+      render: deck => <DeckActions deck={deck} onDelete={deleteDeck} onEdit={handleEditDeck} />,
       title: '',
     },
   ]
 
-  const handleNewDeckDataSubmit = async (data: CreateDeckData) => {
+  const handleNewDeckDataSubmit = async (data: DeckFormData) => {
     const formData = new FormData()
 
     formData.append('name', data.name)
@@ -83,6 +108,47 @@ export const Page = () => {
       })
   }
 
+  const handleDeckUpdatedDataSubmit = async (data: DeckFormData) => {
+    if (!selectedDeckData) {
+      return
+    }
+    const updateDeckFormData = new FormData()
+
+    const imageWasErased = data?.cover && data.cover[0] === IMAGE_WAS_ERASED
+    const updatedImageDataUrl = !imageWasErased && data?.cover && data.cover[1]
+
+    const nameChanged = data?.name && selectedDeckData.name !== data.name
+    const isPrivateChanged = data?.isPrivate && selectedDeckData.isPrivate !== data.isPrivate
+
+    nameChanged && updateDeckFormData.append('name', data.name)
+    isPrivateChanged && updateDeckFormData.append('isPrivate', String(data.isPrivate))
+
+    if (updatedImageDataUrl) {
+      const cover = await getFileFromUrl(updatedImageDataUrl)
+
+      updateDeckFormData.append('cover', cover)
+    }
+    if (imageWasErased) {
+      // erase deck cover info on the server
+      updateDeckFormData.append('cover', '')
+    }
+
+    setEditDeckDialogOpen(false)
+
+    const patchData = { id: selectedDeckData.id, body: updateDeckFormData }
+
+    updateDeck(patchData)
+      .unwrap()
+      .then(() => {
+        alert('success')
+        setSelectedDeckId(null)
+      })
+      .catch(() => {
+        alert('error')
+        setEditDeckDialogOpen(true)
+      })
+  }
+
   const changeSearchString = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
 
@@ -93,7 +159,7 @@ export const Page = () => {
     }
   }
 
-  const busy = isFetching || isLoading || isDeleting
+  const busy = isFetching || isLoading || isDeleting || isUpdating
   // todo: get rid of inline styles
 
   return (
@@ -114,28 +180,39 @@ export const Page = () => {
             value={name || ''}
           />
         </div>
-        <CreateDeckDialog
+        <EditDeckDialog
           isSuccess={isSuccess}
           onOpenChange={setAddDeckDialogOpen}
           onSubmit={handleNewDeckDataSubmit}
           open={addDeckDialogOpen}
           title={'add deck'}
+          trigger={<Button>Add new deck</Button>}
         />
+        {selectedDeckData && (
+          <EditDeckDialog
+            deck={selectedDeckData}
+            isSuccess={updateSuccessful}
+            onOpenChange={handleEditDialogOpenChange}
+            onSubmit={handleDeckUpdatedDataSubmit}
+            open={editDeckDialogOpen}
+            title={'edit deck'}
+          />
+        )}
       </div>
 
       <Table
         caption={'Decks'}
         columns={columns}
-        data={decksData?.items || []}
+        data={decksDataToDisplayInTheTable?.items || []}
         onChangeSort={handleSortChange}
         sort={tableSortProp}
       />
-      {decksData?.pagination && (
-        <div style={{ padding: '50px 0' }}>
+      {decksDataToDisplayInTheTable?.pagination && (
+        <div className={s.paginationContainer}>
           <Pagination
             onPageChange={handlePageChange}
             onPerPageCountChange={handlePerPageChange}
-            pagination={decksData.pagination}
+            pagination={decksDataToDisplayInTheTable.pagination}
             perPage={itemsPerPage || 10}
           />
         </div>

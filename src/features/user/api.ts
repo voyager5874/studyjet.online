@@ -7,13 +7,14 @@ import { baseApi } from '@/services/api'
 const api = baseApi.injectEndpoints({
   endpoints: builder => ({
     me: builder.query<UserData | null, void>({
-      async queryFn(_name, _api, _extraOptions, baseQuery) {
+      async queryFn(_args, _api, _extraOptions, baseQuery) {
         const result = await baseQuery({
           url: `auth/me`,
           method: 'GET',
         })
 
         if (result.error) {
+          // there is an infinite loop when no data returned (i.e. if the standard query is used)
           return { data: null }
         }
 
@@ -39,12 +40,14 @@ const api = baseApi.injectEndpoints({
         method: 'POST',
       }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(api.util.updateQueryData('me', undefined, () => null))
+        const patchResult = dispatch(api.util.updateQueryData('me', undefined, _draft => null))
 
         try {
           await queryFulfilled
           dispatch(api.util.resetApiState())
-        } catch {
+        } catch (e) {
+          //todo: use toast
+          console.log(e)
           patchResult.undo()
         }
       },

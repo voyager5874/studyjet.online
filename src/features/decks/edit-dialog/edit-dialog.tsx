@@ -1,11 +1,11 @@
-import type { CreateDeckData } from '@/features/decks/create-dialog/create-deck-form-schema'
+import type { DeckFormData } from './deck-form-schema'
+import type { DeckItem } from '@/features/decks'
 import type { DialogProps } from '@radix-ui/react-dialog'
 
 import type { ReactNode } from 'react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { createDeckFormSchema } from '@/features/decks/create-dialog/create-deck-form-schema'
 import { Button } from '@/ui/button'
 import { Checkbox } from '@/ui/checkbox'
 import {
@@ -24,25 +24,27 @@ import { Typography } from '@/ui/typography'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { X } from 'lucide-react'
 
-import s from './create-deck-dialog.module.scss'
+import s from './edit-dialog.module.scss'
 
-export type CreateDeckDialogProps = {
+import { deckFormSchema } from './deck-form-schema'
+
+export type EditDeckDialogProps = {
+  deck?: DeckItem
   disabled?: boolean
   isSuccess?: boolean
-  onSubmit: (data: CreateDeckData) => void
+  onSubmit: (data: DeckFormData) => void
   title: string
   trigger?: ReactNode
 } & DialogProps
-export function CreateDeckDialog(props: CreateDeckDialogProps) {
-  const { trigger, isSuccess, disabled, onSubmit, title, ...restProps } = props
+export function EditDeckDialog(props: EditDeckDialogProps) {
+  const { deck, trigger, isSuccess, disabled, onSubmit, title, ...restProps } = props
 
-  const form = useForm<CreateDeckData>({
-    //todo: rename createDeckFormSchema -> newDeckFormSchema or something like that
-    resolver: zodResolver(createDeckFormSchema),
+  const form = useForm<DeckFormData>({
+    resolver: zodResolver(deckFormSchema),
     defaultValues: {
-      name: '',
+      name: deck?.name || '',
       cover: ['', ''],
-      isPrivate: false,
+      isPrivate: deck?.isPrivate || false,
     },
   })
 
@@ -52,6 +54,7 @@ export function CreateDeckDialog(props: CreateDeckDialogProps) {
     form.getValues().name === '' ||
     form.formState.isValidating
 
+  //todo: investigate 'useImperativeHandle' hook for exposing .reset()
   useEffect(() => {
     form.formState.isSubmitted && isSuccess && form.reset()
   }, [form, isSuccess])
@@ -59,7 +62,7 @@ export function CreateDeckDialog(props: CreateDeckDialogProps) {
   // todo: use 'classNames' object
   return (
     <Dialog {...restProps} modal>
-      <DialogTrigger asChild>{trigger ? trigger : <Button>Add new deck</Button>}</DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <Form {...form}>
         <DialogContent asChild className={s.content}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -96,6 +99,7 @@ export function CreateDeckDialog(props: CreateDeckDialogProps) {
                   <FormItem className={s.imageInputContainer}>
                     <ImageInput
                       cropAspect={2.5}
+                      defaultImage={deck?.cover}
                       errorMessage={fieldState.error?.message}
                       itemName={'cover'}
                       name={'cover'}
@@ -123,11 +127,13 @@ export function CreateDeckDialog(props: CreateDeckDialogProps) {
               />
             </section>
             <DialogFooter>
-              <Button type={'button'} variant={'secondary'}>
-                Cancel
-              </Button>
+              <DialogClose asChild>
+                <Button type={'button'} variant={'secondary'}>
+                  Cancel
+                </Button>
+              </DialogClose>
               <Button disabled={submitButtonDisabled} type={'submit'}>
-                Add new deck
+                Save changes
               </Button>
             </DialogFooter>
           </form>

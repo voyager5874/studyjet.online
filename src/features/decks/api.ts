@@ -1,8 +1,10 @@
 import type {
   CreateDeckResponse,
+  DeckItem,
   DeleteDeckResponse,
   GetDecksQueryParams,
   GetDecksResponse,
+  UpdateDeckParams,
 } from './types'
 import type { RootState } from '@/app/store'
 
@@ -18,7 +20,13 @@ const api = baseApi.injectEndpoints({
           method: 'GET',
           params: params ? stripObjectEmptyProperties(params) : {},
         }),
-        providesTags: ['Decks'],
+        providesTags: (result, _error, _args) => {
+          const itemsTags = result?.items
+            ? result.items.map(({ id }) => ({ type: 'Decks' as const, id }))
+            : []
+
+          return ['Decks', { type: 'Decks', id: 'LIST' }, ...itemsTags]
+        },
       }),
       createDecks: builder.mutation<CreateDeckResponse, FormData>({
         query: body => ({
@@ -26,7 +34,7 @@ const api = baseApi.injectEndpoints({
           method: 'POST',
           body,
         }),
-        invalidatesTags: ['Decks'],
+        invalidatesTags: ['Decks', { type: 'Decks', id: 'LIST' }],
       }),
       deleteDeck: builder.mutation<DeleteDeckResponse, string>({
         query: id => ({
@@ -38,9 +46,6 @@ const api = baseApi.injectEndpoints({
 
           const entries = api.util.selectInvalidatedBy(state, ['Decks'])
           // const args = api.util.selectCachedArgsForQuery(state, 'getDecks') //not a function ??
-          //
-          // console.log({ entries })
-          // console.log({ args })
 
           const patches = []
 
@@ -72,8 +77,78 @@ const api = baseApi.injectEndpoints({
         },
         invalidatesTags: ['Decks'],
       }),
+      getDeckById: builder.query<DeckItem, string>({
+        query: id => ({
+          url: `decks/${id}`,
+          method: 'GET',
+        }),
+        providesTags: (_result, _error, id) => [{ type: 'Decks', id }],
+      }),
+      updateDeck: builder.mutation<DeckItem, UpdateDeckParams>({
+        query: ({ id, body }) => ({
+          url: `decks/${id}`,
+          method: 'PATCH',
+          body,
+        }),
+        onQueryStarted: async ({ id, body }, { dispatch, queryFulfilled, getState }) => {
+          const state = getState() as RootState
+
+          const entries = api.util.selectInvalidatedBy(state, ['Decks'])
+
+          const patches = []
+          let coverUrl = 'UNTOUCHED' as null | string
+
+          for (const { originalArgs } of entries) {
+            const patch = dispatch(
+              api.util.updateQueryData('getDecks', originalArgs, draft => {
+                const deck = draft.items.find(deck => deck.id === id)
+
+                if (deck) {
+                  const name = body.get('name')
+                  const isPrivate = body.get('isPrivate')
+                  const coverFile = body.get('cover') as File | null | string
+
+                  if (coverFile instanceof File) {
+                    coverUrl = URL.createObjectURL(coverFile)
+                  }
+                  if (coverFile === '') {
+                    coverUrl = null
+                  }
+
+                  name && (deck.name = String(name))
+                  coverUrl !== 'UNTOUCHED' && (deck.cover = coverUrl)
+                  isPrivate && (deck.isPrivate = Boolean(isPrivate))
+                }
+              })
+            )
+
+            patches.push(patch)
+          }
+
+          try {
+            await queryFulfilled
+          } catch (error) {
+            if (patches.length) {
+              patches.forEach(patch => patch.undo())
+            }
+            console.error(error)
+          } finally {
+            coverUrl && URL.revokeObjectURL(coverUrl)
+          }
+        },
+        invalidatesTags: (result, _error, args) =>
+          result
+            ? ['Decks', { type: 'Decks', id: 'LIST' }, { type: 'Decks', id: args.id }]
+            : ['Decks'],
+      }),
     }
   },
 })
 
-export const { useGetDecksQuery, useCreateDecksMutation, useDeleteDeckMutation } = api
+export const {
+  useGetDeckByIdQuery,
+  useUpdateDeckMutation,
+  useGetDecksQuery,
+  useCreateDecksMutation,
+  useDeleteDeckMutation,
+} = api

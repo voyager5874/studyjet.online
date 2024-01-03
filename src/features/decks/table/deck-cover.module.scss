@@ -1,11 +1,16 @@
 .container {
-  display: flex;
+  display: inline-flex;
   gap: 10px;
   align-items: center;
+  text-decoration: none;
 }
 
 .image {
   width: 120px;
   height: 48px;
   object-fit: cover;
+}
+
+.link:hover {
+  opacity: 0.7;
 }

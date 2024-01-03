@@ -68,3 +68,8 @@ export type DeleteDeckResponse = {
   updated: string
   userId: string
 }
+
+export type UpdateDeckParams = {
+  body: FormData
+  id: string
+}

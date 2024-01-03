@@ -3,7 +3,9 @@ import { BYTES_IN_MB } from '@/common/const/file-size-units'
 import { getFileFromUrl } from '@/utils'
 import * as z from 'zod'
 
-export const createDeckFormSchema = z.object({
+import { IMAGE_WAS_ERASED } from './constants'
+
+export const deckFormSchema = z.object({
   name: z.string().min(3, { message: '3 or more' }).max(30, { message: '30 or less' }),
   cover: z
     .array(z.string())
@@ -11,7 +13,7 @@ export const createDeckFormSchema = z.object({
     .optional()
     .refine(
       async images => {
-        if (!images) {
+        if (!images || images[0] === IMAGE_WAS_ERASED) {
           return true
         }
         if (images) {
@@ -38,4 +40,4 @@ export const createDeckFormSchema = z.object({
   isPrivate: z.boolean(),
 })
 
-export type CreateDeckData = z.infer<typeof createDeckFormSchema>
+export type DeckFormData = z.infer<typeof deckFormSchema>
