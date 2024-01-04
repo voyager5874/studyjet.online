@@ -118,7 +118,7 @@ export const Page = () => {
     const updatedImageDataUrl = !imageWasErased && data?.cover && data.cover[1]
 
     const nameChanged = data?.name && selectedDeckData.name !== data.name
-    const isPrivateChanged = data?.isPrivate && selectedDeckData.isPrivate !== data.isPrivate
+    const isPrivateChanged = selectedDeckData.isPrivate !== data?.isPrivate
 
     nameChanged && updateDeckFormData.append('name', data.name)
     isPrivateChanged && updateDeckFormData.append('isPrivate', String(data.isPrivate))
