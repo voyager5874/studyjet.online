@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import Cropper from 'react-easy-crop'
 
 import { BYTES_IN_MB } from '@/common/const/file-size-units'
+import { IMAGE_WAS_ERASED } from '@/features/decks/edit-dialog/constants'
 import { Button } from '@/ui/button'
 import { Slider } from '@/ui/slider'
 import { Typography } from '@/ui/typography'
@@ -24,6 +25,7 @@ import s from './image-input.module.scss'
 type CustomComponentProps = {
   cropAspect?: number
   cropShape?: 'rect' | 'round'
+  defaultImage?: null | string
   emptyInputButtonText?: string
   errorMessage?: string
   itemName?: string
@@ -38,6 +40,7 @@ export type ImageInputProps = CustomComponentProps &
   Omit<ComponentPropsWithoutRef<'input'>, keyof CustomComponentProps>
 export const ImageInput = ({
   errorMessage,
+  defaultImage,
   value,
   onChange,
   itemName,
@@ -55,6 +58,8 @@ export const ImageInput = ({
   const [cropFileSize, setCropFileSize] = useState<null | number>(null)
 
   const croppedAreaPixels = useRef<Area | null>()
+
+  const [showDefaultImage, setShowDefaultImage] = useState<boolean>(Boolean(defaultImage))
 
   const onCropComplete = async (_croppedArea: Area, newCroppedAreaPixels: Area) => {
     if (croppedAreaPixels) {
@@ -151,7 +156,9 @@ export const ImageInput = ({
       onClear()
     }
     if (!onClear) {
-      onChange(['', ''])
+      defaultImage && onChange([IMAGE_WAS_ERASED, ''])
+      !defaultImage && onChange(['', ''])
+      defaultImage && setShowDefaultImage(false)
     }
   }
 
@@ -160,27 +167,29 @@ export const ImageInput = ({
   useEffect(() => {
     async function getFileSize(dataUrl: null | string) {
       if (!dataUrl) {
-        setCropFileSize(null)
-
-        return
+        return null
       }
       const file = await getFileFromUrl(dataUrl)
 
       if (file) {
-        setCropFileSize(file.size / BYTES_IN_MB)
+        return file.size / BYTES_IN_MB
       }
+
+      return null
     }
-    getFileSize(imageCrop)
+    getFileSize(imageCrop).then(size => setCropFileSize(size))
   }, [imageCrop])
 
   const classNames = {
-    cropperContainer: clsx(s.imageContainer),
+    imageContainer: clsx(s.imageContainer),
     savedCropIndicator: clsx(
       s.savedSignContainer,
       value && !value[1] && s.hidden,
       !manualSave && s.hidden
     ),
     imagePlaceholderContainer: clsx(s.imagePlaceholderContainer),
+    defaultImageContainer: clsx(s.defaultImageContainer),
+    image: clsx(s.image),
     imageControlsContainer: clsx(s.imageControlsContainer),
     buttonWithIcon: clsx(s.buttonWithIcon),
     imageInfo: clsx(s.imageInfoContainer),
@@ -193,18 +202,28 @@ export const ImageInput = ({
   const handleZoomViaSlider = (sliderValue: number[]) => {
     setZoom(sliderValue[0])
   }
+
   const finalEmptyInputButtonText = emptyInputButtonText || `Add ${itemName ? itemName : ''} image`
   const finalNonEmptyInputButtonText =
     nonEmptyInputButtonText || `Clear ${itemName ? itemName : ''} image`
 
-  const originalFileUrl = value && value[0] ? value[0] : null
-  const fileChosen = Boolean(originalFileUrl)
+  let originalFileUrl
+
+  if (value && value[0] !== IMAGE_WAS_ERASED) {
+    originalFileUrl = value[0]
+  }
+  const showPlaceholder = !originalFileUrl && !showDefaultImage
+  const fileChosen = !!originalFileUrl
+  const noImageDisplayed = !fileChosen && !showDefaultImage
+  const someImageDisplayed = fileChosen || showDefaultImage
+  const localImageDisplayed = fileChosen && !showDefaultImage
 
   // todo: https://pqina.nl/blog/set-value-to-file-input/
+  // todo: work around different images ratio loaded by other app implementations -> probably conditionally set 'object-fit: scale-down'
   return (
     <>
-      <div className={classNames.cropperContainer}>
-        {originalFileUrl && (
+      <div className={classNames.imageContainer}>
+        {localImageDisplayed && (
           <Cropper
             aspect={cropAspect}
             crop={cropParams}
@@ -222,9 +241,14 @@ export const ImageInput = ({
         <div className={classNames.savedCropIndicator}>
           <Typography variant={'body1'}>Crop saved</Typography>
         </div>
-        {!fileChosen && (
+        {showPlaceholder && (
           <div className={classNames.imagePlaceholderContainer}>
             <ImageDown size={70} />
+          </div>
+        )}
+        {defaultImage && showDefaultImage && (
+          <div className={classNames.imageContainer}>
+            <img alt={'cover image'} className={classNames.image} src={defaultImage} />
           </div>
         )}
       </div>
@@ -236,7 +260,7 @@ export const ImageInput = ({
           </Typography>
         )}
       </div>
-      {fileChosen && (
+      {localImageDisplayed && (
         <div className={classNames.imageControlsContainer}>
           <Typography as={'h3'} variant={'body2'}>
             rotation
@@ -267,7 +291,7 @@ export const ImageInput = ({
           )}
         </div>
       )}
-      {!fileChosen && (
+      {noImageDisplayed && (
         <Button asChild className={classNames.buttonWithIcon} variant={'secondary'}>
           <label>
             <Image size={'1em'} />
@@ -276,7 +300,7 @@ export const ImageInput = ({
           </label>
         </Button>
       )}
-      {fileChosen && (
+      {someImageDisplayed && (
         <div className={s.buttonWidthFix}>
           <Button onClick={handleClear} size={'fill'} variant={'secondary'}>
             {finalNonEmptyInputButtonText}
