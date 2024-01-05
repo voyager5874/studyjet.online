@@ -43,6 +43,7 @@ export const RadioGroupItem = forwardRef<
     item: clsx(s.item, className),
     label: clsx(disabled && s.disabled, id && s.pointer),
     indicator: clsx(s.indicator),
+    dot: clsx(s.dot),
   }
 
   return (
@@ -56,7 +57,7 @@ export const RadioGroupItem = forwardRef<
         value={value}
       >
         <RadioGroupPrimitive.Indicator className={classNames.indicator}>
-          <Dot strokeWidth={8} />
+          <Dot className={classNames.dot} strokeWidth={8} />
         </RadioGroupPrimitive.Indicator>
       </RadioGroupPrimitive.Item>
       <Typography as={'label'} className={classNames.label} htmlFor={id} variant={'body2'}>

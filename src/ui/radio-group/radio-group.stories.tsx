@@ -5,6 +5,22 @@ import { RadioGroup } from './radio-group'
 const meta = {
   title: 'App/RadioGroup',
   tags: ['autodocs'],
+  decorators: [
+    Story => (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+          outline: '1px solid grey',
+          padding: '20px',
+        }}
+      >
+        <Story />
+      </div>
+    ),
+  ],
   component: RadioGroup,
   parameters: { controls: { exclude: ['asChild', 'ref'] } },
   argTypes: {

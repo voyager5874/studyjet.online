@@ -6,6 +6,22 @@ const meta = {
   title: 'Components/RadioGroup',
   tags: ['autodocs'],
   component: RadioGroupRoot,
+  decorators: [
+    Story => (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '100%',
+          outline: '1px solid grey',
+          padding: '20px',
+        }}
+      >
+        <Story />
+      </div>
+    ),
+  ],
   argTypes: {
     disabled: {
       control: 'boolean',
