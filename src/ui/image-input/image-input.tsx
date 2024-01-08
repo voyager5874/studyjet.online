@@ -25,6 +25,7 @@ import s from './image-input.module.scss'
 
 type CustomComponentProps = {
   cropAspect?: number
+  cropParamsValue?: Point
   cropShape?: 'rect' | 'round'
   defaultImage?: null | string
   emptyInputButtonText?: string
@@ -34,12 +35,23 @@ type CustomComponentProps = {
   nonEmptyInputButtonText?: string
   onChange: (url: readonly string[]) => void
   onClear?: () => void
+  onCropParamsChange?: (params: Point) => void
+  onRotationChange?: (rotation: number) => void
+  onZoomChange?: (zoom: number) => void
+  rotationValue?: number
   value?: readonly string[]
+  zoomValue?: number
 }
 
 export type ImageInputProps = CustomComponentProps &
   Omit<ComponentPropsWithoutRef<'input'>, keyof CustomComponentProps>
 export const ImageInput = ({
+  cropParamsValue,
+  zoomValue,
+  rotationValue,
+  onRotationChange,
+  onCropParamsChange,
+  onZoomChange,
   errorMessage,
   defaultImage,
   value,
@@ -53,9 +65,9 @@ export const ImageInput = ({
   cropShape = 'rect',
   ...restProps
 }: ImageInputProps) => {
-  const [cropParams, setCropParams] = useState<Point>({ x: 0, y: 0 })
+  const [cropParams, setCropParams] = useState<Point>(cropParamsValue || { x: 0, y: 0 })
   const [rotation, setRotation] = useState<number>(0)
-  const [zoom, setZoom] = useState<number>(1)
+  const [zoom, setZoom] = useState<number>(zoomValue || 1)
   const [cropFileSize, setCropFileSize] = useState<null | number>(null)
 
   const croppedAreaPixels = useRef<Area | null>()
@@ -182,6 +194,18 @@ export const ImageInput = ({
     }
     getFileSize(imageCrop).then(size => setCropFileSize(size))
   }, [imageCrop])
+
+  useEffect(() => {
+    onCropParamsChange && onCropParamsChange(cropParams)
+  }, [cropParams, onCropParamsChange])
+
+  useEffect(() => {
+    onZoomChange && onZoomChange(zoom)
+  }, [zoom, onZoomChange])
+
+  useEffect(() => {
+    onRotationChange && onRotationChange(rotation)
+  }, [rotation, onRotationChange])
 
   const classNames = {
     imageContainer: clsx(s.imageContainer, !size?.width && s.opaque),

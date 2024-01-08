@@ -1,8 +1,9 @@
 import type { CardItem } from '@/features/cards'
 import type { DialogProps } from '@radix-ui/react-dialog'
+import type { Point } from 'react-easy-crop'
 
 import type { ReactNode } from 'react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { Button } from '@/ui/button'
@@ -36,6 +37,14 @@ export type EditCardDialogProps = {
 } & DialogProps
 export function EditCardDialog(props: EditCardDialogProps) {
   const { card, trigger, isSuccess, disabled, onSubmit, title, ...restProps } = props
+
+  const [questionImgCropParams, setQuestionImgCropParams] = useState<Point>({ x: 0, y: 0 })
+  const [questionImgZoom, setQuestionImgZoom] = useState<number>(1)
+  const [questionImgRotation, setQuestionImgRotation] = useState<number>(0)
+
+  const [answerImgCropParams, setAnswerImgCropParams] = useState<Point>({ x: 0, y: 0 })
+  const [answerImgZoom, setAnswerImgZoom] = useState<number>(1)
+  const [answerImgRotation, setAnswerImgRotation] = useState<number>(0)
 
   const form = useForm({
     // resolver: zodResolver(deckFormSchema),
@@ -123,12 +132,18 @@ export function EditCardDialog(props: EditCardDialogProps) {
                       <FormItem className={classNames.formItem}>
                         <ImageInput
                           cropAspect={2.5}
+                          cropParamsValue={questionImgCropParams}
                           defaultImage={card?.questionImg}
                           errorMessage={fieldState.error?.message}
                           itemName={'question'}
                           name={'questionImg'}
                           onChange={field.onChange}
+                          onCropParamsChange={setQuestionImgCropParams}
+                          onRotationChange={setQuestionImgRotation}
+                          onZoomChange={setQuestionImgZoom}
+                          rotationValue={questionImgRotation}
                           value={field.value}
+                          zoomValue={questionImgZoom}
                         />
                       </FormItem>
                     )}
@@ -159,12 +174,18 @@ export function EditCardDialog(props: EditCardDialogProps) {
                       <FormItem className={classNames.formItem}>
                         <ImageInput
                           cropAspect={2.5}
+                          cropParamsValue={answerImgCropParams}
                           defaultImage={card?.answerImg}
                           errorMessage={fieldState.error?.message}
                           itemName={'answer'}
                           name={'answerImg'}
                           onChange={field.onChange}
+                          onCropParamsChange={setAnswerImgCropParams}
+                          onRotationChange={setAnswerImgRotation}
+                          onZoomChange={setAnswerImgZoom}
+                          rotationValue={answerImgRotation}
                           value={field.value}
+                          zoomValue={answerImgZoom}
                         />
                       </FormItem>
                     )}
