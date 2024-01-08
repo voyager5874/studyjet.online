@@ -26,13 +26,13 @@ const Template: Story = {
     <Tabs.Tabs {...args}>
       <Tabs.TabsList>
         {tabsItems.map((item, index) => (
-          <Tabs.TabsTrigger value={item} key={index} disabled={item === 'One'}>
+          <Tabs.TabsTrigger disabled={item === 'One'} key={index} value={item}>
             {item}
           </Tabs.TabsTrigger>
         ))}
       </Tabs.TabsList>
       {tabsItems.map((item, index) => (
-        <Tabs.TabsContent value={item} key={index}>
+        <Tabs.TabsContent key={index} value={item}>
           {item}
         </Tabs.TabsContent>
       ))}
