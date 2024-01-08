@@ -20,6 +20,13 @@ const api = baseApi.injectEndpoints({
       }),
       providesTags: ['Cards'],
     }),
+    getCardById: builder.query<CardItem, string>({
+      query: id => ({
+        url: `cards/${id}`,
+        method: 'GET',
+      }),
+      providesTags: (_result, _error, id) => [{ type: 'Cards', id }],
+    }),
     createCard: builder.mutation<CardItem, CreateCardParams>({
       query: ({ deckId, body }) => ({
         url: `decks/${deckId}/cards`,
@@ -31,7 +38,23 @@ const api = baseApi.injectEndpoints({
           ? ['Cards', 'Decks', { type: 'Decks', id: 'List' }, { type: 'Decks', id: result.deckId }]
           : ['Cards', 'Decks', { type: 'Decks', id: 'List' }],
     }),
+    updateCard: builder.mutation<CardItem, { body: FormData; cardId: string }>({
+      query: ({ cardId, body }) => ({
+        url: `cards/${cardId}`,
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: (_result, _error, { cardId }) => [
+        { type: 'Cards', id: 'LIST' },
+        { type: 'Cards', id: cardId },
+      ],
+    }),
   }),
 })
 
-export const { useGetCardsOfDeckQuery, useCreateCardMutation } = api
+export const {
+  useUpdateCardMutation,
+  useGetCardsOfDeckQuery,
+  useCreateCardMutation,
+  useGetCardByIdQuery,
+} = api

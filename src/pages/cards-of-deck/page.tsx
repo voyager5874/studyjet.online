@@ -4,10 +4,16 @@ import type { Column } from '@/ui/table'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { useCreateCardMutation, useGetCardsOfDeckQuery } from '@/features/cards/api'
+import {
+  useCreateCardMutation,
+  useGetCardByIdQuery,
+  useGetCardsOfDeckQuery,
+  useUpdateCardMutation,
+} from '@/features/cards/api'
 import { EditCardDialog } from '@/features/cards/edit-dialog'
 import { cardsTableColumns } from '@/features/cards/table/cards-table-columns'
 import { CardActions } from '@/features/cards/table/table-card-actions'
+import { IMAGE_WAS_ERASED } from '@/features/decks/edit-dialog/constants'
 import { usePageSearchParams } from '@/hooks'
 import { Button } from '@/ui/button'
 import { Pagination } from '@/ui/pagination'
@@ -26,14 +32,27 @@ export const Page = () => {
   )
 
   const [addCardDialogOpen, setAddCardDialogOpen] = useState<boolean>(false)
-  const [createCard] = useCreateCardMutation()
+  const [createCard, { isSuccess: createCardSuccess }] = useCreateCardMutation()
+
+  const [editCardDialogOpen, setEditCardDialogOpen] = useState<boolean>(false)
+  const [selectedCardId, setSelectedCardId] = useState<null | string>(null)
+
+  const { currentData: selectedCardData } = useGetCardByIdQuery(selectedCardId ?? skipToken)
+
+  const [updateCard, { isSuccess: updateCardSuccess, isLoading: cardIsBeingUpdated }] =
+    useUpdateCardMutation()
+
+  const handleEdit = (id: string) => {
+    setSelectedCardId(id)
+    setEditCardDialogOpen(true)
+  }
 
   const columns: Column<CardItem>[] = [
     ...cardsTableColumns,
 
     {
       key: 'actions',
-      render: card => <CardActions card={card} />,
+      render: card => <CardActions card={card} onEdit={handleEdit} />,
       title: '',
     },
   ]
@@ -48,7 +67,7 @@ export const Page = () => {
     formData.append('question', data.question)
     formData.append('answer', data.answer)
 
-    const questionImageDataUrl = (data?.question && data.question[1]) || null
+    const questionImageDataUrl = (data?.questionImg && data.questionImg[1]) || null
 
     if (questionImageDataUrl) {
       const questionImage = await getFileFromUrl(questionImageDataUrl)
@@ -57,7 +76,7 @@ export const Page = () => {
     }
     setAddCardDialogOpen(false)
 
-    const answerImageDataUrl = (data?.question && data.question[1]) || null
+    const answerImageDataUrl = (data?.answerImg && data.answerImg[1]) || null
 
     if (answerImageDataUrl) {
       const answerImage = await getFileFromUrl(answerImageDataUrl)
@@ -77,7 +96,58 @@ export const Page = () => {
       })
   }
 
-  const busy = isFetching || isLoading
+  const handleEditedCardDataSubmit = async (data: any) => {
+    if (!selectedCardData) {
+      return
+    }
+
+    const formData = new FormData()
+
+    const questionImageWasErased = data?.questionImg && data.questionImg[0] === IMAGE_WAS_ERASED
+    const updatedQuestionImageDataUrl =
+      !questionImageWasErased && data?.questionImg && data.questionImg[1]
+
+    const answerImageWasErased = data?.answerImg && data.answerImg[0] === IMAGE_WAS_ERASED
+    const updatedAnswerImageDataUrl = !answerImageWasErased && data?.answerImg && data.answerImg[1]
+
+    const questionChanged = data.question !== selectedCardData.question
+    const answerChanged = data.answer !== selectedCardData.answer
+
+    questionChanged && formData.append('question', data.question)
+    answerChanged && formData.append('answer', data.answer)
+
+    if (updatedQuestionImageDataUrl) {
+      const image = await getFileFromUrl(updatedQuestionImageDataUrl)
+
+      formData.append('questionImg', image)
+    }
+    if (questionImageWasErased) {
+      formData.append('questionImg', '')
+    }
+
+    if (updatedAnswerImageDataUrl) {
+      const image = await getFileFromUrl(updatedAnswerImageDataUrl)
+
+      formData.append('answerImg', image)
+    }
+    if (answerImageWasErased) {
+      formData.append('answerImg', '')
+    }
+
+    setEditCardDialogOpen(false)
+
+    updateCard({ body: formData, cardId: selectedCardData.id })
+      .unwrap()
+      .then(() => {
+        alert('success')
+      })
+      .catch(() => {
+        alert('error')
+        setEditCardDialogOpen(true)
+      })
+  }
+
+  const busy = isFetching || isLoading || cardIsBeingUpdated
 
   return (
     <>
@@ -91,11 +161,23 @@ export const Page = () => {
       ></div>
       {id && (
         <EditCardDialog
+          isSuccess={createCardSuccess}
           onOpenChange={setAddCardDialogOpen}
           onSubmit={handleNewCardDataSubmit}
           open={addCardDialogOpen}
           title={'add card'}
           trigger={<Button>Add new card</Button>}
+        />
+      )}
+
+      {selectedCardData && (
+        <EditCardDialog
+          card={selectedCardData}
+          isSuccess={updateCardSuccess}
+          onOpenChange={setEditCardDialogOpen}
+          onSubmit={handleEditedCardDataSubmit}
+          open={editCardDialogOpen}
+          title={'edit card'}
         />
       )}
       <Table
