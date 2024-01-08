@@ -6,6 +6,7 @@ import Cropper from 'react-easy-crop'
 
 import { BYTES_IN_MB } from '@/common/const/file-size-units'
 import { IMAGE_WAS_ERASED } from '@/features/decks/edit-dialog/constants'
+import { useElementSize } from '@/hooks'
 import { Button } from '@/ui/button'
 import { Slider } from '@/ui/slider'
 import { Typography } from '@/ui/typography'
@@ -60,6 +61,8 @@ export const ImageInput = ({
   const croppedAreaPixels = useRef<Area | null>()
 
   const [showDefaultImage, setShowDefaultImage] = useState<boolean>(Boolean(defaultImage))
+
+  const { size, ref: containerRef } = useElementSize<HTMLDivElement>()
 
   const onCropComplete = async (_croppedArea: Area, newCroppedAreaPixels: Area) => {
     if (croppedAreaPixels) {
@@ -181,7 +184,7 @@ export const ImageInput = ({
   }, [imageCrop])
 
   const classNames = {
-    imageContainer: clsx(s.imageContainer),
+    imageContainer: clsx(s.imageContainer, !size?.width && s.opaque),
     savedCropIndicator: clsx(
       s.savedSignContainer,
       value && !value[1] && s.hidden,
@@ -222,7 +225,11 @@ export const ImageInput = ({
   // todo: work around different images ratio loaded by other app implementations -> probably conditionally set 'object-fit: scale-down'
   return (
     <>
-      <div className={classNames.imageContainer}>
+      <div
+        className={classNames.imageContainer}
+        ref={containerRef}
+        style={{ height: size?.width ? `${size?.width / cropAspect}px` : '200px' }}
+      >
         {localImageDisplayed && (
           <Cropper
             aspect={cropAspect}
