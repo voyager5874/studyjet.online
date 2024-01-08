@@ -1,0 +1,68 @@
+.formSection {
+  padding-right: 24px;
+  padding-left: 24px;
+
+  .formItem:last-child {
+    // margin-bottom: 20px;
+  }
+}
+
+.content {
+  width: calc(500px + 48px);
+}
+
+.tabs {
+  margin-bottom: 24px;
+}
+
+.dialogHeader {
+  border: none;
+}
+
+.tabsList {
+  position: relative;
+  display: flex;
+
+  &::after,
+  &::before {
+    content: 'filler';
+
+    min-width: 10px;
+    min-height: 10px;
+    padding: 6px 0;
+
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    color: transparent;
+
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  &::before {
+    width: 24px;
+  }
+
+  &::after {
+    display: block;
+    flex-grow: 1;
+    min-width: 10px;
+    min-height: 10px;
+  }
+
+  .tabsTrigger {
+    border-bottom: none;
+
+    &:first-child {
+      border-bottom-left-radius: 0;
+    }
+
+    &:last-child {
+      border-bottom-right-radius: 0;
+    }
+  }
+
+  .underline {
+    flex-grow: 1;
+  }
+}
