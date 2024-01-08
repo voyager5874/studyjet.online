@@ -1,9 +1,8 @@
 import { MAX_IMAGE_SIZE_BYTES } from '@/common/app-settings'
 import { BYTES_IN_MB } from '@/common/const/file-size-units'
+import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
 import { getFileFromUrl } from '@/utils'
 import * as z from 'zod'
-
-import { IMAGE_WAS_ERASED } from './constants'
 
 export const deckFormSchema = z.object({
   name: z.string().min(3, { message: '3 or more' }).max(30, { message: '30 or less' }),

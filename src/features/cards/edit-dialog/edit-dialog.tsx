@@ -1,3 +1,4 @@
+import type { CardFormData } from './card-form-schema'
 import type { CardItem } from '@/features/cards'
 import type { DialogProps } from '@radix-ui/react-dialog'
 import type { Point } from 'react-easy-crop'
@@ -21,17 +22,19 @@ import { ImageInput } from '@/ui/image-input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs'
 import { TextField } from '@/ui/text-field'
 import { Typography } from '@/ui/typography'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { clsx } from 'clsx'
 import { X } from 'lucide-react'
 
 import s from './edit-dialog.module.scss'
 
+import { cardFormSchema } from './card-form-schema'
+
 export type EditCardDialogProps = {
   card?: CardItem
   disabled?: boolean
   isSuccess?: boolean
-  // onSubmit: (data: CardFormData) => void
-  onSubmit: (data: any) => void
+  onSubmit: (data: CardFormData) => void
   title: string
   trigger?: ReactNode
 } & DialogProps
@@ -47,7 +50,7 @@ export function EditCardDialog(props: EditCardDialogProps) {
   const [answerImgRotation, setAnswerImgRotation] = useState<number>(0)
 
   const form = useForm({
-    // resolver: zodResolver(deckFormSchema),
+    resolver: zodResolver(cardFormSchema),
     defaultValues: {
       question: card?.question || '',
       answer: card?.answer || '',

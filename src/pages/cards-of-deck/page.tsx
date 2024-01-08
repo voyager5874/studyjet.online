@@ -1,9 +1,11 @@
+import type { CardFormData } from '@/features/cards/edit-dialog/card-form-schema'
 import type { CardItem } from '@/features/cards/types'
 import type { Column } from '@/ui/table'
 
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
+import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
 import {
   useCreateCardMutation,
   useGetCardByIdQuery,
@@ -13,7 +15,6 @@ import {
 import { EditCardDialog } from '@/features/cards/edit-dialog'
 import { cardsTableColumns } from '@/features/cards/table/cards-table-columns'
 import { CardActions } from '@/features/cards/table/table-card-actions'
-import { IMAGE_WAS_ERASED } from '@/features/decks/edit-dialog/constants'
 import { usePageSearchParams } from '@/hooks'
 import { Button } from '@/ui/button'
 import { Pagination } from '@/ui/pagination'
@@ -57,7 +58,7 @@ export const Page = () => {
     },
   ]
 
-  const handleNewCardDataSubmit = async (data: any) => {
+  const handleNewCardDataSubmit = async (data: CardFormData) => {
     if (!id) {
       return
     }
@@ -96,7 +97,7 @@ export const Page = () => {
       })
   }
 
-  const handleEditedCardDataSubmit = async (data: any) => {
+  const handleEditedCardDataSubmit = async (data: CardFormData) => {
     if (!selectedCardData) {
       return
     }

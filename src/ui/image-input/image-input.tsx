@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import Cropper from 'react-easy-crop'
 
 import { BYTES_IN_MB } from '@/common/const/file-size-units'
-import { IMAGE_WAS_ERASED } from '@/features/decks/edit-dialog/constants'
+import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
 import { useElementSize } from '@/hooks'
 import { Button } from '@/ui/button'
 import { Slider } from '@/ui/slider'
