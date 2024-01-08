@@ -161,7 +161,7 @@ export function EditCardDialog(props: EditCardDialogProps) {
                           cropAspect={2.5}
                           defaultImage={card?.answerImg}
                           errorMessage={fieldState.error?.message}
-                          itemName={'answer Img'}
+                          itemName={'answer'}
                           name={'answerImg'}
                           onChange={field.onChange}
                           value={field.value}

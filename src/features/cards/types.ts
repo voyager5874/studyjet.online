@@ -31,3 +31,8 @@ export type GetCardsQueryParams = {
   orderBy?: `${keyof Omit<CardItem, 'id'>}-${'asc' | 'desc'}`
   question?: string
 }
+
+export type CreateCardParams = {
+  body: FormData
+  deckId: string
+}

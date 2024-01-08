@@ -1,15 +1,18 @@
 import type { CardItem } from '@/features/cards/types'
 import type { Column } from '@/ui/table'
 
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import { useGetCardsOfDeckQuery } from '@/features/cards/api'
+import { useCreateCardMutation, useGetCardsOfDeckQuery } from '@/features/cards/api'
+import { EditCardDialog } from '@/features/cards/edit-dialog'
 import { cardsTableColumns } from '@/features/cards/table/cards-table-columns'
 import { CardActions } from '@/features/cards/table/table-card-actions'
 import { usePageSearchParams } from '@/hooks'
+import { Button } from '@/ui/button'
 import { Pagination } from '@/ui/pagination'
 import { Table } from '@/ui/table'
-import { parseNumber } from '@/utils'
+import { getFileFromUrl, parseNumber } from '@/utils'
 import { skipToken } from '@reduxjs/toolkit/query'
 
 export const Page = () => {
@@ -22,6 +25,9 @@ export const Page = () => {
     id ? { id, params: pageQueryParams ?? {} } : skipToken
   )
 
+  const [addCardDialogOpen, setAddCardDialogOpen] = useState<boolean>(false)
+  const [createCard] = useCreateCardMutation()
+
   const columns: Column<CardItem>[] = [
     ...cardsTableColumns,
 
@@ -32,8 +38,66 @@ export const Page = () => {
     },
   ]
 
+  const handleNewCardDataSubmit = async (data: any) => {
+    if (!id) {
+      return
+    }
+
+    const formData = new FormData()
+
+    formData.append('question', data.question)
+    formData.append('answer', data.answer)
+
+    const questionImageDataUrl = (data?.question && data.question[1]) || null
+
+    if (questionImageDataUrl) {
+      const questionImage = await getFileFromUrl(questionImageDataUrl)
+
+      formData.append('questionImg', questionImage)
+    }
+    setAddCardDialogOpen(false)
+
+    const answerImageDataUrl = (data?.question && data.question[1]) || null
+
+    if (answerImageDataUrl) {
+      const answerImage = await getFileFromUrl(answerImageDataUrl)
+
+      formData.append('answerImg', answerImage)
+    }
+    setAddCardDialogOpen(false)
+
+    createCard({ body: formData, deckId: id })
+      .unwrap()
+      .then(() => {
+        alert('success')
+      })
+      .catch(() => {
+        alert('error')
+        setAddCardDialogOpen(true)
+      })
+  }
+
+  const busy = isFetching || isLoading
+
   return (
     <>
+      <div>{busy && 'working...'}</div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+        }}
+      ></div>
+      {id && (
+        <EditCardDialog
+          onOpenChange={setAddCardDialogOpen}
+          onSubmit={handleNewCardDataSubmit}
+          open={addCardDialogOpen}
+          title={'add card'}
+          trigger={<Button>Add new card</Button>}
+        />
+      )}
       <Table
         caption={'Cards'}
         columns={columns}
