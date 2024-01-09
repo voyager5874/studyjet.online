@@ -12,7 +12,7 @@ type Props = {
   onEdit?: (id: string) => void
   onLearn?: (id: string) => void
 }
-export function CardActions({ card, onEdit }: Props) {
+export function CardActions({ card, onEdit, onDelete }: Props) {
   const authorId = card?.userId
   const { data } = useMeQuery()
 
@@ -22,6 +22,10 @@ export function CardActions({ card, onEdit }: Props) {
     onEdit && onEdit(card.id)
   }
 
+  const handleOnDelete = () => {
+    onDelete && onDelete(card.id)
+  }
+
   return (
     <>
       {authorId === userId && (
@@ -29,7 +33,7 @@ export function CardActions({ card, onEdit }: Props) {
           <Button onClick={handleOnEdit} variant={'icon'}>
             <PenLine size={14} />
           </Button>
-          <Button variant={'icon'}>
+          <Button onClick={handleOnDelete} variant={'icon'}>
             <Trash size={14} />
           </Button>
         </div>

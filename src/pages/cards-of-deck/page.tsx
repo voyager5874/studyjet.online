@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom'
 import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
 import {
   useCreateCardMutation,
+  useDeleteCardMutation,
   useGetCardByIdQuery,
   useGetCardsOfDeckQuery,
   useUpdateCardMutation,
@@ -46,6 +47,8 @@ export const Page = () => {
   const [updateCard, { isSuccess: updateCardSuccess, isLoading: cardIsBeingUpdated }] =
     useUpdateCardMutation()
 
+  const [deleteCard, { isLoading: isDeleting }] = useDeleteCardMutation()
+
   const getCardIdFromTable = (id: string) => {
     setSelectedCardId(id)
     setEditCardDialogOpen(true)
@@ -61,7 +64,7 @@ export const Page = () => {
 
     {
       key: 'actions',
-      render: card => <CardActions card={card} onEdit={getCardIdFromTable} />,
+      render: card => <CardActions card={card} onDelete={deleteCard} onEdit={getCardIdFromTable} />,
       title: '',
     },
   ]
@@ -158,7 +161,13 @@ export const Page = () => {
       })
   }
 
-  const busy = isFetching || isLoading || cardIsBeingUpdated || isCreating || selectedCardFetching
+  const busy =
+    isFetching ||
+    isLoading ||
+    cardIsBeingUpdated ||
+    isCreating ||
+    selectedCardFetching ||
+    isDeleting
 
   return (
     <>

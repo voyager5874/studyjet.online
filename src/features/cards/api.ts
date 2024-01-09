@@ -112,6 +112,43 @@ const api = baseApi.injectEndpoints({
         { type: 'Cards', id: cardId },
       ],
     }),
+    deleteCard: builder.mutation<void, string>({
+      query: id => ({
+        url: `cards/${id}`,
+        method: 'DELETE',
+      }),
+      onQueryStarted: async (id, { dispatch, queryFulfilled, getState }) => {
+        const state = getState() as RootState
+
+        const entries = api.util.selectInvalidatedBy(state, ['Cards'])
+
+        const patches = []
+
+        for (const { originalArgs } of entries) {
+          const patch = dispatch(
+            api.util.updateQueryData('getCardsOfDeck', originalArgs, draft => {
+              const cardIndex = draft.items.findIndex(card => card.id === id)
+
+              if (cardIndex !== -1) {
+                draft?.items?.splice(cardIndex, 1)
+              }
+            })
+          )
+
+          patches.push(patch)
+        }
+
+        try {
+          await queryFulfilled
+        } catch (error) {
+          if (patches.length) {
+            patches.forEach(patch => patch.undo())
+          }
+        }
+      },
+
+      invalidatesTags: ['Cards', { type: 'Cards', id: 'LIST' }],
+    }),
   }),
 })
 
@@ -120,4 +157,5 @@ export const {
   useGetCardsOfDeckQuery,
   useCreateCardMutation,
   useGetCardByIdQuery,
+  useDeleteCardMutation,
 } = api
