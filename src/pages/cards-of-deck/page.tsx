@@ -33,7 +33,8 @@ export const Page = () => {
   )
 
   const [addCardDialogOpen, setAddCardDialogOpen] = useState<boolean>(false)
-  const [createCard, { isSuccess: createCardSuccess }] = useCreateCardMutation()
+  const [createCard, { isSuccess: createCardSuccess, isLoading: isCreating }] =
+    useCreateCardMutation()
 
   const [editCardDialogOpen, setEditCardDialogOpen] = useState<boolean>(false)
   const [selectedCardId, setSelectedCardId] = useState<null | string>(null)
@@ -43,9 +44,14 @@ export const Page = () => {
   const [updateCard, { isSuccess: updateCardSuccess, isLoading: cardIsBeingUpdated }] =
     useUpdateCardMutation()
 
-  const handleEdit = (id: string) => {
+  const getCardIdFromTable = (id: string) => {
     setSelectedCardId(id)
     setEditCardDialogOpen(true)
+  }
+
+  const handleEditDialogOpenChange = (open: boolean) => {
+    setEditCardDialogOpen(open)
+    !open && setSelectedCardId(null)
   }
 
   const columns: Column<CardItem>[] = [
@@ -53,7 +59,7 @@ export const Page = () => {
 
     {
       key: 'actions',
-      render: card => <CardActions card={card} onEdit={handleEdit} />,
+      render: card => <CardActions card={card} onEdit={getCardIdFromTable} />,
       title: '',
     },
   ]
@@ -140,6 +146,8 @@ export const Page = () => {
     updateCard({ body: formData, cardId: selectedCardData.id })
       .unwrap()
       .then(() => {
+        setSelectedCardId(null)
+
         alert('success')
       })
       .catch(() => {
@@ -148,7 +156,7 @@ export const Page = () => {
       })
   }
 
-  const busy = isFetching || isLoading || cardIsBeingUpdated
+  const busy = isFetching || isLoading || cardIsBeingUpdated || isCreating
 
   return (
     <>
@@ -175,7 +183,7 @@ export const Page = () => {
         <EditCardDialog
           card={selectedCardData}
           isSuccess={updateCardSuccess}
-          onOpenChange={setEditCardDialogOpen}
+          onOpenChange={handleEditDialogOpenChange}
           onSubmit={handleEditedCardDataSubmit}
           open={editCardDialogOpen}
           title={'edit card'}
