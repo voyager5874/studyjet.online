@@ -5,8 +5,8 @@ import { getFileFromUrl } from '@/utils'
 import * as z from 'zod'
 
 export const cardFormSchema = z.object({
-  question: z.string().min(3, { message: '3 or more' }).max(30, { message: '500 or less' }),
-  answer: z.string().min(3, { message: '3 or more' }).max(30, { message: '500 or less' }),
+  question: z.string().min(3, { message: '3 or more' }).max(500, { message: '500 or less' }),
+  answer: z.string().min(3, { message: '3 or more' }).max(500, { message: '500 or less' }),
   questionImg: z
     .array(z.string())
     .length(2)
