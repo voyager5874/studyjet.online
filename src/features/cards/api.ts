@@ -3,6 +3,7 @@ import type {
   CreateCardParams,
   GetCardsOfDeckResponse,
   GetCardsQueryParams,
+  UpdateCardParams,
 } from './types'
 
 import { baseApi } from '@/services/api'
@@ -38,7 +39,7 @@ const api = baseApi.injectEndpoints({
           ? ['Cards', 'Decks', { type: 'Decks', id: 'List' }, { type: 'Decks', id: result.deckId }]
           : ['Cards', 'Decks', { type: 'Decks', id: 'List' }],
     }),
-    updateCard: builder.mutation<CardItem, { body: FormData; cardId: string }>({
+    updateCard: builder.mutation<CardItem, UpdateCardParams>({
       query: ({ cardId, body }) => ({
         url: `cards/${cardId}`,
         method: 'PATCH',
