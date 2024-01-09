@@ -22,6 +22,7 @@ import { ImageInput } from '@/ui/image-input'
 import { TextField } from '@/ui/text-field'
 import { Typography } from '@/ui/typography'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { clsx } from 'clsx'
 import { X } from 'lucide-react'
 
 import s from './edit-dialog.module.scss'
@@ -55,16 +56,25 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
     form.formState.isValidating
 
   //todo: investigate 'useImperativeHandle' hook for exposing .reset()
+  //todo: check for accessibility (id, aria-labels...)
+  //todo: if name is '' (create dialog), focus corresponding TextField
+
   useEffect(() => {
     form.formState.isSubmitted && isSuccess && form.reset()
   }, [form, isSuccess])
 
-  // todo: use 'classNames' object
+  const classNames = {
+    dialogContent: clsx(s.content),
+    formSection: clsx(s.formSection),
+    formItem: clsx(s.formItem),
+    dialogFooter: clsx(s.dialogFooter),
+  }
+
   return (
     <Dialog {...restProps} modal>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <Form {...form}>
-        <DialogContent asChild className={s.content}>
+        <DialogContent asChild className={classNames.dialogContent}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
               <Typography as={DialogTitle} variant={'h2'}>
@@ -76,12 +86,12 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
                 </Button>
               </DialogClose>
             </DialogHeader>
-            <section className={s.essence}>
+            <section className={classNames.formSection}>
               <FormField
                 control={form.control}
                 name={'name'}
                 render={({ field, fieldState }) => (
-                  <FormItem>
+                  <FormItem className={classNames.formItem}>
                     <FormControl>
                       <TextField
                         label={'New deck name'}
@@ -96,7 +106,7 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
                 control={form.control}
                 name={'cover'}
                 render={({ field, fieldState }) => (
-                  <FormItem className={s.imageInputContainer}>
+                  <FormItem className={classNames.formItem}>
                     <ImageInput
                       cropAspect={2.5}
                       defaultImage={deck?.cover}
@@ -114,7 +124,7 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
                 control={form.control}
                 name={'isPrivate'}
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className={classNames.formItem}>
                     <FormControl>
                       <Checkbox
                         checked={field.value}
@@ -126,7 +136,7 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
                 )}
               />
             </section>
-            <DialogFooter>
+            <DialogFooter className={classNames.dialogFooter}>
               <DialogClose asChild>
                 <Button type={'button'} variant={'secondary'}>
                   Cancel

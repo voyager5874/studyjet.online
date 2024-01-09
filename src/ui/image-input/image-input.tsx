@@ -5,7 +5,8 @@ import { useEffect, useRef, useState } from 'react'
 import Cropper from 'react-easy-crop'
 
 import { BYTES_IN_MB } from '@/common/const/file-size-units'
-import { IMAGE_WAS_ERASED } from '@/features/decks/edit-dialog/constants'
+import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
+import { useElementSize } from '@/hooks'
 import { Button } from '@/ui/button'
 import { Slider } from '@/ui/slider'
 import { Typography } from '@/ui/typography'
@@ -24,6 +25,7 @@ import s from './image-input.module.scss'
 
 type CustomComponentProps = {
   cropAspect?: number
+  cropParamsValue?: Point
   cropShape?: 'rect' | 'round'
   defaultImage?: null | string
   emptyInputButtonText?: string
@@ -33,12 +35,23 @@ type CustomComponentProps = {
   nonEmptyInputButtonText?: string
   onChange: (url: readonly string[]) => void
   onClear?: () => void
+  onCropParamsChange?: (params: Point) => void
+  onRotationChange?: (rotation: number) => void
+  onZoomChange?: (zoom: number) => void
+  rotationValue?: number
   value?: readonly string[]
+  zoomValue?: number
 }
 
 export type ImageInputProps = CustomComponentProps &
   Omit<ComponentPropsWithoutRef<'input'>, keyof CustomComponentProps>
 export const ImageInput = ({
+  cropParamsValue,
+  zoomValue,
+  rotationValue,
+  onRotationChange,
+  onCropParamsChange,
+  onZoomChange,
   errorMessage,
   defaultImage,
   value,
@@ -52,14 +65,16 @@ export const ImageInput = ({
   cropShape = 'rect',
   ...restProps
 }: ImageInputProps) => {
-  const [cropParams, setCropParams] = useState<Point>({ x: 0, y: 0 })
+  const [cropParams, setCropParams] = useState<Point>(cropParamsValue || { x: 0, y: 0 })
   const [rotation, setRotation] = useState<number>(0)
-  const [zoom, setZoom] = useState<number>(1)
+  const [zoom, setZoom] = useState<number>(zoomValue || 1)
   const [cropFileSize, setCropFileSize] = useState<null | number>(null)
 
   const croppedAreaPixels = useRef<Area | null>()
 
   const [showDefaultImage, setShowDefaultImage] = useState<boolean>(Boolean(defaultImage))
+
+  const { size, ref: containerRef } = useElementSize<HTMLDivElement>()
 
   const onCropComplete = async (_croppedArea: Area, newCroppedAreaPixels: Area) => {
     if (croppedAreaPixels) {
@@ -180,8 +195,20 @@ export const ImageInput = ({
     getFileSize(imageCrop).then(size => setCropFileSize(size))
   }, [imageCrop])
 
+  useEffect(() => {
+    onCropParamsChange && onCropParamsChange(cropParams)
+  }, [cropParams, onCropParamsChange])
+
+  useEffect(() => {
+    onZoomChange && onZoomChange(zoom)
+  }, [zoom, onZoomChange])
+
+  useEffect(() => {
+    onRotationChange && onRotationChange(rotation)
+  }, [rotation, onRotationChange])
+
   const classNames = {
-    imageContainer: clsx(s.imageContainer),
+    imageContainer: clsx(s.imageContainer, !size?.width && s.opaque),
     savedCropIndicator: clsx(
       s.savedSignContainer,
       value && !value[1] && s.hidden,
@@ -222,7 +249,11 @@ export const ImageInput = ({
   // todo: work around different images ratio loaded by other app implementations -> probably conditionally set 'object-fit: scale-down'
   return (
     <>
-      <div className={classNames.imageContainer}>
+      <div
+        className={classNames.imageContainer}
+        ref={containerRef}
+        style={{ height: size?.width ? `${size?.width / cropAspect}px` : '200px' }}
+      >
         {localImageDisplayed && (
           <Cropper
             aspect={cropAspect}

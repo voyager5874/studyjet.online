@@ -1,15 +1,16 @@
-.essence {
-  // display: flex;
-  // flex-direction: column;
+.formSection {
+  margin-bottom: 36px;
+  padding: 24px 24px 0;
 
-  // row-gap: 20px;
-  padding: 24px;
+  .formItem:nth-last-child(2) {
+    margin-bottom: 20px;
+  }
 }
 
 .content {
   width: calc(500px + 48px);
 }
 
-.imageInputContainer {
-  margin-bottom: 20px;
+.dialogFooter {
+  // padding-top: 12px;
 }

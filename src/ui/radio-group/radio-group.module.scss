@@ -46,8 +46,8 @@ button {
     left: 50%;
     transform: translate(-50%, -50%);
 
-    width: 36px;
-    height: 36px;
+    width: 1px;
+    height: 1px;
 
     background-color: transparent;
     border-radius: 50%;
@@ -65,8 +65,13 @@ button {
 
   &:not([data-disabled]):hover {
     &::after {
+      width: 36px;
+      height: 36px;
       background-color: var(--color-bg-tertiary);
-      transition: background-color 300ms;
+      transition:
+        background-color 300ms,
+        width 150ms,
+        height 150ms;
     }
   }
 

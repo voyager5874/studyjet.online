@@ -5,6 +5,7 @@ import type { Column } from '@/ui/table'
 import type { ChangeEvent } from 'react'
 import { useState } from 'react'
 
+import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
 import {
   useCreateDecksMutation,
   useDeleteDeckMutation,
@@ -13,7 +14,6 @@ import {
   useUpdateDeckMutation,
 } from '@/features/decks/api'
 import { EditDeckDialog } from '@/features/decks/edit-dialog'
-import { IMAGE_WAS_ERASED } from '@/features/decks/edit-dialog/constants'
 import { decksTableColumns } from '@/features/decks/table/decks-table-columns'
 import { DeckActions } from '@/features/decks/table/table-deck-actions'
 import { usePageSearchParams } from '@/features/decks/use-page-search-params'
@@ -58,7 +58,7 @@ export const Page = () => {
   const [addDeckDialogOpen, setAddDeckDialogOpen] = useState<boolean>(false)
   const [editDeckDialogOpen, setEditDeckDialogOpen] = useState<boolean>(false)
 
-  const handleEditDeck = (id: string) => {
+  const getDeckIdFromTable = (id: string) => {
     setSelectedDeckId(id)
     setEditDeckDialogOpen(true)
   }
@@ -66,10 +66,8 @@ export const Page = () => {
   const decksDataToDisplayInTheTable = currentData ?? data
 
   const handleEditDialogOpenChange = (open: boolean) => {
-    if (!open) {
-      setEditDeckDialogOpen(false)
-      setSelectedDeckId(null)
-    }
+    setEditDeckDialogOpen(open)
+    !open && setSelectedDeckId(null)
   }
 
   const columns: Column<DeckItem>[] = [
@@ -77,7 +75,7 @@ export const Page = () => {
 
     {
       key: 'actions',
-      render: deck => <DeckActions deck={deck} onDelete={deleteDeck} onEdit={handleEditDeck} />,
+      render: deck => <DeckActions deck={deck} onDelete={deleteDeck} onEdit={getDeckIdFromTable} />,
       title: '',
     },
   ]
