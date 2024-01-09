@@ -133,7 +133,7 @@ const api = baseApi.injectEndpoints({
             }
             console.error(error)
           } finally {
-            coverUrl && URL.revokeObjectURL(coverUrl)
+            coverUrl && coverUrl !== 'UNTOUCHED' && URL.revokeObjectURL(coverUrl)
           }
         },
         invalidatesTags: (result, _error, args) =>
