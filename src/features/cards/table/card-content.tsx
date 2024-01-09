@@ -27,6 +27,7 @@ export const CardContent = ({ card, contentType }: CardContentProps) => {
   const classNames = {
     container: clsx(s.container),
     image: clsx(s.image),
+    text: clsx(s.text),
   }
 
   return (
@@ -34,7 +35,9 @@ export const CardContent = ({ card, contentType }: CardContentProps) => {
       {src && (
         <img alt={'deck cover'} className={classNames.image} onError={handleError} src={src} />
       )}
-      <Typography variant={'body2'}>{card[contentType]}</Typography>
+      <Typography className={classNames.text} variant={'body2'}>
+        {card[contentType]}
+      </Typography>
     </div>
   )
 }
