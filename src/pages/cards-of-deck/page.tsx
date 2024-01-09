@@ -205,7 +205,7 @@ export const Page = () => {
           justifyContent: 'space-between',
         }}
       ></div>
-      {id && (
+      {id && isOwner && (
         <EditCardDialog
           isSuccess={createCardSuccess}
           onOpenChange={setAddCardDialogOpen}
