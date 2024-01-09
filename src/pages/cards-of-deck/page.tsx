@@ -39,7 +39,9 @@ export const Page = () => {
   const [editCardDialogOpen, setEditCardDialogOpen] = useState<boolean>(false)
   const [selectedCardId, setSelectedCardId] = useState<null | string>(null)
 
-  const { currentData: selectedCardData } = useGetCardByIdQuery(selectedCardId ?? skipToken)
+  const { currentData: selectedCardData, isFetching: selectedCardFetching } = useGetCardByIdQuery(
+    selectedCardId ?? skipToken
+  )
 
   const [updateCard, { isSuccess: updateCardSuccess, isLoading: cardIsBeingUpdated }] =
     useUpdateCardMutation()
@@ -156,7 +158,7 @@ export const Page = () => {
       })
   }
 
-  const busy = isFetching || isLoading || cardIsBeingUpdated || isCreating
+  const busy = isFetching || isLoading || cardIsBeingUpdated || isCreating || selectedCardFetching
 
   return (
     <>
