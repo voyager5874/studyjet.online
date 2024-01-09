@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
+import { flexCenter } from '@/common/flex-center'
 import {
   useCreateCardMutation,
   useDeleteCardMutation,
@@ -16,15 +17,20 @@ import {
 import { EditCardDialog } from '@/features/cards/edit-dialog'
 import { cardsTableColumns } from '@/features/cards/table/cards-table-columns'
 import { CardActions } from '@/features/cards/table/table-card-actions'
+import { useGetDeckByIdQuery } from '@/features/decks/api'
+import { useMeQuery } from '@/features/user/api'
 import { usePageSearchParams } from '@/hooks'
 import { Button } from '@/ui/button'
 import { Pagination } from '@/ui/pagination'
 import { Table } from '@/ui/table'
+import { Typography } from '@/ui/typography'
 import { getFileFromUrl, parseNumber } from '@/utils'
 import { skipToken } from '@reduxjs/toolkit/query'
 
 export const Page = () => {
   const { id } = useParams<{ id: string }>()
+  const { data: userData } = useMeQuery()
+  const { data: currentDeckData } = useGetDeckByIdQuery(id ?? skipToken)
 
   const { pageQueryParams, handlePageChange, handlePerPageChange, handleSortChange, sortProp } =
     usePageSearchParams()
@@ -168,6 +174,26 @@ export const Page = () => {
     isCreating ||
     selectedCardFetching ||
     isDeleting
+
+  const isOwner = userData && currentDeckData && userData?.id === currentDeckData?.userId
+
+  if (!data?.items?.length) {
+    return (
+      <div style={{ ...flexCenter, height: '90vh', flexDirection: 'column', gap: '20px' }}>
+        {!busy && <Typography>There is no cards in this deck</Typography>}
+        {isOwner && id && (
+          <EditCardDialog
+            isSuccess={createCardSuccess}
+            onOpenChange={setAddCardDialogOpen}
+            onSubmit={handleNewCardDataSubmit}
+            open={addCardDialogOpen}
+            title={'add card'}
+            trigger={<Button>Add new card</Button>}
+          />
+        )}
+      </div>
+    )
+  }
 
   return (
     <>
