@@ -2,7 +2,7 @@ import type { CardFormData } from '@/features/cards/edit-dialog/card-form-schema
 import type { CardItem } from '@/features/cards/types'
 import type { Column } from '@/ui/table'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
@@ -14,12 +14,14 @@ import {
   useGetCardsOfDeckQuery,
   useUpdateCardMutation,
 } from '@/features/cards/api'
+import { DeleteCardDialog } from '@/features/cards/delete-dialog'
 import { EditCardDialog } from '@/features/cards/edit-dialog'
 import { cardsTableColumns } from '@/features/cards/table/cards-table-columns'
 import { CardActions } from '@/features/cards/table/table-card-actions'
 import { useGetDeckByIdQuery } from '@/features/decks/api'
 import { useMeQuery } from '@/features/user/api'
 import { usePageSearchParams } from '@/hooks'
+import { useConfirm } from '@/hooks/use-confirm'
 import { Button } from '@/ui/button'
 import { Pagination } from '@/ui/pagination'
 import { Table } from '@/ui/table'
@@ -39,23 +41,44 @@ export const Page = () => {
     id ? { id, params: pageQueryParams ?? {} } : skipToken
   )
 
-  const [addCardDialogOpen, setAddCardDialogOpen] = useState<boolean>(false)
   const [createCard, { isSuccess: createCardSuccess, isLoading: isCreating }] =
     useCreateCardMutation()
 
-  const [editCardDialogOpen, setEditCardDialogOpen] = useState<boolean>(false)
-  const [selectedCardId, setSelectedCardId] = useState<null | string>(null)
+  const selectedCardId = useRef<null | string>(null)
+
+  const setSelectedCardId = (id: null | string) => {
+    selectedCardId.current = id
+  }
 
   const { currentData: selectedCardData, isFetching: selectedCardFetching } = useGetCardByIdQuery(
-    selectedCardId ?? skipToken
+    selectedCardId?.current ?? skipToken
   )
+
+  const [addCardDialogOpen, setAddCardDialogOpen] = useState<boolean>(false)
+
+  const [editCardDialogOpen, setEditCardDialogOpen] = useState<boolean>(false)
+  const [deleteCardDialogOpen, setDeleteCardDialogOpen] = useState<boolean>(false)
 
   const [updateCard, { isSuccess: updateCardSuccess, isLoading: cardIsBeingUpdated }] =
     useUpdateCardMutation()
 
   const [deleteCard, { isLoading: isDeleting }] = useDeleteCardMutation()
 
-  const getCardIdFromTable = (id: string) => {
+  const {
+    waitConfirm: waitDeleteConfirm,
+    cancel: cancelDelete,
+    confirm: confirmDelete,
+    initialize: initializeWaitForDelete,
+  } = useConfirm()
+  const handleCardDelete = (id: string) => {
+    initializeWaitForDelete(() => {
+      deleteCard(id)
+    })
+
+    setDeleteCardDialogOpen(true)
+  }
+
+  const prepareEdit = (id: string) => {
     setSelectedCardId(id)
     setEditCardDialogOpen(true)
   }
@@ -70,7 +93,7 @@ export const Page = () => {
 
     {
       key: 'actions',
-      render: card => <CardActions card={card} onDelete={deleteCard} onEdit={getCardIdFromTable} />,
+      render: card => <CardActions card={card} onDelete={handleCardDelete} onEdit={prepareEdit} />,
       title: '',
     },
   ]
@@ -224,6 +247,14 @@ export const Page = () => {
           onSubmit={handleEditedCardDataSubmit}
           open={editCardDialogOpen}
           title={'edit card'}
+        />
+      )}
+      {waitDeleteConfirm && (
+        <DeleteCardDialog
+          onCancel={cancelDelete}
+          onConfirm={confirmDelete}
+          onOpenChange={setDeleteCardDialogOpen}
+          open={deleteCardDialogOpen}
         />
       )}
       <Table
