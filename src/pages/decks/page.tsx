@@ -1,6 +1,7 @@
 import type { DeckFormData } from '@/features/decks/edit-dialog/deck-form-schema'
 import type { DeckItem } from '@/features/decks/types'
 import type { Column } from '@/ui/table'
+import type { CheckedState } from '@radix-ui/react-checkbox'
 
 import type { ChangeEvent } from 'react'
 import { useRef, useState } from 'react'
@@ -18,8 +19,10 @@ import { EditDeckDialog } from '@/features/decks/edit-dialog'
 import { decksTableColumns } from '@/features/decks/table/decks-table-columns'
 import { DeckActions } from '@/features/decks/table/table-deck-actions'
 import { usePageSearchParams } from '@/features/decks/use-page-search-params'
+import { useMeQuery } from '@/features/user/api'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import { Button } from '@/ui/button'
+import { Checkbox } from '@/ui/checkbox'
 import { Pagination } from '@/ui/pagination'
 import { Table } from '@/ui/table'
 import { TextField } from '@/ui/text-field'
@@ -30,13 +33,15 @@ import s from './page.module.scss'
 
 export const Page = () => {
   const {
-    handleNameSearchRaw,
+    handleNameSearch,
     handleSortChange,
     tableSortProp,
     currentPage,
     itemsPerPage,
     handlePerPageChange,
     handlePageChange,
+    handleDecksByAuthorIdSearch,
+    authorId,
     orderBy,
     name,
   } = usePageSearchParams()
@@ -45,8 +50,12 @@ export const Page = () => {
     currentPage,
     itemsPerPage,
     orderBy,
+    authorId,
     name: useDebouncedValue(name, 1300),
   })
+  const decksDataToDisplayInTheTable = currentData ?? data
+
+  const { data: currentUser } = useMeQuery()
 
   const [createDeck, { isSuccess }] = useCreateDecksMutation()
   const [deleteDeck, { isLoading: isDeleting }] = useDeleteDeckMutation()
@@ -85,11 +94,21 @@ export const Page = () => {
     // setDeleteDeckDialogOpen(false)
   }
 
-  const decksDataToDisplayInTheTable = currentData ?? data
-
   const handleEditDialogOpenChange = (open: boolean) => {
     setEditDeckDialogOpen(open)
     !open && setSelectedDeckId(null)
+  }
+
+  const handleCurrentUserDecksSearch = (checked: CheckedState) => {
+    if (!currentUser) {
+      return
+    }
+    if (checked) {
+      handleDecksByAuthorIdSearch(currentUser.id)
+    }
+    if (!checked) {
+      handleDecksByAuthorIdSearch(null)
+    }
   }
 
   const columns: Column<DeckItem>[] = [
@@ -173,9 +192,9 @@ export const Page = () => {
     const value = e.target.value
 
     if (value) {
-      handleNameSearchRaw(value)
+      handleNameSearch(value)
     } else {
-      handleNameSearchRaw('')
+      handleNameSearch('')
     }
   }
 
@@ -195,11 +214,16 @@ export const Page = () => {
         <div style={{ width: '50%' }}>
           <TextField
             onChange={changeSearchString}
-            onClear={() => handleNameSearchRaw('')}
+            onClear={() => handleNameSearch('')}
             type={'search'}
             value={name || ''}
           />
         </div>
+        <Checkbox
+          checked={!!authorId}
+          label={'show only my decks'}
+          onCheckedChange={handleCurrentUserDecksSearch}
+        />
         <EditDeckDialog
           isSuccess={isSuccess}
           onOpenChange={setAddDeckDialogOpen}

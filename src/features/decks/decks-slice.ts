@@ -3,7 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 
 import { createSlice } from '@reduxjs/toolkit'
 
-import { getDecksInitialState } from './get-initial-state'
+import { getDecksInitialState } from './get-initial-slice-state'
 
 const initialState = getDecksInitialState()
 
