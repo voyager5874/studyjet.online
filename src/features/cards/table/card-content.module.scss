@@ -1,7 +1,11 @@
 .container {
+  overflow: hidden;
   display: inline-flex;
   gap: 10px;
   align-items: center;
+
+  max-width: 30vw;
+
   text-decoration: none;
 }
 
@@ -10,4 +14,12 @@
   height: 48px;
   object-fit: cover;
   border-radius: 2px;
+}
+
+.text {
+  overflow: hidden;
+  display: -webkit-box;
+
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }

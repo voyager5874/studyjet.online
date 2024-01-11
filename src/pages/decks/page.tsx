@@ -3,7 +3,7 @@ import type { DeckItem } from '@/features/decks/types'
 import type { Column } from '@/ui/table'
 
 import type { ChangeEvent } from 'react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
 import {
@@ -13,6 +13,7 @@ import {
   useGetDecksQuery,
   useUpdateDeckMutation,
 } from '@/features/decks/api'
+import { DeleteDeckDialog } from '@/features/decks/delete-dialog'
 import { EditDeckDialog } from '@/features/decks/edit-dialog'
 import { decksTableColumns } from '@/features/decks/table/decks-table-columns'
 import { DeckActions } from '@/features/decks/table/table-deck-actions'
@@ -52,15 +53,36 @@ export const Page = () => {
   const [updateDeck, { isLoading: isUpdating, isSuccess: updateSuccessful }] =
     useUpdateDeckMutation()
 
-  const [selectedDeckId, setSelectedDeckId] = useState<null | string>(null)
-  const { currentData: selectedDeckData } = useGetDeckByIdQuery(selectedDeckId ?? skipToken)
+  const selectedDeckId = useRef<null | string>(null)
+
+  const setSelectedDeckId = (id: null | string) => {
+    selectedDeckId.current = id
+  }
+
+  const { currentData: selectedDeckData } = useGetDeckByIdQuery(
+    selectedDeckId?.current ?? skipToken
+  )
 
   const [addDeckDialogOpen, setAddDeckDialogOpen] = useState<boolean>(false)
   const [editDeckDialogOpen, setEditDeckDialogOpen] = useState<boolean>(false)
+  const [deleteDeckDialogOpen, setDeleteDeckDialogOpen] = useState<boolean>(false)
 
-  const getDeckIdFromTable = (id: string) => {
+  const prepareEdit = (id: string) => {
     setSelectedDeckId(id)
     setEditDeckDialogOpen(true)
+  }
+
+  const prepareDelete = (id: string) => {
+    setSelectedDeckId(id)
+    setDeleteDeckDialogOpen(true)
+  }
+
+  const handleDelete = () => {
+    if (!selectedDeckId.current) {
+      return
+    }
+    deleteDeck(selectedDeckId.current)
+    // setDeleteDeckDialogOpen(false)
   }
 
   const decksDataToDisplayInTheTable = currentData ?? data
@@ -75,7 +97,7 @@ export const Page = () => {
 
     {
       key: 'actions',
-      render: deck => <DeckActions deck={deck} onDelete={deleteDeck} onEdit={getDeckIdFromTable} />,
+      render: deck => <DeckActions deck={deck} onDelete={prepareDelete} onEdit={prepareEdit} />,
       title: '',
     },
   ]
@@ -186,18 +208,27 @@ export const Page = () => {
           title={'add deck'}
           trigger={<Button>Add new deck</Button>}
         />
-        {selectedDeckData && (
-          <EditDeckDialog
-            deck={selectedDeckData}
-            isSuccess={updateSuccessful}
-            onOpenChange={handleEditDialogOpenChange}
-            onSubmit={handleDeckUpdatedDataSubmit}
-            open={editDeckDialogOpen}
-            title={'edit deck'}
-          />
-        )}
       </div>
-
+      {selectedDeckData && (
+        <EditDeckDialog
+          deck={selectedDeckData}
+          isSuccess={updateSuccessful}
+          onOpenChange={handleEditDialogOpenChange}
+          onSubmit={handleDeckUpdatedDataSubmit}
+          open={editDeckDialogOpen}
+          title={'edit deck'}
+        />
+      )}
+      {selectedDeckData && (
+        <DeleteDeckDialog
+          description={`Do you really want to remove ${selectedDeckData.name}? All cards will be deleted.`}
+          itemName={'deck'}
+          onConfirm={handleDelete}
+          onOpenChange={setDeleteDeckDialogOpen}
+          open={deleteDeckDialogOpen}
+          title={'Delete deck ?'}
+        />
+      )}
       <Table
         caption={'Decks'}
         columns={columns}
