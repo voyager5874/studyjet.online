@@ -34,11 +34,34 @@ export const decksSlice = createSlice({
     setAuthorId: (state, action: PayloadAction<{ authorId: GetDecksQueryParams['authorId'] }>) => {
       state.authorId = action.payload.authorId
     },
+    setMinCardsCount: (
+      state,
+      action: PayloadAction<{ minCardsCount: GetDecksQueryParams['minCardsCount'] }>
+    ) => {
+      state.minCardsCount = action.payload.minCardsCount
+    },
+
+    setMaxCardsCount: (
+      state,
+      action: PayloadAction<{ maxCardsCount: GetDecksQueryParams['maxCardsCount'] }>
+    ) => {
+      state.maxCardsCount = action.payload.maxCardsCount
+    },
     clearOrderBy: (state, _action: PayloadAction<void>) => {
       delete state.orderBy
     },
+    clearFilters: state => {
+      state.name = null
+      state.authorId = null
+      // state.itemsPerPage = null
+      state.minCardsCount = null
+      state.maxCardsCount = null
+    },
+
     clearQueryParams: state => {
-      Object.assign(state, initialState)
+      const keys = Object.keys(state)
+
+      keys.forEach(key => (state[key as keyof typeof state] = null))
     },
   },
 })

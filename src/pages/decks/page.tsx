@@ -24,6 +24,7 @@ import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import { Button } from '@/ui/button'
 import { Checkbox } from '@/ui/checkbox'
 import { Pagination } from '@/ui/pagination'
+import { Slider } from '@/ui/slider'
 import { Table } from '@/ui/table'
 import { TextField } from '@/ui/text-field'
 import { getFileFromUrl } from '@/utils'
@@ -43,6 +44,12 @@ export const Page = () => {
     handleDecksByAuthorIdSearch,
     authorId,
     orderBy,
+    maxCardsCount,
+    minCardsCount,
+    handleItemsMinCountChange,
+    handleItemsMaxCountChange,
+    handleResetAllQueries,
+
     name,
   } = usePageSearchParams()
 
@@ -51,6 +58,8 @@ export const Page = () => {
     itemsPerPage,
     orderBy,
     authorId,
+    maxCardsCount: useDebouncedValue(maxCardsCount, 1300),
+    minCardsCount: useDebouncedValue(minCardsCount, 1300),
     name: useDebouncedValue(name, 1300),
   })
   const decksDataToDisplayInTheTable = currentData ?? data
@@ -109,6 +118,20 @@ export const Page = () => {
     if (!checked) {
       handleDecksByAuthorIdSearch(null)
     }
+  }
+
+  const availableMaxCardsCount = decksDataToDisplayInTheTable?.maxCardsCount
+
+  const handleCardsCountLimitsChange = (value: [number, number]) => {
+    if (!availableMaxCardsCount) {
+      return
+    }
+    const min = value[0] > 0 ? value[0] : null
+    const max = value[1] < availableMaxCardsCount ? value[1] : null
+
+    minCardsCount !== min && handleItemsMinCountChange(min)
+
+    maxCardsCount !== min && handleItemsMaxCountChange(max)
   }
 
   const columns: Column<DeckItem>[] = [
@@ -206,6 +229,7 @@ export const Page = () => {
       <div>{busy && 'working...'}</div>
       <div
         style={{
+          flexWrap: 'wrap',
           display: 'flex',
           alignItems: 'flex-start',
           justifyContent: 'space-between',
@@ -232,6 +256,20 @@ export const Page = () => {
           title={'add deck'}
           trigger={<Button>Add new deck</Button>}
         />
+        <div style={{ minWidth: '600px' }}>
+          {decksDataToDisplayInTheTable?.maxCardsCount && (
+            <Slider
+              max={decksDataToDisplayInTheTable?.maxCardsCount}
+              onValueChange={handleCardsCountLimitsChange}
+              showValues
+              value={[
+                minCardsCount || 0,
+                maxCardsCount || decksDataToDisplayInTheTable?.maxCardsCount,
+              ]}
+            />
+          )}
+        </div>
+        <Button onClick={handleResetAllQueries}>Reset queries</Button>
       </div>
       {selectedDeckData && (
         <EditDeckDialog

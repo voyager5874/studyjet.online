@@ -18,7 +18,17 @@ import {
 export const usePageSearchParams = () => {
   const dispatch = useAppDispatch()
 
-  const { setAuthorId, setOrderBy, setPerPageCount, setCurrentPage, setDeckName } = decksActions
+  const {
+    clearFilters,
+    clearQueryParams,
+    setMinCardsCount,
+    setMaxCardsCount,
+    setAuthorId,
+    setOrderBy,
+    setPerPageCount,
+    setCurrentPage,
+    setDeckName,
+  } = decksActions
 
   const deckName = useAppSelector(selectDeckName)
   const currentPage = useAppSelector(selectCurrentPage)
@@ -28,13 +38,19 @@ export const usePageSearchParams = () => {
   const authorId = useAppSelector(selectAuthorId)
   const orderBy = useAppSelector(selectOrderBy)
 
-  const handlePerPageChange = useCallback((value: number) => {
-    dispatch(setPerPageCount({ itemsPerPage: value }))
-  }, [])
+  const handlePerPageChange = useCallback(
+    (value: number) => {
+      dispatch(setPerPageCount({ itemsPerPage: value }))
+    },
+    [dispatch, setPerPageCount]
+  )
 
-  const handlePageChange = useCallback((value: number) => {
-    dispatch(setCurrentPage({ currentPage: value }))
-  }, [])
+  const handlePageChange = useCallback(
+    (value: number) => {
+      dispatch(setCurrentPage({ currentPage: value }))
+    },
+    [dispatch, setCurrentPage]
+  )
 
   const handleSortChange = <T>(sort: Sort<T>) => {
     if (!sort) {
@@ -51,15 +67,43 @@ export const usePageSearchParams = () => {
 
   const tableSortProp = getSortParam(orderBy)
 
-  const handleNameSearch = useCallback((searchString: null | string) => {
-    dispatch(setDeckName({ name: searchString }))
-    dispatch(setCurrentPage({ currentPage: 1 }))
-  }, [])
+  const handleNameSearch = useCallback(
+    (searchString: null | string) => {
+      dispatch(setDeckName({ name: searchString }))
+      dispatch(setCurrentPage({ currentPage: 1 }))
+    },
+    [dispatch, setCurrentPage, setDeckName]
+  )
 
-  const handleDecksByAuthorIdSearch = useCallback((userId: null | string) => {
-    dispatch(setAuthorId({ authorId: userId }))
-    dispatch(setCurrentPage({ currentPage: 1 }))
-  }, [])
+  const handleDecksByAuthorIdSearch = useCallback(
+    (userId: null | string) => {
+      dispatch(setAuthorId({ authorId: userId }))
+      dispatch(setCurrentPage({ currentPage: 1 }))
+    },
+    [dispatch, setAuthorId, setCurrentPage]
+  )
+
+  const handleItemsMinCountChange = useCallback(
+    (value: null | number | undefined) => {
+      dispatch(setMinCardsCount({ minCardsCount: value }))
+    },
+    [dispatch, setMinCardsCount]
+  )
+
+  const handleItemsMaxCountChange = useCallback(
+    (value: null | number | undefined) => {
+      dispatch(setMaxCardsCount({ maxCardsCount: value }))
+    },
+    [dispatch, setMaxCardsCount]
+  )
+
+  const handleResetAllQueries = useCallback(() => {
+    dispatch(clearQueryParams())
+  }, [clearQueryParams, dispatch])
+
+  const handleClearFilters = useCallback(() => {
+    dispatch(clearFilters())
+  }, [clearFilters, dispatch])
 
   useEffect(() => {
     const query = stateToQueryString({
@@ -89,6 +133,10 @@ export const usePageSearchParams = () => {
     handleSortChange,
     handleDecksByAuthorIdSearch,
     handleNameSearch,
+    handleItemsMinCountChange,
+    handleItemsMaxCountChange,
+    handleResetAllQueries,
+    handleClearFilters,
   }
 }
 
