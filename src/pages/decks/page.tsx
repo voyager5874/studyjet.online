@@ -131,7 +131,7 @@ export const Page = () => {
 
     minCardsCount !== min && handleItemsMinCountChange(min)
 
-    maxCardsCount !== min && handleItemsMaxCountChange(max)
+    maxCardsCount !== max && handleItemsMaxCountChange(max)
   }
 
   const columns: Column<DeckItem>[] = [
