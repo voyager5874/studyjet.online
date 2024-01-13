@@ -124,3 +124,15 @@
   border: 1px solid var(--color-dark-300);
   border-radius: 2px;
 }
+
+.valueDisplay {
+  width: 3em;
+  min-width: 2.5em;
+  padding: 6px 9px;
+
+  text-align: center;
+
+  background-color: transparent;
+  border: 1px solid var(--color-dark-300);
+  border-radius: 2px;
+}

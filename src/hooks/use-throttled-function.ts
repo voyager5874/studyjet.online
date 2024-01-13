@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react'
 
-export function useDebouncedFunction<T>(
+export function useThrottledFunction<T>(
   callback: (value: T) => void,
   delay: number = 500
 ): (value: T) => void {

@@ -1,4 +1,4 @@
-import type { RangeSliderProps } from './slider'
+import type { SliderProps } from './slider'
 import type { Meta, StoryObj } from '@storybook/react'
 
 import { useArgs } from '@storybook/preview-api'
@@ -29,27 +29,59 @@ type Story = StoryObj<typeof meta>
 
 export default meta
 
-const StoryTemplate: Story = {
+const onValueChangeTemplate: Story = {
   render: args => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [, setArgs] = useArgs<RangeSliderProps>()
+    const { defaultValue, value, onValueCommit, onValueChange, ...rest } = args
+
+    const [, setArgs] = useArgs<SliderProps>()
 
     const updateArgs = (e: number[]) => {
-      setArgs({ ...args, value: e })
+      setArgs({ ...rest, value: e })
     }
 
-    const updateRefs = (e: number[]) => {
-      console.log('commit', e)
+    return <Slider onValueChange={updateArgs} value={value} {...rest} />
+  },
+}
+
+const onValueCommitTemplate: Story = {
+  render: args => {
+    const { defaultValue, value, onValueCommit, onValueChange, ...rest } = args
+
+    const [, setArgs] = useArgs<SliderProps>()
+
+    const updateArgs = (e: number[]) => {
+      setArgs({ ...rest, value: e })
     }
 
-    return <Slider onValueChange={updateArgs} onValueCommit={updateRefs} {...args} />
+    return <Slider defaultValue={value} onValueCommit={updateArgs} {...rest} />
   },
 }
 
 export const Overview: Story = {
-  ...StoryTemplate,
+  ...onValueChangeTemplate,
   args: {
-    showValues: true,
+    displayValues: true,
+    max: 100,
+    min: 0,
+    value: [10, 70],
+  },
+}
+
+export const NoValues: Story = {
+  args: {
+    onValueCommit: value => {
+      console.log(value)
+    },
+    displayValues: true,
+    // max: 100,
+    // min: 0,
+  },
+}
+
+export const CommitValue: Story = {
+  ...onValueCommitTemplate,
+  args: {
+    displayValues: true,
     max: 100,
     min: 0,
     value: [10, 70],
@@ -57,7 +89,7 @@ export const Overview: Story = {
 }
 
 export const Vertical: Story = {
-  ...StoryTemplate,
+  ...onValueChangeTemplate,
   decorators: [
     Story => (
       <div style={{ height: '400px' }}>
@@ -69,14 +101,14 @@ export const Vertical: Story = {
   args: {
     ...Overview.args,
     orientation: 'vertical',
-    showValues: false,
+    displayValues: false,
   },
 }
 
 export const Triple: Story = {
-  ...StoryTemplate,
+  ...onValueChangeTemplate,
   args: {
-    showValues: false,
+    displayValues: false,
     max: 100,
     min: 0,
     value: [10, 40, 70],

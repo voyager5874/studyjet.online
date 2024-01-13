@@ -4,7 +4,7 @@ import type { Column } from '@/ui/table'
 import type { CheckedState } from '@radix-ui/react-checkbox'
 
 import type { ChangeEvent } from 'react'
-import { useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
 import {
@@ -85,15 +85,15 @@ export const Page = () => {
   const [editDeckDialogOpen, setEditDeckDialogOpen] = useState<boolean>(false)
   const [deleteDeckDialogOpen, setDeleteDeckDialogOpen] = useState<boolean>(false)
 
-  const prepareEdit = (id: string) => {
+  const prepareEdit = useCallback((id: string) => {
     setSelectedDeckId(id)
     setEditDeckDialogOpen(true)
-  }
+  }, [])
 
-  const prepareDelete = (id: string) => {
+  const prepareDelete = useCallback((id: string) => {
     setSelectedDeckId(id)
     setDeleteDeckDialogOpen(true)
-  }
+  }, [])
 
   const handleDelete = () => {
     if (!selectedDeckId.current) {
@@ -257,15 +257,12 @@ export const Page = () => {
           trigger={<Button>Add new deck</Button>}
         />
         <div style={{ minWidth: '600px' }}>
-          {decksDataToDisplayInTheTable?.maxCardsCount && (
+          {availableMaxCardsCount && (
             <Slider
+              displayValues
               max={decksDataToDisplayInTheTable?.maxCardsCount}
               onValueChange={handleCardsCountLimitsChange}
-              showValues
-              value={[
-                minCardsCount || 0,
-                maxCardsCount || decksDataToDisplayInTheTable?.maxCardsCount,
-              ]}
+              value={[minCardsCount || 0, maxCardsCount || availableMaxCardsCount]}
             />
           )}
         </div>
