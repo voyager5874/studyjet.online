@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef, ElementRef, KeyboardEvent } from 'react'
+import type { ComponentPropsWithoutRef, ElementRef, KeyboardEvent, PointerEvent } from 'react'
 import { forwardRef, useCallback, useEffect, useRef } from 'react'
 
 import * as SliderPrimitive from '@radix-ui/react-slider'
@@ -152,6 +152,35 @@ export const Slider = forwardRef<ElementRef<typeof SliderPrimitive.Root>, Slider
       }
     }
 
+    const handleThumbMove = (data: { event: PointerEvent<HTMLSpanElement>; index: number }) => {
+      if (onValueChange || !displayValues) {
+        return
+      }
+
+      if (!value) {
+        return
+      }
+
+      if (!('ariaValueNow' in data.event.target)) {
+        return
+      }
+      if (typeof data.event.target?.ariaValueNow !== 'string') {
+        return
+      }
+      const maxValue = data.event.target?.ariaValueNow
+
+      if (!maxValue) {
+        return
+      }
+
+      if (data.index === 0) {
+        minValueRef.current?.value && (minValueRef.current.value = maxValue)
+      }
+      if (data.index === value.length - 1) {
+        maxValueRef.current?.value && (maxValueRef.current.value = maxValue)
+      }
+    }
+
     useEffect(() => {
       if (!value || !minValueRef.current?.value || !maxValueRef.current?.value) {
         return
@@ -205,7 +234,13 @@ export const Slider = forwardRef<ElementRef<typeof SliderPrimitive.Root>, Slider
           </SliderPrimitive.Track>
           {value?.length ? (
             value?.map((_, i) => (
-              <SliderPrimitive.SliderThumb className={classNames.thumb} key={i} />
+              <SliderPrimitive.SliderThumb
+                className={classNames.thumb}
+                key={i}
+                onPointerMove={e => {
+                  handleThumbMove({ event: e, index: i })
+                }}
+              />
             ))
           ) : (
             <SliderPrimitive.SliderThumb className={classNames.thumb} />

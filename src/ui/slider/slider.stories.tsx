@@ -72,7 +72,7 @@ export const NoValues: Story = {
     onValueCommit: value => {
       console.log(value)
     },
-    displayValues: true,
+    // displayValues: true,
     // max: 100,
     // min: 0,
   },
