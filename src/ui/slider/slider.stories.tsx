@@ -50,10 +50,17 @@ const onValueCommitTemplate: Story = {
     const [, setArgs] = useArgs<SliderProps>()
 
     const updateArgs = (e: number[]) => {
-      setArgs({ ...rest, value: e })
+      setArgs({ ...rest, defaultValue: e })
     }
 
-    return <Slider defaultValue={value} onValueCommit={updateArgs} {...rest} />
+    return (
+      <Slider
+        defaultValue={defaultValue}
+        key={String(defaultValue)}
+        onValueCommit={updateArgs}
+        {...rest}
+      />
+    )
   },
 }
 
@@ -84,7 +91,7 @@ export const CommitValue: Story = {
     displayValues: true,
     max: 100,
     min: 0,
-    value: [10, 70],
+    defaultValue: [10, 70],
   },
 }
 
