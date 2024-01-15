@@ -224,6 +224,7 @@ export const Slider = forwardRef<ElementRef<typeof SliderPrimitive.Root>, Slider
         <SliderPrimitive.Root
           className={classNames.root}
           defaultValue={props.defaultValue ? value || undefined : undefined}
+          key={String(props.defaultValue)}
           minStepsBetweenThumbs={minStepsBetweenThumbs}
           onValueChange={handleValueChange}
           onValueCommit={handleValueCommit}

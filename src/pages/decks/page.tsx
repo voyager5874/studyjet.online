@@ -223,7 +223,6 @@ export const Page = () => {
 
   const busy = isFetching || isLoading || isDeleting || isUpdating
   // todo: get rid of inline styles
-  // todo: the key prop is used to force remount of the slider, re-mounting(if this is legitimate at all) probably should be moved into component logic somehow
 
   return (
     <>
@@ -262,7 +261,6 @@ export const Page = () => {
             <Slider
               defaultValue={[minCardsCount || 0, maxCardsCount || availableMaxCardsCount]}
               displayValues
-              key={String([minCardsCount, maxCardsCount])}
               max={decksDataToDisplayInTheTable?.maxCardsCount}
               onValueCommit={handleCardsCountLimitsChange}
             />

@@ -53,14 +53,7 @@ const onValueCommitTemplate: Story = {
       setArgs({ ...rest, defaultValue: e })
     }
 
-    return (
-      <Slider
-        defaultValue={defaultValue}
-        key={String(defaultValue)}
-        onValueCommit={updateArgs}
-        {...rest}
-      />
-    )
+    return <Slider defaultValue={defaultValue} onValueCommit={updateArgs} {...rest} />
   },
 }
 
