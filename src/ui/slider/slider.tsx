@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef, ElementRef, KeyboardEvent } from 'react'
+import type { ComponentPropsWithoutRef, ElementRef, KeyboardEvent, PointerEvent } from 'react'
 import { forwardRef, useCallback, useEffect, useRef } from 'react'
 
 import * as SliderPrimitive from '@radix-ui/react-slider'
@@ -26,48 +26,52 @@ export const Slider = forwardRef<ElementRef<typeof SliderPrimitive.Root>, Slider
       ...restProps
     } = props
 
-    const value = props.value || props.defaultValue
+    const value = props.value || props.defaultValue || null
 
     const minValueRef = useRef<HTMLInputElement>(null)
     const maxValueRef = useRef<HTMLInputElement>(null)
 
     const checkValue = useCallback(
-      (value: number[]) => {
-        const length = value.length
+      (newSliderValue: number[]) => {
+        const length = newSliderValue.length
         const lastElementIndex = length - 1
         const secondElementIndex = 1
         const beforeLastElementIndex = lastElementIndex - 1
 
-        if (!props.value) {
-          return { min: String(value[0]), max: String(value[lastElementIndex]), newValue: value }
+        if (!value) {
+          return {
+            min: String(newSliderValue[0]),
+            max: String(newSliderValue[lastElementIndex]),
+            newValue: newSliderValue,
+          }
         }
 
-        const minChanged = value[0] !== props.value[0]
-        const maxChanged = value[lastElementIndex] !== props.value[lastElementIndex]
+        const minChanged = newSliderValue[0] !== value[0]
+        const maxChanged = newSliderValue[lastElementIndex] !== value[lastElementIndex]
         // const minChanged = value[0] !== Number(minValueRef.current.value)
         // const maxChanged = value[lastElementIndex] !== Number(maxValueRef.current.value)
 
         const gap = minStepsBetweenThumbs || step || 1
 
-        const newValue = [...value]
+        const newValue = [...newSliderValue]
 
         if (minChanged) {
-          if (value[0] > props.value[secondElementIndex]) {
-            newValue[0] = props.value[lastElementIndex] - gap
+          if (newSliderValue[0] > value[secondElementIndex]) {
+            newValue[0] = value[lastElementIndex] - gap
           }
         }
 
         if (maxChanged) {
-          if (value[lastElementIndex] - gap < value[beforeLastElementIndex]) {
-            newValue[lastElementIndex] = value[beforeLastElementIndex] + gap
+          if (newSliderValue[lastElementIndex] - gap < newSliderValue[beforeLastElementIndex]) {
+            newValue[lastElementIndex] = newSliderValue[beforeLastElementIndex] + gap
           }
         }
 
-        if (props?.max && value[lastElementIndex] > props.max) {
+        if (props?.max && newSliderValue[lastElementIndex] > props.max) {
           newValue[lastElementIndex] = props.max
         }
 
-        if (props?.min && value[0] < props.min) {
+        if (props?.min && newSliderValue[0] < props.min) {
           newValue[0] = props.min
         }
 
@@ -75,12 +79,12 @@ export const Slider = forwardRef<ElementRef<typeof SliderPrimitive.Root>, Slider
       },
       [minStepsBetweenThumbs, props.max, props.min, props.value, step]
     )
-    const handleValueChange = (value: number[]) => {
-      if (!props.value) {
+    const handleValueChange = (newSliderValue: number[]) => {
+      if (!value) {
         return
       }
 
-      const { min, max, newValue } = checkValue(value)
+      const { min, max, newValue } = checkValue(newSliderValue)
 
       minValueRef?.current?.value && (minValueRef.current.value = min)
       maxValueRef?.current?.value && (maxValueRef.current.value = max)
@@ -96,33 +100,33 @@ export const Slider = forwardRef<ElementRef<typeof SliderPrimitive.Root>, Slider
     }
 
     const handleMinValueChange = (minValue: number) => {
-      if (!props?.value?.length) {
+      if (!value?.length) {
         return
       }
 
-      const copy = [...props.value]
+      const copy = [...value]
 
       copy.shift()
 
-      const value = [minValue, ...copy]
+      const updatedValue = [minValue, ...copy]
 
-      onValueChange && handleValueChange(value)
-      onValueCommit && handleValueCommit(value)
+      onValueChange && handleValueChange(updatedValue)
+      onValueCommit && handleValueCommit(updatedValue)
     }
 
     const handleMaxValueChange = (maxValue: number) => {
-      if (!props?.value || props?.value?.length === 1) {
+      if (!value || value?.length === 1) {
         return
       }
 
-      const copy = [...props.value]
+      const copy = [...value]
 
       copy.pop()
 
-      const value = [...copy, maxValue]
+      const updatedValue = [...copy, maxValue]
 
-      onValueChange && handleValueChange(value)
-      onValueCommit && handleValueCommit(value)
+      onValueChange && handleValueChange(updatedValue)
+      onValueCommit && handleValueCommit(updatedValue)
     }
 
     const handleMinValueInputBlur = () => {
@@ -140,7 +144,7 @@ export const Slider = forwardRef<ElementRef<typeof SliderPrimitive.Root>, Slider
       const key = e.key
 
       if (key === 'Enter') {
-        onValueChange && handleMinValueInputBlur()
+        handleMinValueInputBlur()
       }
     }
 
@@ -148,7 +152,36 @@ export const Slider = forwardRef<ElementRef<typeof SliderPrimitive.Root>, Slider
       const key = e.key
 
       if (key === 'Enter') {
-        onValueChange && handleMaxValueInputBlur()
+        handleMaxValueInputBlur()
+      }
+    }
+
+    const handleThumbMove = (data: { event: PointerEvent<HTMLSpanElement>; index: number }) => {
+      if (onValueChange || !displayValues) {
+        return
+      }
+
+      if (!value) {
+        return
+      }
+
+      if (!('ariaValueNow' in data.event.target)) {
+        return
+      }
+      if (typeof data.event.target?.ariaValueNow !== 'string') {
+        return
+      }
+      const maxValue = data.event.target?.ariaValueNow
+
+      if (!maxValue) {
+        return
+      }
+
+      if (data.index === 0) {
+        minValueRef.current?.value && (minValueRef.current.value = maxValue)
+      }
+      if (data.index === value.length - 1) {
+        maxValueRef.current?.value && (maxValueRef.current.value = maxValue)
       }
     }
 
@@ -190,13 +223,14 @@ export const Slider = forwardRef<ElementRef<typeof SliderPrimitive.Root>, Slider
         )}
         <SliderPrimitive.Root
           className={classNames.root}
-          defaultValue={props.defaultValue}
+          defaultValue={props.defaultValue ? value || undefined : undefined}
+          key={String(props.defaultValue)}
           minStepsBetweenThumbs={minStepsBetweenThumbs}
           onValueChange={handleValueChange}
           onValueCommit={handleValueCommit}
           orientation={orientation}
           step={step}
-          value={props.value}
+          value={props.value ? value || undefined : undefined}
           {...restProps}
           ref={forwardedRef}
         >
@@ -205,7 +239,13 @@ export const Slider = forwardRef<ElementRef<typeof SliderPrimitive.Root>, Slider
           </SliderPrimitive.Track>
           {value?.length ? (
             value?.map((_, i) => (
-              <SliderPrimitive.SliderThumb className={classNames.thumb} key={i} />
+              <SliderPrimitive.SliderThumb
+                className={classNames.thumb}
+                key={i}
+                onPointerMove={e => {
+                  handleThumbMove({ event: e, index: i })
+                }}
+              />
             ))
           ) : (
             <SliderPrimitive.SliderThumb className={classNames.thumb} />

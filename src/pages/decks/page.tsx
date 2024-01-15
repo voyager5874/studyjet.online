@@ -259,10 +259,10 @@ export const Page = () => {
         <div style={{ minWidth: '600px' }}>
           {availableMaxCardsCount && (
             <Slider
+              defaultValue={[minCardsCount || 0, maxCardsCount || availableMaxCardsCount]}
               displayValues
               max={decksDataToDisplayInTheTable?.maxCardsCount}
-              onValueChange={handleCardsCountLimitsChange}
-              value={[minCardsCount || 0, maxCardsCount || availableMaxCardsCount]}
+              onValueCommit={handleCardsCountLimitsChange}
             />
           )}
         </div>
