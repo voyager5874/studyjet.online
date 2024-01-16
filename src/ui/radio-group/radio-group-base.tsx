@@ -30,13 +30,15 @@ export const RadioGroupRoot = forwardRef<
   )
 })
 
+RadioGroupRoot.displayName = RadioGroupPrimitive.Root.displayName
+
 export type RadioGroupItemProps = ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item>
 
 export const RadioGroupItem = forwardRef<
   ElementRef<typeof RadioGroupPrimitive.Item>,
   RadioGroupItemProps
 >((props, forwardedRef) => {
-  const { id, disabled, value, className, ...restProps } = props
+  const { title, id, disabled, value, className, ...restProps } = props
 
   const classNames = {
     itemContainer: clsx(s.itemContainer),
@@ -54,6 +56,7 @@ export const RadioGroupItem = forwardRef<
         disabled={disabled}
         id={id}
         ref={forwardedRef}
+        title={title}
         value={value}
       >
         <RadioGroupPrimitive.Indicator className={classNames.indicator}>
@@ -61,8 +64,10 @@ export const RadioGroupItem = forwardRef<
         </RadioGroupPrimitive.Indicator>
       </RadioGroupPrimitive.Item>
       <Typography as={'label'} className={classNames.label} htmlFor={id} variant={'body2'}>
-        {value}
+        {title}
       </Typography>
     </div>
   )
 })
+
+RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName

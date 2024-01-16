@@ -1,4 +1,5 @@
 import type { DeckFormData } from '@/features/decks/edit-dialog/deck-form-schema'
+import type { LearnDeckFormData } from '@/features/decks/learn-dialog/learn-deck-form-schema'
 import type { DeckItem } from '@/features/decks/types'
 import type { Column } from '@/ui/table'
 import type { CheckedState } from '@radix-ui/react-checkbox'
@@ -7,6 +8,7 @@ import type { ChangeEvent } from 'react'
 import { useCallback, useRef, useState } from 'react'
 
 import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
+import { useGetRandomCardFromDeckQuery, useRateCardAcquisitionMutation } from '@/features/cards/api'
 import {
   useCreateDecksMutation,
   useDeleteDeckMutation,
@@ -16,6 +18,7 @@ import {
 } from '@/features/decks/api'
 import { DeleteDeckDialog } from '@/features/decks/delete-dialog'
 import { EditDeckDialog } from '@/features/decks/edit-dialog'
+import { LearnDeckDialog } from '@/features/decks/learn-dialog'
 import { decksTableColumns } from '@/features/decks/table/decks-table-columns'
 import { DeckActions } from '@/features/decks/table/table-deck-actions'
 import { usePageSearchParams } from '@/features/decks/use-page-search-params'
@@ -62,7 +65,7 @@ export const Page = () => {
     minCardsCount: useDebouncedValue(minCardsCount, 1300),
     name: useDebouncedValue(name, 1300),
   })
-  const decksDataToDisplayInTheTable = currentData ?? data
+  const decksDataForTable = currentData ?? data
 
   const { data: currentUser } = useMeQuery()
 
@@ -70,6 +73,8 @@ export const Page = () => {
   const [deleteDeck, { isLoading: isDeleting }] = useDeleteDeckMutation()
   const [updateDeck, { isLoading: isUpdating, isSuccess: updateSuccessful }] =
     useUpdateDeckMutation()
+  const [rateCardAcquisition, { isSuccess: cardGradeSubmitSuccessful }] =
+    useRateCardAcquisitionMutation()
 
   const selectedDeckId = useRef<null | string>(null)
 
@@ -77,13 +82,35 @@ export const Page = () => {
     selectedDeckId.current = id
   }
 
+  const previousSelectedDeckId = useRef<null | string>(null)
+
+  const setPreviousSelectedDeckId = (id: null | string) => {
+    previousSelectedDeckId.current = id
+  }
+
   const { currentData: selectedDeckData } = useGetDeckByIdQuery(
     selectedDeckId?.current ?? skipToken
+  )
+
+  const {
+    currentData: cardToLearnData,
+    refetch: fetchNewCardToLearn,
+    isFetching: cardToLearnFetching,
+  } = useGetRandomCardFromDeckQuery(
+    selectedDeckId?.current
+      ? {
+          deckId: selectedDeckId?.current,
+          ...(previousSelectedDeckId.current && {
+            previousCardId: previousSelectedDeckId.current,
+          }),
+        }
+      : skipToken
   )
 
   const [addDeckDialogOpen, setAddDeckDialogOpen] = useState<boolean>(false)
   const [editDeckDialogOpen, setEditDeckDialogOpen] = useState<boolean>(false)
   const [deleteDeckDialogOpen, setDeleteDeckDialogOpen] = useState<boolean>(false)
+  const [learnDialogOpen, setLearnDialogOpen] = useState<boolean>(false)
 
   const prepareEdit = useCallback((id: string) => {
     setSelectedDeckId(id)
@@ -93,6 +120,11 @@ export const Page = () => {
   const prepareDelete = useCallback((id: string) => {
     setSelectedDeckId(id)
     setDeleteDeckDialogOpen(true)
+  }, [])
+
+  const prepareLearn = useCallback((id: string) => {
+    setSelectedDeckId(id)
+    setLearnDialogOpen(true)
   }, [])
 
   const handleDelete = () => {
@@ -108,6 +140,11 @@ export const Page = () => {
     !open && setSelectedDeckId(null)
   }
 
+  const handleLearnDialogOpenChange = (open: boolean) => {
+    setLearnDialogOpen(open)
+    selectedDeckId.current = null
+  }
+
   const handleCurrentUserDecksSearch = (checked: CheckedState) => {
     if (!currentUser) {
       return
@@ -120,7 +157,7 @@ export const Page = () => {
     }
   }
 
-  const availableMaxCardsCount = decksDataToDisplayInTheTable?.maxCardsCount
+  const availableMaxCardsCount = decksDataForTable?.maxCardsCount
 
   const handleCardsCountLimitsChange = (value: [number, number]) => {
     if (!availableMaxCardsCount) {
@@ -139,7 +176,14 @@ export const Page = () => {
 
     {
       key: 'actions',
-      render: deck => <DeckActions deck={deck} onDelete={prepareDelete} onEdit={prepareEdit} />,
+      render: deck => (
+        <DeckActions
+          deck={deck}
+          onDelete={prepareDelete}
+          onEdit={prepareEdit}
+          onLearn={prepareLearn}
+        />
+      ),
       title: '',
     },
   ]
@@ -211,6 +255,32 @@ export const Page = () => {
       })
   }
 
+  const handleCardGradeSubmit = (data: LearnDeckFormData) => {
+    if (!selectedDeckId.current || !cardToLearnData) {
+      return
+    }
+
+    const gradeAsNumber = Number.parseInt(data.grade)
+
+    if (!gradeAsNumber) {
+      return
+    }
+
+    rateCardAcquisition({
+      body: { cardId: cardToLearnData.id, grade: gradeAsNumber },
+      deckId: selectedDeckId.current,
+    })
+      .unwrap()
+      .then(() => {
+        // alert('success')
+        setPreviousSelectedDeckId(selectedDeckId.current)
+        fetchNewCardToLearn()
+      })
+      .catch(() => {
+        alert('error')
+      })
+  }
+
   const changeSearchString = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
 
@@ -261,7 +331,7 @@ export const Page = () => {
             <Slider
               defaultValue={[minCardsCount || 0, maxCardsCount || availableMaxCardsCount]}
               displayValues
-              max={decksDataToDisplayInTheTable?.maxCardsCount}
+              max={availableMaxCardsCount}
               onValueCommit={handleCardsCountLimitsChange}
             />
           )}
@@ -288,19 +358,30 @@ export const Page = () => {
           title={'Delete deck ?'}
         />
       )}
+      {selectedDeckData && cardToLearnData && (
+        <LearnDeckDialog
+          card={cardToLearnData}
+          isLoading={cardToLearnFetching}
+          isSuccess={cardGradeSubmitSuccessful}
+          onOpenChange={handleLearnDialogOpenChange}
+          onSubmit={handleCardGradeSubmit}
+          open={learnDialogOpen}
+          title={`Learn "${selectedDeckData.name}"`}
+        />
+      )}
       <Table
         caption={'Decks'}
         columns={columns}
-        data={decksDataToDisplayInTheTable?.items || []}
+        data={decksDataForTable?.items || []}
         onChangeSort={handleSortChange}
         sort={tableSortProp}
       />
-      {decksDataToDisplayInTheTable?.pagination && (
+      {decksDataForTable?.pagination && (
         <div className={s.paginationContainer}>
           <Pagination
             onPageChange={handlePageChange}
             onPerPageCountChange={handlePerPageChange}
-            pagination={decksDataToDisplayInTheTable.pagination}
+            pagination={decksDataForTable.pagination}
             perPage={itemsPerPage || 10}
           />
         </div>

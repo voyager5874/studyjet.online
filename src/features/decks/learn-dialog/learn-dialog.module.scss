@@ -1,0 +1,47 @@
+.content {
+  width: calc(500px + 48px);
+}
+
+.formSection {
+  margin-bottom: 12px;
+  padding: 0 36px;
+}
+
+.sectionTitle {
+  margin-bottom: 12px;
+}
+
+.dialogHeader {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 12px;
+}
+
+.headerCloseButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.infoText {
+  margin-bottom: 35px;
+  color: var(--color-text-subdued);
+}
+
+.dialogFooter {
+  margin-top: 41px;
+  margin-bottom: 48px;
+  padding: 0 36px;
+}
+
+.answerFooter {
+  margin-bottom: 36px;
+}
+
+.subduedText {
+  color: var(--color-text-subdued);
+}
