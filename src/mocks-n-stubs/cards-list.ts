@@ -19,8 +19,10 @@ export const cardsList = [
     question: 'hhhh',
     answer: 'jjjj',
     deckId: 'cloojo6qw1evxvo2q7v37mz4q',
-    questionImg: null,
-    answerImg: null,
+    questionImg:
+      'https://www.peerbits.com/static/da2d745ffd48ca1e9b71b3086612dc2c/c56ad/react-vs-angular-social-image.png',
+    answerImg:
+      'https://studio.uxpincdn.com/studio/wp-content/uploads/2020/12/7-Best-Reasons-To-Use-React.js-Components-In-Your-Project-1024x512.png.webp',
     questionVideo: null,
     answerVideo: null,
     created: '2023-11-21T10:20:05.384Z',

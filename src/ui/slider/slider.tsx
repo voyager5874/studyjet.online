@@ -18,7 +18,7 @@ export const Slider = forwardRef<ElementRef<typeof SliderPrimitive.Root>, Slider
   (props, forwardedRef) => {
     const {
       minStepsBetweenThumbs,
-      step,
+      step = 1,
       onValueChange,
       onValueCommit,
       displayValues,
@@ -51,7 +51,11 @@ export const Slider = forwardRef<ElementRef<typeof SliderPrimitive.Root>, Slider
         // const minChanged = value[0] !== Number(minValueRef.current.value)
         // const maxChanged = value[lastElementIndex] !== Number(maxValueRef.current.value)
 
-        const gap = minStepsBetweenThumbs || step || 1
+        let gap = step
+
+        if (minStepsBetweenThumbs) {
+          gap = minStepsBetweenThumbs * step
+        }
 
         const newValue = [...newSliderValue]
 
@@ -77,7 +81,7 @@ export const Slider = forwardRef<ElementRef<typeof SliderPrimitive.Root>, Slider
 
         return { min: String(newValue[0]), max: String(newValue[lastElementIndex]), newValue }
       },
-      [minStepsBetweenThumbs, props.max, props.min, props.value, step]
+      [minStepsBetweenThumbs, props.max, props.min, step, value]
     )
     const handleValueChange = (newSliderValue: number[]) => {
       if (!value) {

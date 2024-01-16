@@ -149,10 +149,25 @@ const api = baseApi.injectEndpoints({
 
       invalidatesTags: ['Cards', { type: 'Cards', id: 'LIST' }],
     }),
+    getRandomCardFromDeck: builder.query<CardItem, { deckId: string; previousCardId?: string }>({
+      query: ({ deckId, previousCardId }) => ({
+        url: `decks/${deckId}/learn`,
+        method: 'GET',
+        params: previousCardId ? { previousCardId } : {},
+      }),
+    }),
+    rateCardAcquisition: builder.mutation<
+      CardItem,
+      { body: { cardId: string; grade: number }; deckId: string }
+    >({
+      query: ({ deckId, body }) => ({ url: `decks/${deckId}/learn`, method: 'POST', body }),
+    }),
   }),
 })
 
 export const {
+  useRateCardAcquisitionMutation,
+  useGetRandomCardFromDeckQuery,
   useUpdateCardMutation,
   useGetCardsOfDeckQuery,
   useCreateCardMutation,
