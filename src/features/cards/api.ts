@@ -155,12 +155,14 @@ const api = baseApi.injectEndpoints({
         method: 'GET',
         params: previousCardId ? { previousCardId } : {},
       }),
+      providesTags: (result, _error, _args) => (result ? [{ type: 'Cards', id: result.id }] : []),
     }),
     rateCardAcquisition: builder.mutation<
       CardItem,
       { body: { cardId: string; grade: number }; deckId: string }
     >({
       query: ({ deckId, body }) => ({ url: `decks/${deckId}/learn`, method: 'POST', body }),
+      invalidatesTags: (_result, _error, { body }) => [{ type: 'Cards', id: body.cardId }],
     }),
   }),
 })
