@@ -27,11 +27,13 @@ import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import { Button } from '@/ui/button'
 import { Checkbox } from '@/ui/checkbox'
 import { Pagination } from '@/ui/pagination'
+import { ProgressBar } from '@/ui/progress-bar/progress-bar'
 import { Slider } from '@/ui/slider'
 import { Table } from '@/ui/table'
 import { TextField } from '@/ui/text-field'
 import { getFileFromUrl } from '@/utils'
 import { skipToken } from '@reduxjs/toolkit/query'
+import { clsx } from 'clsx'
 
 import s from './page.module.scss'
 
@@ -69,7 +71,7 @@ export const Page = () => {
 
   const { data: currentUser } = useMeQuery()
 
-  const [createDeck, { isSuccess }] = useCreateDecksMutation()
+  const [createDeck, { isSuccess, isLoading: deckIsBeingCreated }] = useCreateDecksMutation()
   const [deleteDeck, { isLoading: isDeleting }] = useDeleteDeckMutation()
   const [updateDeck, { isLoading: isUpdating, isSuccess: updateSuccessful }] =
     useUpdateDeckMutation()
@@ -88,7 +90,7 @@ export const Page = () => {
     previousSelectedDeckId.current = id
   }
 
-  const { currentData: selectedDeckData } = useGetDeckByIdQuery(
+  const { currentData: selectedDeckData, isFetching: selectedDeckIsFetching } = useGetDeckByIdQuery(
     selectedDeckId?.current ?? skipToken
   )
 
@@ -206,7 +208,7 @@ export const Page = () => {
     createDeck(formData)
       .unwrap()
       .then(() => {
-        alert('success')
+        // alert('success')
       })
       .catch(() => {
         alert('error')
@@ -291,14 +293,21 @@ export const Page = () => {
     }
   }
 
-  const busy = isFetching || isLoading || isDeleting || isUpdating
+  const busy =
+    isFetching ||
+    isLoading ||
+    isDeleting ||
+    isUpdating ||
+    deckIsBeingCreated ||
+    selectedDeckIsFetching
   // todo: get rid of inline styles
 
   return (
     <>
-      <div>{busy && 'working...'}</div>
+      <ProgressBar className={clsx(s.progress)} show={busy} />
       <div
         style={{
+          paddingTop: '20px',
           flexWrap: 'wrap',
           display: 'flex',
           alignItems: 'flex-start',
