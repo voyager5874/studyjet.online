@@ -2,7 +2,6 @@ import { Link, Outlet } from 'react-router-dom'
 
 import { AppRoutes } from '@/app/app-routes'
 import { AppLogo } from '@/assets/app-logo'
-import { flexCenter } from '@/common/flex-center'
 import { useLogoutMutation, useMeQuery } from '@/features/user/api'
 import { useLocalStorage } from '@/hooks/use-local-storage'
 import { UserAvatar } from '@/ui/avatar'
@@ -35,34 +34,35 @@ export const MainLayout = () => {
 
   return (
     <>
-      <header className={clsx(s.header)}>
-        <Link style={flexCenter} to={'/'}>
+      <header className={cn.header}>
+        <Link className={cn.headerPart} to={'/'}>
           <AppLogo />
         </Link>
-        <DropdownMenu
-          trigger={
-            <Button variant={'icon'}>
-              <LucideRoute />
-            </Button>
-          }
-        >
-          {AppRoutes.public.map(item => (
-            <DropdownMenuItem key={item.name}>
-              <Link className={cn.link} to={item.path}>
-                {item.name}
-              </Link>
-            </DropdownMenuItem>
-          ))}
 
-          {AppRoutes.private.map(item => (
-            <DropdownMenuItem key={item.name}>
-              <Link className={cn.link} to={item.path}>
-                {item.name}
-              </Link>
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenu>
-        <div className={clsx(s.headerPart)}>
+        <div className={cn.headerPart}>
+          <DropdownMenu
+            trigger={
+              <Button variant={'ghost'}>
+                <LucideRoute />
+              </Button>
+            }
+          >
+            {AppRoutes.public.map(item => (
+              <DropdownMenuItem key={item.name}>
+                <Link className={cn.link} to={item.path}>
+                  {item.name}
+                </Link>
+              </DropdownMenuItem>
+            ))}
+
+            {AppRoutes.private.map(item => (
+              <DropdownMenuItem key={item.name}>
+                <Link className={cn.link} to={item.path}>
+                  {item.name}
+                </Link>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenu>
           <ThemeToggle />
           {data && (
             <DropdownMenu

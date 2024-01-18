@@ -2,6 +2,9 @@ import type { SignUpData } from '@/features/user'
 
 import { SignUpForm } from '@/features/user'
 import { useLoginMutation, useSignUpMutation } from '@/features/user/api'
+import { clsx } from 'clsx'
+
+import s from './page.module.scss'
 
 export const Page = () => {
   const [signUp] = useSignUpMutation()
@@ -18,14 +21,7 @@ export const Page = () => {
 
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          minHeight: '80vh',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
+      <div className={clsx(s.page)}>
         <SignUpForm onSubmit={handleRegister} />
       </div>
     </>
