@@ -1,16 +1,21 @@
 .header {
-  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  height: var(--header-height);
   padding-right: 10vw;
   padding-left: 10vw;
 
   color: var(--color-text-normal);
 
-  background-color: var(--color-bg-primary);
-  border: 1px solid var(--color-border-primary);
+  background-color: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .main {
-  min-height: calc(100vh - 100px);
+  min-height: calc(100vh - var(--header-height));
+  padding-top: 1px;
   padding-right: 10vw;
   padding-left: 10vw;
 
@@ -19,7 +24,27 @@
   background-color: var(--color-bg-primary);
 }
 
-.elementsList {
+.headerPart {
   display: flex;
   gap: 20px;
+  align-items: center;
+}
+
+.link {
+  text-decoration: none;
+}
+
+.userMenuHeadingItem {
+  pointer-events: none;
+
+  .userMenuHeadingItemContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}
+
+.subduedText {
+  color: var(--color-text-subdued);
 }

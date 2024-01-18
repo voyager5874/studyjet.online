@@ -7,9 +7,10 @@ import { clsx } from 'clsx'
 import s from './aspect-ratio.module.scss'
 
 type AspectRatioProps = {
+  /** just for img alt*/
   imageDescription?: string
   ratio: number
-  src: string
+  src: null | string
 } & ComponentPropsWithoutRef<typeof AspectRatioPrimitive.Root>
 export const AspectRatio = ({ src, imageDescription, ratio, ...restProps }: AspectRatioProps) => {
   const [imageUrl, setImageUrl] = useState<null | string>(src)
@@ -17,6 +18,7 @@ export const AspectRatio = ({ src, imageDescription, ratio, ...restProps }: Aspe
 
   const handleError = () => {
     setImageUrl(null)
+    setReady(true)
   }
 
   const handleLoad = () => {
@@ -29,7 +31,7 @@ export const AspectRatio = ({ src, imageDescription, ratio, ...restProps }: Aspe
   }, [src])
 
   return (
-    <div className={s.container}>
+    <div className={clsx(s.container)}>
       <AspectRatioPrimitive.Root ratio={ratio} {...restProps}>
         {imageUrl && (
           <img
@@ -40,7 +42,8 @@ export const AspectRatio = ({ src, imageDescription, ratio, ...restProps }: Aspe
             src={imageUrl}
           />
         )}
-        {!ready && <div className={clsx(s.imagePlaceholder)}>Loading...</div>}
+        {imageUrl && !ready && <div className={clsx(s.imagePlaceholder)}>Loading...</div>}
+        {!imageUrl && <div className={clsx(s.imagePlaceholder)}>No image</div>}
       </AspectRatioPrimitive.Root>
     </div>
   )

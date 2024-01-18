@@ -2,6 +2,9 @@ import type { SignInData } from '@/features/user'
 
 import { SignInForm } from '@/features/user'
 import { useLoginMutation } from '@/features/user/api'
+import { clsx } from 'clsx'
+
+import s from './page.module.scss'
 
 export const Page = () => {
   const [login] = useLoginMutation()
@@ -11,7 +14,7 @@ export const Page = () => {
   }
 
   return (
-    <section>
+    <section className={clsx(s.page)}>
       <SignInForm onSubmit={handleLogin} />
     </section>
   )

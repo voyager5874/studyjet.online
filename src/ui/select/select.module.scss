@@ -55,6 +55,8 @@ button {
 }
 
 .content {
+  z-index: 9999;
+
   box-sizing: border-box;
   width: var(--radix-select-trigger-width);
 
