@@ -3,10 +3,9 @@ import type { CardItem } from '@/features/cards/types'
 import type { Column } from '@/ui/table'
 
 import { useRef, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 
 import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
-import { flexCenter } from '@/common/flex-center'
 import {
   useCreateCardMutation,
   useDeleteCardMutation,
@@ -23,11 +22,18 @@ import { useMeQuery } from '@/features/user/api'
 import { usePageSearchParams } from '@/hooks'
 import { useConfirm } from '@/hooks/use-confirm'
 import { Button } from '@/ui/button'
+import { DropdownMenu, DropdownMenuItem } from '@/ui/dropdown'
 import { Pagination } from '@/ui/pagination'
+import { ProgressBar } from '@/ui/progress-bar/progress-bar'
 import { Table } from '@/ui/table'
+import { TextField } from '@/ui/text-field'
 import { Typography } from '@/ui/typography'
 import { getFileFromUrl, parseNumber } from '@/utils'
 import { skipToken } from '@reduxjs/toolkit/query'
+import { clsx } from 'clsx'
+import { LucideMoreVertical } from 'lucide-react'
+
+import s from './page.module.scss'
 
 export const Page = () => {
   const { id } = useParams<{ id: string }>()
@@ -40,6 +46,14 @@ export const Page = () => {
   const { data, isFetching, isLoading } = useGetCardsOfDeckQuery(
     id ? { id, params: pageQueryParams ?? {} } : skipToken
   )
+
+  const {
+    data: deckData,
+    currentData: deckCurrentData,
+    isFetching: deckDataFetching,
+  } = useGetDeckByIdQuery(id ?? skipToken)
+
+  const deck = deckCurrentData ?? deckData
 
   const [createCard, { isSuccess: createCardSuccess, isLoading: isCreating }] =
     useCreateCardMutation()
@@ -196,13 +210,14 @@ export const Page = () => {
     cardIsBeingUpdated ||
     isCreating ||
     selectedCardFetching ||
-    isDeleting
+    isDeleting ||
+    deckDataFetching
 
   const isOwner = userData && currentDeckData && userData?.id === currentDeckData?.userId
 
   if (!data?.items?.length) {
     return (
-      <div style={{ ...flexCenter, height: '90vh', flexDirection: 'column', gap: '20px' }}>
+      <div className={clsx(s.page)}>
         {!busy && <Typography>There is no cards in this deck</Typography>}
         {isOwner && id && (
           <EditCardDialog
@@ -218,27 +233,54 @@ export const Page = () => {
     )
   }
 
+  const cn = {
+    link: clsx(s.link),
+  }
+
   return (
     <>
-      <div>{busy && 'working...'}</div>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-        }}
-      ></div>
-      {id && isOwner && (
-        <EditCardDialog
-          isSuccess={createCardSuccess}
-          onOpenChange={setAddCardDialogOpen}
-          onSubmit={handleNewCardDataSubmit}
-          open={addCardDialogOpen}
-          title={'add card'}
-          trigger={<Button>Add new card</Button>}
-        />
-      )}
+      <ProgressBar className={clsx(s.progress)} show={busy} />
 
+      <div className={clsx(s.pageControlsContainer)}>
+        <div className={clsx(s.flexRow, s.fullWidth)}>
+          <div className={clsx(s.flexRow)}>
+            <Typography variant={'large'}>{deck?.name}</Typography>
+            <DropdownMenu
+              align={'start'}
+              trigger={
+                <Button variant={'icon'}>
+                  <LucideMoreVertical />
+                </Button>
+              }
+            >
+              {isOwner && <DropdownMenuItem>Edit</DropdownMenuItem>}
+              <DropdownMenuItem>
+                <Typography as={Link} to={`/decks/${id}/learn`} variant={'link1'}>
+                  {`Learn "${deck?.name}"`}
+                </Typography>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Typography variant={'body2'}>Add to favorites</Typography>
+              </DropdownMenuItem>
+              {isOwner && <DropdownMenuItem>Delete</DropdownMenuItem>}
+            </DropdownMenu>
+          </div>
+          {id && isOwner && (
+            <EditCardDialog
+              isSuccess={createCardSuccess}
+              onOpenChange={setAddCardDialogOpen}
+              onSubmit={handleNewCardDataSubmit}
+              open={addCardDialogOpen}
+              title={'add card'}
+              trigger={<Button>Add new card</Button>}
+            />
+          )}
+        </div>
+
+        <div className={clsx(s.textFieldContainer)}>
+          <TextField type={'search'} />
+        </div>
+      </div>
       {selectedCardData && (
         <EditCardDialog
           card={selectedCardData}
@@ -257,16 +299,16 @@ export const Page = () => {
           open={deleteCardDialogOpen}
         />
       )}
-      <Table
-        caption={'Cards'}
-        columns={columns}
-        data={data?.items || []}
-        onChangeSort={handleSortChange}
-        sort={sortProp}
-      />
-      <div>{(isFetching || isLoading) && 'loading...'}</div>
+      {data?.items?.length && (
+        <Table
+          columns={columns}
+          data={data?.items || []}
+          onChangeSort={handleSortChange}
+          sort={sortProp}
+        />
+      )}
       {data?.pagination && (
-        <div style={{ padding: '50px 0' }}>
+        <div className={clsx(s.paginationContainer)}>
           <Pagination
             onPageChange={handlePageChange}
             onPerPageCountChange={handlePerPageChange}

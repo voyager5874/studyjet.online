@@ -77,7 +77,7 @@ export function LearnDeckDialog(props: LearnDeckDialogProps) {
   }
 
   return (
-    <Dialog {...restProps} modal>
+    <Dialog {...restProps}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <Form {...form}>
         <DialogContent className={classNames.dialogContent}>
