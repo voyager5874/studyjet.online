@@ -41,8 +41,9 @@ export const usePageSearchParams = () => {
   const handlePerPageChange = useCallback(
     (value: number) => {
       dispatch(setPerPageCount({ itemsPerPage: value }))
+      dispatch(setCurrentPage({ currentPage: 1 }))
     },
-    [dispatch, setPerPageCount]
+    [dispatch, setPerPageCount, setCurrentPage]
   )
 
   const handlePageChange = useCallback(
