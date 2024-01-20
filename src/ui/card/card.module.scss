@@ -1,8 +1,14 @@
 .root {
   display: block;
+
   padding: 20px;
+
   background-color: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
+  box-shadow:
+    rgb(0 0 0 / 20%) 0 12px 28px 0,
+    rgb(0 0 0 / 10%) 0 2px 4px 0,
+    rgb(255 255 255 / 5%) 0 0 0 1px inset;
 }
 
 .cardContent {
