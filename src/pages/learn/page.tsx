@@ -88,8 +88,9 @@ export const Page = () => {
     formSection: clsx(s.formSection),
     formItem: clsx(s.formItem),
     cardHeader: clsx(s.cardHeader),
-    cardFooter: clsx(s.cardFooter, questionAsked && s.answerFooter),
-    infoText: clsx(s.infoText),
+    cardFooter: clsx(s.cardFooter),
+    shotsCountText: clsx(s.shotsCountInfo),
+    shotsCountNumber: clsx(s.subduedText),
     sectionTitle: clsx(s.sectionTitle),
     cardPlaceholder: clsx(s.cardPlaceholder),
   }
@@ -122,9 +123,9 @@ export const Page = () => {
                     {cardToLearnData?.question}
                   </Typography>
                 </Typography>
-                <Typography className={cn.infoText} variant={'body2'}>
+                <Typography className={cn.shotsCountText} variant={'body2'}>
                   Total number of views:{' '}
-                  <Typography as={'span'} className={cn.infoText} variant={'subtitle2'}>
+                  <Typography as={'span'} className={cn.shotsCountNumber} variant={'subtitle2'}>
                     {cardToLearnData?.shots}
                   </Typography>
                 </Typography>
