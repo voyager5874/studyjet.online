@@ -215,10 +215,10 @@ export const Page = () => {
 
   const isOwner = userData && currentDeckData && userData?.id === currentDeckData?.userId
 
-  if (!data?.items?.length) {
+  if (!busy && !data?.items?.length) {
     return (
       <div className={clsx(s.page)}>
-        {!busy && <Typography>There is no cards in this deck</Typography>}
+        <Typography>There is no cards in this deck</Typography>
         {isOwner && id && (
           <EditCardDialog
             isSuccess={createCardSuccess}
@@ -235,13 +235,14 @@ export const Page = () => {
 
   const cn = {
     link: clsx(s.link),
+    queriesControlsContainer: clsx(s.pageControlsContainer),
   }
 
   return (
     <>
       <ProgressBar className={clsx(s.progress)} show={busy} />
 
-      <div className={clsx(s.pageControlsContainer)}>
+      <div className={cn.queriesControlsContainer}>
         <div className={clsx(s.flexRow, s.fullWidth)}>
           <div className={clsx(s.flexRow)}>
             <Typography variant={'large'}>{deck?.name}</Typography>
@@ -255,7 +256,13 @@ export const Page = () => {
             >
               {isOwner && <DropdownMenuItem>Edit</DropdownMenuItem>}
               <DropdownMenuItem>
-                <Typography as={Link} to={`/decks/${id}/learn`} variant={'link1'}>
+                <Typography
+                  as={Link}
+                  replace
+                  state={{ referer: `decks/${id}/cards` }}
+                  to={`/decks/${id}/learn`}
+                  variant={'link1'}
+                >
                   {`Learn "${deck?.name}"`}
                 </Typography>
               </DropdownMenuItem>
