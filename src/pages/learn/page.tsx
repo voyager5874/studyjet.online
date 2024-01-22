@@ -25,7 +25,7 @@ export const Page = () => {
 
   const { data: currentDeckData } = useGetDeckByIdQuery(id ?? skipToken)
 
-  const [rateCardAcquisition] = useRateCardAcquisitionMutation()
+  const [rateCardAcquisition, { isLoading: cardGradeSubmitting }] = useRateCardAcquisitionMutation()
 
   const previousCardId = useRef<null | string>(null)
 
@@ -149,6 +149,7 @@ export const Page = () => {
 
               <GradeSubmitForm
                 card={cardToLearnData}
+                disabled={cardGradeSubmitting}
                 onSubmit={handleCardGradeSubmit}
                 ref={formRef}
               />
@@ -174,10 +175,6 @@ function getParamsForUseGetRandomCardQuery(data: {
   if (!previousCardId) {
     return { deckId }
   }
-
-  // if (lastQuery && lastQuery.previousCardId === previousCardId && lastQuery.deckId === deckId) {
-  //   return skipToken
-  // }
 
   return { deckId, previousCardId }
 }

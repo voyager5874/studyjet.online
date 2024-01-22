@@ -79,8 +79,10 @@ export const Page = () => {
   const [deleteDeck, { isLoading: isDeleting }] = useDeleteDeckMutation()
   const [updateDeck, { isLoading: isUpdating, isSuccess: updateSuccessful }] =
     useUpdateDeckMutation()
-  const [rateCardAcquisition, { isSuccess: cardGradeSubmitSuccessful }] =
-    useRateCardAcquisitionMutation()
+  const [
+    rateCardAcquisition,
+    { isSuccess: cardGradeSubmitSuccessful, isLoading: cardGradeIsSubmitting },
+  ] = useRateCardAcquisitionMutation()
 
   const selectedDeckId = useRef<null | string>(null)
 
@@ -386,6 +388,7 @@ export const Page = () => {
       {selectedDeckData && cardToLearnData && (
         <LearnDeckDialog
           card={cardToLearnData}
+          disabled={cardGradeIsSubmitting}
           isLoading={cardToLearnFetching}
           isSuccess={cardGradeSubmitSuccessful}
           onOpenChange={handleLearnDialogOpenChange}

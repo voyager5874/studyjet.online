@@ -26,7 +26,6 @@ import s from './learn-dialog.module.scss'
 export type LearnDeckDialogProps = {
   card: CardItem
   isLoading?: boolean
-  isSuccess?: boolean
   onShowAnswer?: () => void
   title: string
   trigger?: ReactNode
@@ -34,6 +33,7 @@ export type LearnDeckDialogProps = {
   GradeSubmitFormProps
 export function LearnDeckDialog(props: LearnDeckDialogProps) {
   const {
+    isSubmitting,
     onShowAnswer,
     isLoading,
     card,
@@ -124,7 +124,7 @@ export function LearnDeckDialog(props: LearnDeckDialogProps) {
               </DialogClose>
             </DialogHeader>
 
-            <GradeSubmitForm card={card} onSubmit={onSubmit} />
+            <GradeSubmitForm card={card} disabled={disabled || isSubmitting} onSubmit={onSubmit} />
           </>
         )}
       </DialogContent>

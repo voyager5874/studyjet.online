@@ -61,7 +61,6 @@ export function EditCardDialog(props: EditCardDialogProps) {
 
   const submitButtonDisabled =
     disabled ||
-    form.formState.isSubmitting ||
     form.getValues().answer === '' ||
     form.getValues().question === '' ||
     form.formState.isValidating
