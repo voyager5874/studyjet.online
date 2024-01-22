@@ -59,6 +59,7 @@ export const Page = () => {
       .unwrap()
       .then(() => {
         setQuestionAsked(false)
+        previousCardId.current = cardToLearnData.id
 
         // formRef.current && formRef?.current?.reset()
       })
@@ -71,7 +72,6 @@ export const Page = () => {
     if (!cardToLearnData) {
       return
     }
-    previousCardId.current = cardToLearnData.id
     setQuestionAsked(true)
   }
 
