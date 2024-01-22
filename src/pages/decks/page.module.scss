@@ -1,9 +1,50 @@
+@import '@/styles/mixins/flex-container';
+
+.pageHeader {
+  @include flex-container-row(center, space-between);
+
+  margin-top: 36px;
+  margin-bottom: 10px;
+}
+
+.page {
+  @include flex-container-column(center, center);
+
+  gap: 20px;
+  min-height: calc(100vh - var(--header-height) - 1px);
+  padding-top: 36px;
+}
+
 .paginationContainer {
-  padding: 50px 0;
+  @include flex-container-row(center, space-between);
+
+  padding-top: 50px;
 }
 
 .progress {
   position: absolute;
-  top: 1px;
+  top: 0;
   left: 0;
+}
+
+.pageQueriesContainer {
+  @include flex-container-row(flex-end, flex-end);
+
+  flex-wrap: wrap;
+  gap: 20px 20px;
+
+  // display: 'flex',
+  // alignItems: 'flex-start',
+  // justifyContent: 'space-between',
+}
+
+.cardsCountSliderWrapper {
+  @include flex-container-column(center, flex-end);
+
+  min-width: 800px;
+}
+
+.searchInputWrapper {
+  width: 100%;
+  margin-bottom: 20px;
 }

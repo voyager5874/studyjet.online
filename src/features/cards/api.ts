@@ -153,16 +153,17 @@ const api = baseApi.injectEndpoints({
       query: ({ deckId, previousCardId }) => ({
         url: `decks/${deckId}/learn`,
         method: 'GET',
-        params: previousCardId ? { previousCardId } : {},
+        params: previousCardId ? { previousCardId } : undefined,
       }),
-      providesTags: (result, _error, _args) => (result ? [{ type: 'Cards', id: result.id }] : []),
+      // providesTags: (result, _error, _args) => (result ? [{ type: 'Cards', id: result.id }] : []),
+      // providesTags: ['RandomCard'],
     }),
     rateCardAcquisition: builder.mutation<
       CardItem,
       { body: { cardId: string; grade: number }; deckId: string }
     >({
       query: ({ deckId, body }) => ({ url: `decks/${deckId}/learn`, method: 'POST', body }),
-      invalidatesTags: (_result, _error, { body }) => [{ type: 'Cards', id: body.cardId }],
+      // invalidatesTags: (_result, _error, { body }) => [{ type: 'Cards', id: body.cardId }],
     }),
   }),
 })

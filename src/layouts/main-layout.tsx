@@ -36,7 +36,7 @@ export const MainLayout = () => {
     <>
       <header className={cn.header}>
         <Link className={cn.headerPart} to={'/'}>
-          <AppLogo />
+          <AppLogo fill={'var(--color-text-normal'} />
         </Link>
 
         <div className={cn.headerPart}>

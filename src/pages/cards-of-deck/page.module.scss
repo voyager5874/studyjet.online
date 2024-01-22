@@ -1,0 +1,52 @@
+@import '@/styles/mixins/flex-container';
+
+.page {
+  @include flex-center-column;
+
+  gap: 20px;
+  min-height: calc(100vh - var(--header-height));
+
+  // padding-top: 36px;
+}
+
+.pageControlsContainer {
+  @include flex-container-column(flex-start, flex-start);
+
+  gap: 20px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.progress {
+  position: absolute;
+  left: 0;
+}
+
+.paginationContainer {
+  padding: 50px 0;
+}
+
+.textFieldContainer {
+  align-self: flex-start;
+  width: 100%;
+}
+
+.flexRow {
+  @include flex-container-row(center, space-between);
+}
+
+.flexColumn {
+  @include flex-container-column(flex-end, flex-start);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.link {
+  text-decoration: none;
+}
+
+.subduedText {
+  color: var(--color-text-subdued);
+}

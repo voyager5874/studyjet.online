@@ -31,9 +31,11 @@ import { ProgressBar } from '@/ui/progress-bar/progress-bar'
 import { Slider } from '@/ui/slider'
 import { Table } from '@/ui/table'
 import { TextField } from '@/ui/text-field'
+import { Typography } from '@/ui/typography'
 import { getFileFromUrl } from '@/utils'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { clsx } from 'clsx'
+import { LucideVariable } from 'lucide-react'
 
 import s from './page.module.scss'
 
@@ -54,6 +56,8 @@ export const Page = () => {
     handleItemsMinCountChange,
     handleItemsMaxCountChange,
     handleResetAllQueries,
+    handleClearFilters,
+    activeFiltersCount,
 
     name,
   } = usePageSearchParams()
@@ -84,30 +88,23 @@ export const Page = () => {
     selectedDeckId.current = id
   }
 
-  const previousSelectedDeckId = useRef<null | string>(null)
-
-  const setPreviousSelectedDeckId = (id: null | string) => {
-    previousSelectedDeckId.current = id
-  }
+  const previousCardId = useRef<null | string>(null)
 
   const { currentData: selectedDeckData, isFetching: selectedDeckIsFetching } = useGetDeckByIdQuery(
     selectedDeckId?.current ?? skipToken
   )
 
-  const {
-    currentData: cardToLearnData,
-    refetch: fetchNewCardToLearn,
-    isFetching: cardToLearnFetching,
-  } = useGetRandomCardFromDeckQuery(
-    selectedDeckId?.current
-      ? {
-          deckId: selectedDeckId?.current,
-          ...(previousSelectedDeckId.current && {
-            previousCardId: previousSelectedDeckId.current,
-          }),
-        }
-      : skipToken
-  )
+  const { currentData: cardToLearnData, isFetching: cardToLearnFetching } =
+    useGetRandomCardFromDeckQuery(
+      selectedDeckId?.current
+        ? {
+            deckId: selectedDeckId?.current,
+            ...(previousCardId.current && {
+              previousCardId: previousCardId.current,
+            }),
+          }
+        : skipToken
+    )
 
   const [addDeckDialogOpen, setAddDeckDialogOpen] = useState<boolean>(false)
   const [editDeckDialogOpen, setEditDeckDialogOpen] = useState<boolean>(false)
@@ -274,13 +271,16 @@ export const Page = () => {
     })
       .unwrap()
       .then(() => {
-        // alert('success')
-        setPreviousSelectedDeckId(selectedDeckId.current)
-        fetchNewCardToLearn()
+        previousCardId.current = cardToLearnData.id
+        // fetchNewCardToLearn() //no need for manual refetch
       })
       .catch(() => {
         alert('error')
       })
+  }
+
+  const handleShowCardAnswer = () => {
+    // previousCardId.current = cardToLearnData.id
   }
 
   const changeSearchString = (e: ChangeEvent<HTMLInputElement>) => {
@@ -300,33 +300,31 @@ export const Page = () => {
     isUpdating ||
     deckIsBeingCreated ||
     selectedDeckIsFetching
-  // todo: get rid of inline styles
+
+  const cn = {
+    page: clsx(s.page),
+    pageHeader: clsx(s.pageHeader),
+    progress: clsx(s.progress),
+    pageQueriesContainer: clsx(s.pageQueriesContainer),
+    searchInputWrapper: clsx(s.searchInputWrapper),
+    cardsCountSliderWrapper: clsx(s.cardsCountSliderWrapper),
+    paginationContainer: clsx(s.paginationContainer),
+  }
+
+  if (!busy && !decksDataForTable?.items?.length) {
+    return (
+      <div className={cn.page}>
+        <Typography>No deck found</Typography>
+        {activeFiltersCount && <Button onClick={handleResetAllQueries}>Reset filters</Button>}
+      </div>
+    )
+  }
 
   return (
     <>
-      <ProgressBar className={clsx(s.progress)} show={busy} />
-      <div
-        style={{
-          paddingTop: '20px',
-          flexWrap: 'wrap',
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div style={{ width: '50%' }}>
-          <TextField
-            onChange={changeSearchString}
-            onClear={() => handleNameSearch('')}
-            type={'search'}
-            value={name || ''}
-          />
-        </div>
-        <Checkbox
-          checked={!!authorId}
-          label={'show only my decks'}
-          onCheckedChange={handleCurrentUserDecksSearch}
-        />
+      <ProgressBar className={cn.progress} show={busy} />
+      <div className={cn.pageHeader}>
+        <Typography variant={'large'}>Decks list</Typography>
         <EditDeckDialog
           isSuccess={isSuccess}
           onOpenChange={setAddDeckDialogOpen}
@@ -335,18 +333,36 @@ export const Page = () => {
           title={'add deck'}
           trigger={<Button>Add new deck</Button>}
         />
-        <div style={{ minWidth: '600px' }}>
+      </div>
+      <div className={cn.pageQueriesContainer}>
+        <div className={cn.cardsCountSliderWrapper}>
           {availableMaxCardsCount && (
-            <Slider
-              defaultValue={[minCardsCount || 0, maxCardsCount || availableMaxCardsCount]}
-              displayValues
-              max={availableMaxCardsCount}
-              onValueCommit={handleCardsCountLimitsChange}
-            />
+            <>
+              <Typography variant={'body2'}>Cards count filter</Typography>
+              <Slider
+                defaultValue={[minCardsCount || 0, maxCardsCount || availableMaxCardsCount]}
+                displayValues
+                max={availableMaxCardsCount}
+                onValueCommit={handleCardsCountLimitsChange}
+              />
+            </>
           )}
         </div>
-        <Button onClick={handleResetAllQueries}>Reset queries</Button>
+        <Button onClick={handleResetAllQueries} variant={'ghost'}>
+          <LucideVariable />
+        </Button>
+        <Button onClick={handleClearFilters}>Reset all filters</Button>
+
+        <div className={cn.searchInputWrapper}>
+          <TextField
+            onChange={changeSearchString}
+            onClear={() => handleNameSearch('')}
+            type={'search'}
+            value={name || ''}
+          />
+        </div>
       </div>
+
       {selectedDeckData && (
         <EditDeckDialog
           deck={selectedDeckData}
@@ -373,25 +389,30 @@ export const Page = () => {
           isLoading={cardToLearnFetching}
           isSuccess={cardGradeSubmitSuccessful}
           onOpenChange={handleLearnDialogOpenChange}
+          onShowAnswer={handleShowCardAnswer}
           onSubmit={handleCardGradeSubmit}
           open={learnDialogOpen}
           title={`Learn "${selectedDeckData.name}"`}
         />
       )}
       <Table
-        caption={'Decks'}
         columns={columns}
         data={decksDataForTable?.items || []}
         onChangeSort={handleSortChange}
         sort={tableSortProp}
       />
       {decksDataForTable?.pagination && (
-        <div className={s.paginationContainer}>
+        <div className={cn.paginationContainer}>
           <Pagination
             onPageChange={handlePageChange}
             onPerPageCountChange={handlePerPageChange}
             pagination={decksDataForTable.pagination}
             perPage={itemsPerPage || 10}
+          />
+          <Checkbox
+            checked={!!authorId}
+            label={'Show only my decks'}
+            onCheckedChange={handleCurrentUserDecksSearch}
           />
         </div>
       )}
