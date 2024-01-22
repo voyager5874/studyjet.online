@@ -1,5 +1,12 @@
 @import '@/styles/mixins/flex-container';
 
+.pageHeader {
+  @include flex-container-row(center, space-between);
+
+  margin-top: 36px;
+  margin-bottom: 36px;
+}
+
 .page {
   @include flex-center-column;
 
@@ -7,14 +14,6 @@
   min-height: calc(100vh - var(--header-height));
 
   // padding-top: 36px;
-}
-
-.pageControlsContainer {
-  @include flex-container-column(flex-start, flex-start);
-
-  gap: 20px;
-  padding-top: 20px;
-  padding-bottom: 20px;
 }
 
 .progress {
@@ -27,8 +26,13 @@
 }
 
 .textFieldContainer {
-  align-self: flex-start;
   width: 100%;
+  margin-bottom: 10px;
+}
+
+.dropdownMenuItem {
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .flexRow {
@@ -44,6 +48,7 @@
 }
 
 .link {
+  padding: 0;
   text-decoration: none;
 }
 
