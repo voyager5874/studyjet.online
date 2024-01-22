@@ -31,7 +31,13 @@ import { Typography } from '@/ui/typography'
 import { getFileFromUrl, parseNumber } from '@/utils'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { clsx } from 'clsx'
-import { LucideMoreVertical } from 'lucide-react'
+import {
+  LucideBookmark,
+  LucideMoreVertical,
+  LucidePencil,
+  LucidePlayCircle,
+  LucideTrash,
+} from 'lucide-react'
 
 import s from './page.module.scss'
 
@@ -235,15 +241,17 @@ export const Page = () => {
 
   const cn = {
     link: clsx(s.link),
-    queriesControlsContainer: clsx(s.pageControlsContainer),
+    searchCardInputWrapper: clsx(s.textFieldContainer),
+    pageHeader: clsx(s.pageHeader),
+    dropdownMenuItem: clsx(s.dropdownMenuItem),
   }
 
   return (
     <>
       <ProgressBar className={clsx(s.progress)} show={busy} />
 
-      <div className={cn.queriesControlsContainer}>
-        <div className={clsx(s.flexRow, s.fullWidth)}>
+      <div className={cn.pageHeader}>
+        <div className={clsx(s.flexRow)}>
           <div className={clsx(s.flexColumn)}>
             <div className={clsx(s.flexRow)}>
               <Typography variant={'large'}>{deck?.name}</Typography>
@@ -255,22 +263,44 @@ export const Page = () => {
                   </Button>
                 }
               >
-                {isOwner && <DropdownMenuItem>Edit</DropdownMenuItem>}
-                <DropdownMenuItem>
+                {isOwner && (
+                  <DropdownMenuItem className={cn.dropdownMenuItem}>
+                    <div>
+                      <LucidePencil size={14} />
+                    </div>
+                    <Typography variant={'body2'}>Edit</Typography>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem className={cn.dropdownMenuItem}>
+                  <div>
+                    <LucidePlayCircle size={14} />
+                  </div>
                   <Typography
                     as={Link}
+                    className={cn.link}
                     replace
                     state={{ referer: `decks/${id}/cards` }}
                     to={`/decks/${id}/learn`}
-                    variant={'link1'}
+                    variant={'body2'}
                   >
                     {`Learn "${deck?.name}"`}
                   </Typography>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+
+                {isOwner && (
+                  <DropdownMenuItem className={cn.dropdownMenuItem}>
+                    <div>
+                      <LucideTrash size={14} />
+                    </div>
+                    <Typography variant={'body2'}>Delete</Typography>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem className={cn.dropdownMenuItem}>
+                  <div>
+                    <LucideBookmark size={14} />
+                  </div>
                   <Typography variant={'body2'}>Add to favorites</Typography>
                 </DropdownMenuItem>
-                {isOwner && <DropdownMenuItem>Delete</DropdownMenuItem>}
               </DropdownMenu>
             </div>
             {isOwner && (
@@ -280,20 +310,22 @@ export const Page = () => {
             )}
           </div>
         </div>
-        <div className={clsx(s.textFieldContainer)}>
-          <TextField type={'search'} />
-        </div>
+        {id && isOwner && (
+          <EditCardDialog
+            isSuccess={createCardSuccess}
+            onOpenChange={setAddCardDialogOpen}
+            onSubmit={handleNewCardDataSubmit}
+            open={addCardDialogOpen}
+            title={'add card'}
+            trigger={<Button>Add new card</Button>}
+          />
+        )}
       </div>
-      {id && isOwner && (
-        <EditCardDialog
-          isSuccess={createCardSuccess}
-          onOpenChange={setAddCardDialogOpen}
-          onSubmit={handleNewCardDataSubmit}
-          open={addCardDialogOpen}
-          title={'add card'}
-          trigger={<Button>Add new card</Button>}
-        />
-      )}
+
+      <div className={cn.searchCardInputWrapper}>
+        <TextField type={'search'} />
+      </div>
+
       {selectedCardData && (
         <EditCardDialog
           card={selectedCardData}
