@@ -50,10 +50,7 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
   })
 
   const submitButtonDisabled =
-    disabled ||
-    form.formState.isSubmitting ||
-    form.getValues().name === '' ||
-    form.formState.isValidating
+    disabled || form.getValues().name === '' || form.formState.isValidating
 
   //todo: investigate 'useImperativeHandle' hook for exposing .reset()
   //todo: check for accessibility (id, aria-labels...)

@@ -20,12 +20,13 @@ import s from './grade-submit-form.module.scss'
 export type GradeSubmitFormProps = {
   card?: CardItem
   disabled?: boolean
+  isSubmitting?: boolean
   isSuccess?: boolean
   onSubmit: (data: LearnDeckFormData) => void
 } & Omit<ComponentPropsWithoutRef<'form'>, 'onSubmit'>
 export const GradeSubmitForm = forwardRef<HTMLFormElement, GradeSubmitFormProps>(
   (props: GradeSubmitFormProps, forwardedRef) => {
-    const { card, isSuccess, disabled, onSubmit, title, ...restProps } = props
+    const { isSubmitting, card, isSuccess, disabled, onSubmit, title, ...restProps } = props
 
     const form = useForm<LearnDeckFormData>({
       resolver: zodResolver(learnDeckFormSchema),
@@ -49,11 +50,12 @@ export const GradeSubmitForm = forwardRef<HTMLFormElement, GradeSubmitFormProps>
       form.formState.isSubmitted && isSuccess && form.reset()
     }, [form, isSuccess])
 
-    const submitButtonDisabled =
-      disabled ||
-      form.formState.isSubmitting ||
-      form.formState.isValidating ||
-      form.getValues().grade === ''
+    // submitting is 'synchronous' for the form
+    // so "isSubmitting" is almost immediately false - "isSubmitted" could be used
+
+    const formDisabled = disabled || isSubmitting || form.formState.isValidating
+
+    const submitButtonDisabled = formDisabled || form.getValues().grade === ''
 
     const cn = {
       formSection: clsx(s.formSection),
@@ -105,6 +107,7 @@ export const GradeSubmitForm = forwardRef<HTMLFormElement, GradeSubmitFormProps>
                   <FormItem className={cn.formItem}>
                     <FormControl>
                       <RadioGroup
+                        disabled={formDisabled}
                         items={knowledgeQuality}
                         onValueChange={field.onChange}
                         value={field.value}
