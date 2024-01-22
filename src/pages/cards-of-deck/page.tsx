@@ -273,9 +273,11 @@ export const Page = () => {
                 {isOwner && <DropdownMenuItem>Delete</DropdownMenuItem>}
               </DropdownMenu>
             </div>
-            <Typography className={clsx(s.subduedText)} variant={'caption'}>
-              you own this deck
-            </Typography>
+            {isOwner && (
+              <Typography className={clsx(s.subduedText)} variant={'caption'}>
+                you own this deck
+              </Typography>
+            )}
           </div>
         </div>
         <div className={clsx(s.textFieldContainer)}>
