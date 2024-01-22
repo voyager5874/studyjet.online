@@ -120,7 +120,23 @@ export const usePageSearchParams = () => {
     history.replaceState(null, '', `/decks${query}`)
   }, [deckName, authorId, orderBy, currentPage, itemsPerPage, maxCardsCount, minCardsCount])
 
+  let activeFiltersCount = 0
+
+  const params = {
+    // itemsPerPage,
+    // orderBy,
+    minCardsCount,
+    maxCardsCount,
+    authorId,
+    name: deckName,
+  }
+
+  const paramsKeys = Object.keys(params)
+
+  paramsKeys.forEach(item => params[item as keyof typeof params] && (activeFiltersCount += 1))
+
   return {
+    activeFiltersCount,
     tableSortProp,
     name: deckName,
     authorId,

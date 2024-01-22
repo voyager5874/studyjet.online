@@ -26,18 +26,35 @@ import s from './learn-dialog.module.scss'
 export type LearnDeckDialogProps = {
   card: CardItem
   isLoading?: boolean
+  isSuccess?: boolean
+  onShowAnswer?: () => void
   title: string
   trigger?: ReactNode
 } & DialogProps &
   GradeSubmitFormProps
 export function LearnDeckDialog(props: LearnDeckDialogProps) {
-  const { isLoading, card, trigger, isSuccess, disabled, onSubmit, title, ...restProps } = props
+  const {
+    onShowAnswer,
+    isLoading,
+    card,
+    trigger,
+    isSuccess,
+    disabled,
+    onSubmit,
+    title,
+    ...restProps
+  } = props
 
   const [questionAsked, setQuestionAsked] = useState<boolean>(false)
 
   useEffect(() => {
     setQuestionAsked(false)
   }, [card.id])
+
+  const showAnswer = () => {
+    onShowAnswer && onShowAnswer()
+    setQuestionAsked(true)
+  }
 
   const classNames = {
     dialogContent: clsx(s.content),
@@ -88,7 +105,7 @@ export function LearnDeckDialog(props: LearnDeckDialogProps) {
               )}
             </section>
             <DialogFooter className={classNames.dialogFooter}>
-              <Button onClick={() => setQuestionAsked(true)} size={'fill'} type={'button'}>
+              <Button onClick={showAnswer} size={'fill'} type={'button'}>
                 Show answer
               </Button>
             </DialogFooter>

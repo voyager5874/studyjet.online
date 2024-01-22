@@ -244,50 +244,54 @@ export const Page = () => {
 
       <div className={cn.queriesControlsContainer}>
         <div className={clsx(s.flexRow, s.fullWidth)}>
-          <div className={clsx(s.flexRow)}>
-            <Typography variant={'large'}>{deck?.name}</Typography>
-            <DropdownMenu
-              align={'start'}
-              trigger={
-                <Button variant={'icon'}>
-                  <LucideMoreVertical />
-                </Button>
-              }
-            >
-              {isOwner && <DropdownMenuItem>Edit</DropdownMenuItem>}
-              <DropdownMenuItem>
-                <Typography
-                  as={Link}
-                  replace
-                  state={{ referer: `decks/${id}/cards` }}
-                  to={`/decks/${id}/learn`}
-                  variant={'link1'}
-                >
-                  {`Learn "${deck?.name}"`}
-                </Typography>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Typography variant={'body2'}>Add to favorites</Typography>
-              </DropdownMenuItem>
-              {isOwner && <DropdownMenuItem>Delete</DropdownMenuItem>}
-            </DropdownMenu>
+          <div className={clsx(s.flexColumn)}>
+            <div className={clsx(s.flexRow)}>
+              <Typography variant={'large'}>{deck?.name}</Typography>
+              <DropdownMenu
+                align={'start'}
+                trigger={
+                  <Button variant={'icon'}>
+                    <LucideMoreVertical />
+                  </Button>
+                }
+              >
+                {isOwner && <DropdownMenuItem>Edit</DropdownMenuItem>}
+                <DropdownMenuItem>
+                  <Typography
+                    as={Link}
+                    replace
+                    state={{ referer: `decks/${id}/cards` }}
+                    to={`/decks/${id}/learn`}
+                    variant={'link1'}
+                  >
+                    {`Learn "${deck?.name}"`}
+                  </Typography>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Typography variant={'body2'}>Add to favorites</Typography>
+                </DropdownMenuItem>
+                {isOwner && <DropdownMenuItem>Delete</DropdownMenuItem>}
+              </DropdownMenu>
+            </div>
+            <Typography className={clsx(s.subduedText)} variant={'caption'}>
+              you own this deck
+            </Typography>
           </div>
-          {id && isOwner && (
-            <EditCardDialog
-              isSuccess={createCardSuccess}
-              onOpenChange={setAddCardDialogOpen}
-              onSubmit={handleNewCardDataSubmit}
-              open={addCardDialogOpen}
-              title={'add card'}
-              trigger={<Button>Add new card</Button>}
-            />
-          )}
         </div>
-
         <div className={clsx(s.textFieldContainer)}>
           <TextField type={'search'} />
         </div>
       </div>
+      {id && isOwner && (
+        <EditCardDialog
+          isSuccess={createCardSuccess}
+          onOpenChange={setAddCardDialogOpen}
+          onSubmit={handleNewCardDataSubmit}
+          open={addCardDialogOpen}
+          title={'add card'}
+          trigger={<Button>Add new card</Button>}
+        />
+      )}
       {selectedCardData && (
         <EditCardDialog
           card={selectedCardData}

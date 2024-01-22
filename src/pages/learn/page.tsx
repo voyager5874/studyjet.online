@@ -27,28 +27,17 @@ export const Page = () => {
 
   const [rateCardAcquisition] = useRateCardAcquisitionMutation()
 
-  const previousSelectedDeckId = useRef<null | string>(null)
-
-  const setPreviousSelectedDeckId = (id: null | string) => {
-    previousSelectedDeckId.current = id
-  }
+  const previousCardId = useRef<null | string>(null)
 
   const [questionAsked, setQuestionAsked] = useState<boolean>(false)
 
-  const {
-    currentData: cardToLearnData,
-    refetch: fetchNewCardToLearn,
-    isFetching: cardToLeanFetching,
-  } = useGetRandomCardFromDeckQuery(
-    id
-      ? {
-          deckId: id,
-          ...(previousSelectedDeckId.current && {
-            previousCardId: previousSelectedDeckId.current,
-          }),
-        }
-      : skipToken
-  )
+  const { currentData: cardToLearnData, isFetching: cardToLeanFetching } =
+    useGetRandomCardFromDeckQuery(
+      getParamsForUseGetRandomCardQuery({
+        deckId: id,
+        previousCardId: previousCardId.current,
+      })
+    )
 
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -69,15 +58,21 @@ export const Page = () => {
     })
       .unwrap()
       .then(() => {
-        setPreviousSelectedDeckId(id)
+        setQuestionAsked(false)
+
         // formRef.current && formRef?.current?.reset()
-        fetchNewCardToLearn()
-          .unwrap()
-          .then(() => setQuestionAsked(false))
       })
       .catch(() => {
         alert('error')
       })
+  }
+
+  const handleShowAnswer = () => {
+    if (!cardToLearnData) {
+      return
+    }
+    previousCardId.current = cardToLearnData.id
+    setQuestionAsked(true)
   }
 
   const cn = {
@@ -85,11 +80,10 @@ export const Page = () => {
     progress: clsx(s.progress),
     backLink: clsx(s.flexRow, s.backLink),
     card: clsx(s.card),
-    formSection: clsx(s.formSection),
-    formItem: clsx(s.formItem),
+    cardSection: clsx(s.cardSection),
     cardHeader: clsx(s.cardHeader),
     cardFooter: clsx(s.cardFooter),
-    shotsCountText: clsx(s.shotsCountInfo),
+    shotsCountText: clsx(s.shotsCountText),
     shotsCountNumber: clsx(s.subduedText),
     sectionTitle: clsx(s.sectionTitle),
     cardPlaceholder: clsx(s.cardPlaceholder),
@@ -116,7 +110,7 @@ export const Page = () => {
                   {`Learn "${currentDeckData?.name || 'unknown deck'}"`}
                 </Typography>
               </div>
-              <section className={cn.formSection}>
+              <section className={cn.cardSection}>
                 <Typography variant={'subtitle1'}>
                   Question:{' '}
                   <Typography as={'span'} variant={'body1'}>
@@ -138,7 +132,7 @@ export const Page = () => {
                 )}
               </section>
               <div className={cn.cardFooter}>
-                <Button onClick={() => setQuestionAsked(true)} size={'fill'} type={'button'}>
+                <Button onClick={handleShowAnswer} size={'fill'} type={'button'}>
                   Show answer
                 </Button>
               </div>
@@ -164,4 +158,26 @@ export const Page = () => {
       </div>
     </>
   )
+}
+
+function getParamsForUseGetRandomCardQuery(data: {
+  deckId: null | string | undefined
+  lastQuery?: { deckId: string; previousCardId?: string } | null
+  previousCardId: null | string | undefined
+}) {
+  const { deckId, previousCardId } = data
+
+  if (!deckId) {
+    return skipToken
+  }
+
+  if (!previousCardId) {
+    return { deckId }
+  }
+
+  // if (lastQuery && lastQuery.previousCardId === previousCardId && lastQuery.deckId === deckId) {
+  //   return skipToken
+  // }
+
+  return { deckId, previousCardId }
 }

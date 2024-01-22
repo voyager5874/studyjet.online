@@ -35,10 +35,18 @@
   @include flex-container-row(center, space-between);
 }
 
+.flexColumn {
+  @include flex-container-column(flex-end, flex-start);
+}
+
 .fullWidth {
   width: 100%;
 }
 
 .link {
   text-decoration: none;
+}
+
+.subduedText {
+  color: var(--color-text-subdued);
 }

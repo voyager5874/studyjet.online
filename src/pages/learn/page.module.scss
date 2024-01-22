@@ -14,6 +14,11 @@
   padding-top: 36px;
 }
 
+.backLink {
+  align-self: flex-start;
+  text-decoration: none;
+}
+
 .card {
   width: calc(500px + 48px);
 
@@ -35,16 +40,7 @@
   height: 450px;
 }
 
-.flexRow {
-  @include flex-container-row(center, flex-start);
-}
-
-.backLink {
-  align-self: flex-start;
-  text-decoration: none;
-}
-
-.formSection {
+.cardSection {
   margin-bottom: 12px;
   padding: 0 36px;
 }
@@ -53,13 +49,7 @@
   margin-bottom: 12px;
 }
 
-.headerCloseButton {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
-
-.shotsCountInfo {
+.shotsCountText {
   margin-bottom: 35px;
   color: var(--color-text-subdued);
 }
@@ -73,4 +63,8 @@
 
 .subduedText {
   color: var(--color-text-subdued);
+}
+
+.flexRow {
+  @include flex-container-row(center, flex-start);
 }
