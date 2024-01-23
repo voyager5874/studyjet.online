@@ -38,7 +38,8 @@
 .cardsCountSliderWrapper {
   @include flex-container-column(center, flex-end);
 
-  min-width: 800px;
+  width: 40%;
+  min-width: 600px;
 }
 
 .searchInputWrapper {
