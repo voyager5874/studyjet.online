@@ -1,6 +1,7 @@
 import type {
   CardItem,
   CreateCardParams,
+  GetCardsOfDeckQueryFnResponse,
   GetCardsOfDeckResponse,
   GetCardsQueryParams,
   UpdateCardParams,
@@ -9,19 +10,98 @@ import type { RootState } from '@/app/store'
 
 // import type { PatchCollection } from '@reduxjs/toolkit/src/query/core/buildThunks'
 import { baseApi } from '@/services/api'
+import { isObjectEmpty } from '@/utils/objects'
 
 const api = baseApi.injectEndpoints({
   endpoints: builder => ({
     getCardsOfDeck: builder.query<
       GetCardsOfDeckResponse,
-      { id: string; params: GetCardsQueryParams }
+      { id: string; params: GetCardsQueryParams & { text?: string } }
     >({
-      query: ({ id, params }) => ({
-        url: `decks/${id}/cards`,
-        method: 'GET',
-        params: params,
-      }),
-      providesTags: ['Cards'],
+      queryFn: async ({ id, params }, _api, _extraOptions, baseQuery) => {
+        if (!isObjectEmpty(params) && !('text' in params)) {
+          try {
+            const result = (await baseQuery({
+              url: `decks/${id}/cards`,
+              method: 'GET',
+              params,
+            })) as GetCardsOfDeckQueryFnResponse
+
+            if (result?.error) {
+              return { error: result.error }
+            }
+
+            return { data: result.data }
+          } catch (error) {
+            return { error } as GetCardsOfDeckQueryFnResponse
+          }
+        }
+
+        if (!isObjectEmpty(params) && 'text' in params) {
+          try {
+            const paramsCopy = { ...params }
+
+            delete paramsCopy.text
+            delete paramsCopy.answer
+            const result = (await baseQuery({
+              url: `decks/${id}/cards`,
+              method: 'GET',
+              params: { ...paramsCopy, question: params.text },
+            })) as GetCardsOfDeckQueryFnResponse
+
+            if (result?.error) {
+              return { error: result.error }
+            }
+            if (result.data?.items?.length === 0) {
+              try {
+                const paramsCopy = { ...params }
+
+                delete paramsCopy.text
+                delete paramsCopy.question
+                const result = (await baseQuery({
+                  url: `decks/${id}/cards`,
+                  method: 'GET',
+                  params: { ...paramsCopy, answer: params.text },
+                })) as GetCardsOfDeckQueryFnResponse
+
+                if (result?.error) {
+                  return { error: result.error }
+                }
+
+                return { data: result.data }
+              } catch (error) {
+                return { error } as GetCardsOfDeckQueryFnResponse
+              }
+            }
+
+            return { data: result.data }
+          } catch (error) {
+            return { error } as GetCardsOfDeckQueryFnResponse
+          }
+        }
+        try {
+          const result = (await baseQuery({
+            url: `decks/${id}/cards`,
+            method: 'GET',
+          })) as GetCardsOfDeckQueryFnResponse
+
+          if (result?.error) {
+            return { error: result.error }
+          }
+
+          return { data: result.data }
+        } catch (error) {
+          return { error } as GetCardsOfDeckQueryFnResponse
+        }
+      },
+      providesTags: (result, _err, _args) =>
+        result
+          ? [
+              'Cards',
+              { type: 'Cards' as const, id: 'LIST' },
+              ...result.items.map(item => ({ type: 'Cards' as const, id: item.id })),
+            ]
+          : ['Cards'],
     }),
     getCardById: builder.query<CardItem, string>({
       query: id => ({

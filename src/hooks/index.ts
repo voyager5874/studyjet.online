@@ -1,4 +1,3 @@
-export * from './use-page-search-params'
 export * from './use-local-storage'
 export * from './use-throttled-function'
 export * from './use-element-size'

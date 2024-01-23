@@ -2,10 +2,11 @@ import type { CardFormData } from '@/features/cards/edit-dialog/card-form-schema
 import type { CardItem } from '@/features/cards/types'
 import type { Column } from '@/ui/table'
 
-import { useRef, useState } from 'react'
+import { type ChangeEvent, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
+import { usePageSearchParams } from '@/features/cards'
 import {
   useCreateCardMutation,
   useDeleteCardMutation,
@@ -19,8 +20,8 @@ import { cardsTableColumns } from '@/features/cards/table/cards-table-columns'
 import { CardActions } from '@/features/cards/table/table-card-actions'
 import { useGetDeckByIdQuery } from '@/features/decks/api'
 import { useMeQuery } from '@/features/user/api'
-import { usePageSearchParams } from '@/hooks'
 import { useConfirm } from '@/hooks/use-confirm'
+import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import { Button } from '@/ui/button'
 import { DropdownMenu, DropdownMenuItem } from '@/ui/dropdown'
 import { Pagination } from '@/ui/pagination'
@@ -47,12 +48,21 @@ export const Page = () => {
   const { data: userData } = useMeQuery()
   const { data: currentDeckData } = useGetDeckByIdQuery(id ?? skipToken)
 
-  const { pageQueryParams, handlePageChange, handlePerPageChange, handleSortChange, sortProp } =
-    usePageSearchParams()
+  const {
+    handleTextSearch,
+    handleResetPageQuery,
+    pageQueryParams,
+    handlePageChange,
+    handlePerPageChange,
+    handleSortChange,
+    sortProp,
+  } = usePageSearchParams()
 
-  const { data, isFetching, isLoading } = useGetCardsOfDeckQuery(
-    id ? { id, params: pageQueryParams ?? {} } : skipToken
-  )
+  const { text } = pageQueryParams
+  const debouncedSearchText = useDebouncedValue(text, 1300)
+  const params = { ...pageQueryParams, text: debouncedSearchText }
+
+  const { data, isFetching, isLoading } = useGetCardsOfDeckQuery(id ? { id, params } : skipToken)
 
   const {
     data: deckData,
@@ -211,6 +221,18 @@ export const Page = () => {
       })
   }
 
+  const changeSearchString = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+
+    if (value) {
+      // handleQuestionSearch(value)
+      handleTextSearch(value)
+    } else {
+      // handleQuestionSearch('')
+      handleTextSearch('')
+    }
+  }
+
   const busy =
     isFetching ||
     isLoading ||
@@ -222,7 +244,20 @@ export const Page = () => {
 
   const isOwner = userData && currentDeckData && userData?.id === currentDeckData?.userId
 
-  if (!busy && !data?.items?.length) {
+  const cn = {
+    link: clsx(s.link),
+    searchCardInputWrapper: clsx(s.textFieldContainer),
+    pageHeader: clsx(s.pageHeader),
+    dropdownMenuItem: clsx(s.dropdownMenuItem),
+  }
+
+  if (
+    !busy &&
+    !data?.items?.length &&
+    !pageQueryParams?.question &&
+    !pageQueryParams?.answer &&
+    !pageQueryParams?.text
+  ) {
     return (
       <div className={clsx(s.page)}>
         <Typography>There is no cards in this deck</Typography>
@@ -240,11 +275,17 @@ export const Page = () => {
     )
   }
 
-  const cn = {
-    link: clsx(s.link),
-    searchCardInputWrapper: clsx(s.textFieldContainer),
-    pageHeader: clsx(s.pageHeader),
-    dropdownMenuItem: clsx(s.dropdownMenuItem),
+  if (
+    !busy &&
+    !data?.items?.length &&
+    (pageQueryParams?.question || pageQueryParams?.answer || pageQueryParams?.text)
+  ) {
+    return (
+      <div className={clsx(s.page)}>
+        <Typography>Nothing found</Typography>
+        <Button onClick={handleResetPageQuery}>Reset filters</Button>
+      </div>
+    )
   }
 
   return (
@@ -325,7 +366,12 @@ export const Page = () => {
       </div>
 
       <div className={cn.searchCardInputWrapper}>
-        <TextField type={'search'} />
+        <TextField
+          onChange={changeSearchString}
+          onClear={handleResetPageQuery}
+          type={'search'}
+          value={pageQueryParams?.text || ''}
+        />
       </div>
 
       {selectedCardData && (
