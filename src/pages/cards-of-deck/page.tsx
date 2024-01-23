@@ -32,6 +32,7 @@ import { getFileFromUrl, parseNumber } from '@/utils'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { clsx } from 'clsx'
 import {
+  LucideArrowLeft,
   LucideBookmark,
   LucideMoreVertical,
   LucidePencil,
@@ -253,6 +254,11 @@ export const Page = () => {
       <div className={cn.pageHeader}>
         <div className={clsx(s.flexRow)}>
           <div className={clsx(s.flexColumn)}>
+            <Link className={cn.link} to={'/decks'}>
+              <LucideArrowLeft size={14} />
+              <Typography variant={'body2'}>Back to the decks list</Typography>
+            </Link>
+
             <div className={clsx(s.flexRow)}>
               <Typography variant={'large'}>{deck?.name}</Typography>
               <DropdownMenu
@@ -272,19 +278,15 @@ export const Page = () => {
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem className={cn.dropdownMenuItem}>
-                  <div>
-                    <LucidePlayCircle size={14} />
-                  </div>
-                  <Typography
-                    as={Link}
+                  <Link
                     className={cn.link}
                     replace
                     state={{ referer: `decks/${id}/cards` }}
                     to={`/decks/${id}/learn`}
-                    variant={'body2'}
                   >
-                    {`Learn "${deck?.name}"`}
-                  </Typography>
+                    <LucidePlayCircle size={14} />
+                    <Typography variant={'body2'}>{`Learn "${deck?.name}"`}</Typography>
+                  </Link>
                 </DropdownMenuItem>
 
                 {isOwner && (

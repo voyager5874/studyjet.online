@@ -48,6 +48,8 @@
 }
 
 .link {
+  @include flex-container-row(center, flex-start);
+
   padding: 0;
   text-decoration: none;
 }
