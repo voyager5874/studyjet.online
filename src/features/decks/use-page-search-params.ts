@@ -87,15 +87,17 @@ export const usePageSearchParams = () => {
   const handleItemsMinCountChange = useCallback(
     (value: null | number | undefined) => {
       dispatch(setMinCardsCount({ minCardsCount: value }))
+      dispatch(setCurrentPage({ currentPage: 1 }))
     },
-    [dispatch, setMinCardsCount]
+    [dispatch, setCurrentPage, setMinCardsCount]
   )
 
   const handleItemsMaxCountChange = useCallback(
     (value: null | number | undefined) => {
       dispatch(setMaxCardsCount({ maxCardsCount: value }))
+      dispatch(setCurrentPage({ currentPage: 1 }))
     },
-    [dispatch, setMaxCardsCount]
+    [dispatch, setMaxCardsCount, setCurrentPage]
   )
 
   const handleResetAllQueries = useCallback(() => {
