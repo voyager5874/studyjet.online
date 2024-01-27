@@ -31,6 +31,7 @@ import { ProgressBar } from '@/ui/progress-bar/progress-bar'
 import { Slider } from '@/ui/slider'
 import { Table } from '@/ui/table'
 import { TextField } from '@/ui/text-field'
+import { useToast } from '@/ui/toast'
 import { Typography } from '@/ui/typography'
 import { getFileFromUrl } from '@/utils'
 import { skipToken } from '@reduxjs/toolkit/query'
@@ -62,6 +63,8 @@ export const Page = () => {
     name,
   } = usePageSearchParams()
 
+  const { toast } = useToast()
+
   const { data, currentData, isFetching, isLoading } = useGetDecksQuery({
     currentPage,
     itemsPerPage,
@@ -75,7 +78,16 @@ export const Page = () => {
 
   const { data: currentUser } = useMeQuery()
 
-  const [createDeck, { isSuccess, isLoading: deckIsBeingCreated }] = useCreateDecksMutation()
+  const [
+    createDeck,
+    {
+      isSuccess: createDeckSuccess,
+      isLoading: deckIsBeingCreated,
+      // isError: createDeckErrorFailure,
+      // error: createDeckErrorData,
+    },
+  ] = useCreateDecksMutation()
+
   const [deleteDeck, { isLoading: isDeleting }] = useDeleteDeckMutation()
   const [updateDeck, { isLoading: isUpdating, isSuccess: updateSuccessful }] =
     useUpdateDeckMutation()
@@ -133,7 +145,19 @@ export const Page = () => {
       return
     }
     deleteDeck(selectedDeckId.current)
-    // setDeleteDeckDialogOpen(false)
+      .unwrap()
+      .then(() => {
+        toast({
+          description: 'Deck has been deleted successfully.',
+          variant: 'success',
+        })
+      })
+      .catch(() => {
+        toast({
+          description: 'Failed to delete the deck.',
+          variant: 'danger',
+        })
+      })
   }
 
   const handleEditDialogOpenChange = (open: boolean) => {
@@ -207,10 +231,19 @@ export const Page = () => {
     createDeck(formData)
       .unwrap()
       .then(() => {
-        // alert('success')
+        toast({
+          title: 'Deck has been created successfully',
+          variant: 'success',
+          type: 'foreground',
+        })
       })
-      .catch(() => {
-        alert('error')
+      .catch(err => {
+        toast({
+          title: 'Failed to create deck',
+          description: err?.data?.message || '',
+          variant: 'dangerColored',
+          type: 'foreground',
+        })
         setAddDeckDialogOpen(true)
       })
   }
@@ -247,11 +280,24 @@ export const Page = () => {
     updateDeck(patchData)
       .unwrap()
       .then(() => {
-        alert('success')
+        toast({
+          title: 'Deck has been updated',
+          variant: 'success',
+          type: 'foreground',
+          position: 'bottomRight',
+          from: 'bottom',
+        })
         setSelectedDeckId(null)
       })
-      .catch(() => {
-        alert('error')
+      .catch(err => {
+        toast({
+          title: 'Failed to update deck',
+          description: err?.data?.message || '',
+          variant: 'danger',
+          position: 'bottomRight',
+          from: 'bottom',
+          type: 'foreground',
+        })
         setEditDeckDialogOpen(true)
       })
   }
@@ -276,8 +322,13 @@ export const Page = () => {
         previousCardId.current = cardToLearnData.id
         // fetchNewCardToLearn() //no need for manual refetch
       })
-      .catch(() => {
-        alert('error')
+      .catch(err => {
+        toast({
+          title: 'Failed to rate acquisition',
+          description: err?.data?.message || '',
+          variant: 'danger',
+          type: 'foreground',
+        })
       })
   }
 
@@ -328,7 +379,7 @@ export const Page = () => {
       <div className={cn.pageHeader}>
         <Typography variant={'large'}>Decks list</Typography>
         <EditDeckDialog
-          isSuccess={isSuccess}
+          isSuccess={createDeckSuccess}
           onOpenChange={setAddDeckDialogOpen}
           onSubmit={handleNewDeckDataSubmit}
           open={addDeckDialogOpen}

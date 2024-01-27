@@ -46,7 +46,73 @@ export const usePageSearchParams = () => {
     setSearchParams(newQuery)
   }
 
-  return { sortProp, pageQueryParams, handlePageChange, handlePerPageChange, handleSortChange }
+  const handleQuestionSearch = (searchString: null | string) => {
+    if (!searchString) {
+      searchParams.delete('question')
+      setSearchParams(searchParams)
+
+      return
+    }
+    const newQuery = {
+      ...pageQueryParams,
+      question: searchString,
+      currentPage: '1',
+    }
+
+    setSearchParams(newQuery)
+  }
+
+  const handleAnswerSearch = (searchString: null | string) => {
+    if (!searchString) {
+      searchParams.delete('answer')
+      setSearchParams(searchParams)
+
+      return
+    }
+    const newQuery = {
+      ...pageQueryParams,
+      question: searchString,
+      currentPage: '1',
+    }
+
+    setSearchParams(newQuery)
+  }
+
+  const handleResetPageQuery = () => {
+    searchParams.delete('question')
+    searchParams.delete('answer')
+    searchParams.delete('text')
+    setSearchParams(searchParams)
+  }
+
+  const handleTextSearch = (text: null | string) => {
+    if (!text) {
+      handleResetPageQuery()
+
+      return
+    }
+    const newQuery = {
+      ...pageQueryParams,
+      // question: text,
+      // answer: text,
+      text: text,
+      currentPage: '1',
+    }
+
+    setSearchParams(newQuery)
+  }
+
+  return {
+    handleTextSearch,
+    handleResetPageQuery,
+    handleAnswerSearch,
+    handleQuestionSearch,
+    sortProp,
+    pageQueryParams,
+    handlePageChange,
+    handlePerPageChange,
+    handleSortChange,
+  }
 }
 
 function getSortParam<T>(query: null | string): Sort<T> | null {

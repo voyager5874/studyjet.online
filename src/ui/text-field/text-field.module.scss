@@ -20,6 +20,11 @@
   top: 50%;
   left: 0.3em;
   transform: translateY(-50%);
+
+  display: flex;
+  align-items: center;
+
+  height: 100%;
 }
 
 .suffixIcon {
@@ -28,6 +33,11 @@
   top: 50%;
   right: 0.3em;
   transform: translateY(-50%);
+
+  display: flex;
+  align-items: center;
+
+  height: 100%;
 }
 
 .input {

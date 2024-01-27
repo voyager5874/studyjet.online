@@ -2,10 +2,11 @@ import type { CardFormData } from '@/features/cards/edit-dialog/card-form-schema
 import type { CardItem } from '@/features/cards/types'
 import type { Column } from '@/ui/table'
 
-import { useRef, useState } from 'react'
+import { type ChangeEvent, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
+import { usePageSearchParams } from '@/features/cards'
 import {
   useCreateCardMutation,
   useDeleteCardMutation,
@@ -19,19 +20,21 @@ import { cardsTableColumns } from '@/features/cards/table/cards-table-columns'
 import { CardActions } from '@/features/cards/table/table-card-actions'
 import { useGetDeckByIdQuery } from '@/features/decks/api'
 import { useMeQuery } from '@/features/user/api'
-import { usePageSearchParams } from '@/hooks'
 import { useConfirm } from '@/hooks/use-confirm'
+import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import { Button } from '@/ui/button'
 import { DropdownMenu, DropdownMenuItem } from '@/ui/dropdown'
 import { Pagination } from '@/ui/pagination'
 import { ProgressBar } from '@/ui/progress-bar/progress-bar'
 import { Table } from '@/ui/table'
 import { TextField } from '@/ui/text-field'
+import { useToast } from '@/ui/toast'
 import { Typography } from '@/ui/typography'
 import { getFileFromUrl, parseNumber } from '@/utils'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { clsx } from 'clsx'
 import {
+  LucideArrowLeft,
   LucideBookmark,
   LucideMoreVertical,
   LucidePencil,
@@ -46,12 +49,23 @@ export const Page = () => {
   const { data: userData } = useMeQuery()
   const { data: currentDeckData } = useGetDeckByIdQuery(id ?? skipToken)
 
-  const { pageQueryParams, handlePageChange, handlePerPageChange, handleSortChange, sortProp } =
-    usePageSearchParams()
+  const {
+    handleTextSearch,
+    handleResetPageQuery,
+    pageQueryParams,
+    handlePageChange,
+    handlePerPageChange,
+    handleSortChange,
+    sortProp,
+  } = usePageSearchParams()
 
-  const { data, isFetching, isLoading } = useGetCardsOfDeckQuery(
-    id ? { id, params: pageQueryParams ?? {} } : skipToken
-  )
+  const { toast } = useToast()
+
+  const { text } = pageQueryParams
+  const debouncedSearchText = useDebouncedValue(text, 1300)
+  const params = { ...pageQueryParams, text: debouncedSearchText }
+
+  const { data, isFetching, isLoading } = useGetCardsOfDeckQuery(id ? { id, params } : skipToken)
 
   const {
     data: deckData,
@@ -93,6 +107,21 @@ export const Page = () => {
   const handleCardDelete = (id: string) => {
     initializeWaitForDelete(() => {
       deleteCard(id)
+        .unwrap()
+        .then(() => {
+          toast({
+            title: 'Card has been deleted',
+            variant: 'success',
+            type: 'foreground',
+          })
+        })
+        .catch(() => {
+          toast({
+            title: 'Failed to delete the card',
+            variant: 'danger',
+            type: 'foreground',
+          })
+        })
     })
 
     setDeleteCardDialogOpen(true)
@@ -149,10 +178,19 @@ export const Page = () => {
     createCard({ body: formData, deckId: id })
       .unwrap()
       .then(() => {
-        alert('success')
+        toast({
+          title: 'New card added',
+          variant: 'success',
+          type: 'foreground',
+        })
       })
-      .catch(() => {
-        alert('error')
+      .catch(err => {
+        toast({
+          title: 'Failed to add new card',
+          description: err?.data?.message || '',
+          variant: 'danger',
+          type: 'foreground',
+        })
         setAddCardDialogOpen(true)
       })
   }
@@ -201,13 +239,33 @@ export const Page = () => {
       .unwrap()
       .then(() => {
         setSelectedCardId(null)
-
-        alert('success')
+        toast({
+          title: 'Card updated',
+          variant: 'success',
+          type: 'foreground',
+        })
       })
-      .catch(() => {
-        alert('error')
+      .catch(err => {
+        toast({
+          title: 'Failed to update the card',
+          description: err?.data?.message || '',
+          variant: 'danger',
+          type: 'foreground',
+        })
         setEditCardDialogOpen(true)
       })
+  }
+
+  const changeSearchString = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+
+    if (value) {
+      // handleQuestionSearch(value)
+      handleTextSearch(value)
+    } else {
+      // handleQuestionSearch('')
+      handleTextSearch('')
+    }
   }
 
   const busy =
@@ -221,7 +279,20 @@ export const Page = () => {
 
   const isOwner = userData && currentDeckData && userData?.id === currentDeckData?.userId
 
-  if (!busy && !data?.items?.length) {
+  const cn = {
+    link: clsx(s.link),
+    searchCardInputWrapper: clsx(s.textFieldContainer),
+    pageHeader: clsx(s.pageHeader),
+    dropdownMenuItem: clsx(s.dropdownMenuItem),
+  }
+
+  if (
+    !busy &&
+    !data?.items?.length &&
+    !pageQueryParams?.question &&
+    !pageQueryParams?.answer &&
+    !pageQueryParams?.text
+  ) {
     return (
       <div className={clsx(s.page)}>
         <Typography>There is no cards in this deck</Typography>
@@ -239,11 +310,17 @@ export const Page = () => {
     )
   }
 
-  const cn = {
-    link: clsx(s.link),
-    searchCardInputWrapper: clsx(s.textFieldContainer),
-    pageHeader: clsx(s.pageHeader),
-    dropdownMenuItem: clsx(s.dropdownMenuItem),
+  if (
+    !busy &&
+    !data?.items?.length &&
+    (pageQueryParams?.question || pageQueryParams?.answer || pageQueryParams?.text)
+  ) {
+    return (
+      <div className={clsx(s.page)}>
+        <Typography>Nothing found</Typography>
+        <Button onClick={handleResetPageQuery}>Reset filters</Button>
+      </div>
+    )
   }
 
   return (
@@ -253,6 +330,11 @@ export const Page = () => {
       <div className={cn.pageHeader}>
         <div className={clsx(s.flexRow)}>
           <div className={clsx(s.flexColumn)}>
+            <Link className={cn.link} to={'/decks'}>
+              <LucideArrowLeft size={14} />
+              <Typography variant={'body2'}>Back to the decks list</Typography>
+            </Link>
+
             <div className={clsx(s.flexRow)}>
               <Typography variant={'large'}>{deck?.name}</Typography>
               <DropdownMenu
@@ -272,19 +354,15 @@ export const Page = () => {
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem className={cn.dropdownMenuItem}>
-                  <div>
-                    <LucidePlayCircle size={14} />
-                  </div>
-                  <Typography
-                    as={Link}
+                  <Link
                     className={cn.link}
                     replace
                     state={{ referer: `decks/${id}/cards` }}
                     to={`/decks/${id}/learn`}
-                    variant={'body2'}
                   >
-                    {`Learn "${deck?.name}"`}
-                  </Typography>
+                    <LucidePlayCircle size={14} />
+                    <Typography variant={'body2'}>{`Learn "${deck?.name}"`}</Typography>
+                  </Link>
                 </DropdownMenuItem>
 
                 {isOwner && (
@@ -323,7 +401,12 @@ export const Page = () => {
       </div>
 
       <div className={cn.searchCardInputWrapper}>
-        <TextField type={'search'} />
+        <TextField
+          onChange={changeSearchString}
+          onClear={handleResetPageQuery}
+          type={'search'}
+          value={pageQueryParams?.text || ''}
+        />
       </div>
 
       {selectedCardData && (

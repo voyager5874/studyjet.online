@@ -1,3 +1,5 @@
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query'
+
 export type CardItem = {
   answer: string
   answerImg: null | string
@@ -41,3 +43,7 @@ export type UpdateCardParams = {
   body: FormData
   cardId: string
 }
+
+export type GetCardsOfDeckQueryFnResponse =
+  | { data: GetCardsOfDeckResponse; error: undefined }
+  | { data: undefined; error: FetchBaseQueryError }

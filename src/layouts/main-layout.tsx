@@ -7,6 +7,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage'
 import { UserAvatar } from '@/ui/avatar'
 import { Button } from '@/ui/button'
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from '@/ui/dropdown/dropdown-menu'
+import { Toaster } from '@/ui/toast'
 import { Typography } from '@/ui/typography'
 import { clsx } from 'clsx'
 import { LucideLogOut, LucideMoon, LucideRoute, LucideSun, LucideUser } from 'lucide-react'
@@ -100,6 +101,7 @@ export const MainLayout = () => {
       <main className={cn.main}>
         <Outlet />
       </main>
+      <Toaster />
     </>
   )
 }

@@ -60,6 +60,8 @@ body {
   --color-secondary: var(--color-dark-300);
   --color-danger: var(--color-danger-300);
   --color-warning: var(--color-warning-300);
+  --color-success: var(--color-success-300);
+  --color-info: var(--color-info-300);
   --color-outline-focus: var(--color-info-700);
 
   // text
@@ -79,6 +81,9 @@ body {
   --color-bg-paper: var(--color-dark-700);
   --color-bg-tertiary: var(--color-dark-500);
 
+  // layout
+  --header-height: 60px;
+
   margin: 0;
   padding: 0;
 
@@ -90,9 +95,7 @@ body {
     --color-bg-primary: var(--color-light-300);
     --color-bg-secondary: var(--color-light-300);
     --color-bg-tertiary: var(--color-light-900);
-
     --color-primary: var(--color-accent-500);
-
     --color-border: var(--color-light-900);
 
     // text
@@ -101,9 +104,6 @@ body {
     --color-text-inverted: var(--color-light-100);
     --color-text-link: var(--color-accent-500);
   }
-
-  // layout
-  --header-height: 60px;
 }
 
 // .dark {

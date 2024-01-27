@@ -10,3 +10,7 @@ export const stripObjectEmptyProperties = <T extends object>(obj: T): T => {
 
   return objCopy
 }
+
+export function isObjectEmpty(objectName: object): boolean {
+  return JSON.stringify(objectName) === '{}'
+}

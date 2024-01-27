@@ -84,7 +84,7 @@ const TextFieldBase = forwardRef<ElementRef<'input'>, TextFieldProps>(
           {label}
         </Typography>
         <div className={s.inputContainer}>
-          {prefixIcon && <span className={classNames.prefixIcon}>{prefixIcon}</span>}
+          {prefixIcon && <div className={classNames.prefixIcon}>{prefixIcon}</div>}
           <input
             aria-describedby={`${id || autoId}-field-message`}
             className={classNames.input}
@@ -98,7 +98,7 @@ const TextFieldBase = forwardRef<ElementRef<'input'>, TextFieldProps>(
             value={value}
             {...rest}
           />
-          {suffixIcon && <span className={classNames.suffixIcon}>{suffixIcon}</span>}
+          {suffixIcon && <div className={classNames.suffixIcon}>{suffixIcon}</div>}
         </div>
         {errorMessage && (
           <Typography
