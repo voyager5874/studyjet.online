@@ -11,7 +11,7 @@
   @include flex-center-column;
 
   gap: 20px;
-  min-height: calc(100vh - var(--header-height));
+  min-height: calc(100vh - var(--header-height) - 1px);
 
   // padding-top: 36px;
 }
