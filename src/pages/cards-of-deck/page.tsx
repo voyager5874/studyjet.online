@@ -28,6 +28,7 @@ import { Pagination } from '@/ui/pagination'
 import { ProgressBar } from '@/ui/progress-bar/progress-bar'
 import { Table } from '@/ui/table'
 import { TextField } from '@/ui/text-field'
+import { useToast } from '@/ui/toast'
 import { Typography } from '@/ui/typography'
 import { getFileFromUrl, parseNumber } from '@/utils'
 import { skipToken } from '@reduxjs/toolkit/query'
@@ -57,6 +58,8 @@ export const Page = () => {
     handleSortChange,
     sortProp,
   } = usePageSearchParams()
+
+  const { toast } = useToast()
 
   const { text } = pageQueryParams
   const debouncedSearchText = useDebouncedValue(text, 1300)
@@ -104,6 +107,21 @@ export const Page = () => {
   const handleCardDelete = (id: string) => {
     initializeWaitForDelete(() => {
       deleteCard(id)
+        .unwrap()
+        .then(() => {
+          toast({
+            title: 'Card has been deleted',
+            variant: 'success',
+            type: 'foreground',
+          })
+        })
+        .catch(() => {
+          toast({
+            title: 'Failed to delete the card',
+            variant: 'danger',
+            type: 'foreground',
+          })
+        })
     })
 
     setDeleteCardDialogOpen(true)
@@ -160,10 +178,19 @@ export const Page = () => {
     createCard({ body: formData, deckId: id })
       .unwrap()
       .then(() => {
-        alert('success')
+        toast({
+          title: 'New card added',
+          variant: 'success',
+          type: 'foreground',
+        })
       })
-      .catch(() => {
-        alert('error')
+      .catch(err => {
+        toast({
+          title: 'Failed to add new card',
+          description: err?.data?.message || '',
+          variant: 'danger',
+          type: 'foreground',
+        })
         setAddCardDialogOpen(true)
       })
   }
@@ -212,11 +239,19 @@ export const Page = () => {
       .unwrap()
       .then(() => {
         setSelectedCardId(null)
-
-        alert('success')
+        toast({
+          title: 'Card updated',
+          variant: 'success',
+          type: 'foreground',
+        })
       })
-      .catch(() => {
-        alert('error')
+      .catch(err => {
+        toast({
+          title: 'Failed to update the card',
+          description: err?.data?.message || '',
+          variant: 'danger',
+          type: 'foreground',
+        })
         setEditCardDialogOpen(true)
       })
   }
