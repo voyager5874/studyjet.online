@@ -48,6 +48,7 @@ export async function getCroppedImageDataUrl(
   ctx.translate(-image.width / 2, -image.height / 2)
 
   // draw rotated image
+  // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
   ctx.drawImage(image, 0, 0)
 
   const croppedCanvas = document.createElement('canvas')
@@ -75,7 +76,17 @@ export async function getCroppedImageDataUrl(
     pixelCrop.height
   )
 
-  return croppedCanvas.toDataURL('image/jpeg')
+  const dataType = ''
+
+  // if (imageSrc.includes('base64')) {
+  //   const start = imageSrc.indexOf(':image')
+  //   const end = imageSrc.indexOf(':base64')
+  //
+  //   dataType = imageSrc.substring(start, end)
+  // }
+
+  // default of the method is png
+  return croppedCanvas.toDataURL(dataType ? dataType : 'image/webp')
 }
 
 export async function getRotatedImageDataUrl(
@@ -102,7 +113,7 @@ export async function getRotatedImageDataUrl(
     ctx.drawImage(image, -image.width / 2, -image.height / 2)
   }
 
-  return canvas.toDataURL('image/jpeg')
+  return canvas.toDataURL('image/webp')
 }
 
 export const ORIENTATION_TO_ANGLE: { [key: string]: number } = {
