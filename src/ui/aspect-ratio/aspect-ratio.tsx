@@ -1,5 +1,5 @@
-import type { ComponentPropsWithoutRef } from 'react'
-import { useEffect, useState } from 'react'
+import type { ComponentPropsWithoutRef, ElementRef } from 'react'
+import { forwardRef, useEffect, useState } from 'react'
 
 import * as AspectRatioPrimitive from '@radix-ui/react-aspect-ratio'
 import { clsx } from 'clsx'
@@ -12,39 +12,46 @@ type AspectRatioProps = {
   ratio: number
   src: null | string
 } & ComponentPropsWithoutRef<typeof AspectRatioPrimitive.Root>
-export const AspectRatio = ({ src, imageDescription, ratio, ...restProps }: AspectRatioProps) => {
-  const [imageUrl, setImageUrl] = useState<null | string>(src)
-  const [ready, setReady] = useState<boolean>(false)
+export const AspectRatio = forwardRef<ElementRef<'img'>, AspectRatioProps>(
+  ({ src, imageDescription, ratio, ...restProps }, forwardedRef) => {
+    const [imageUrl, setImageUrl] = useState<null | string>(src)
+    const [ready, setReady] = useState<boolean>(false)
+    const [error, setError] = useState<boolean>(false)
 
-  const handleError = () => {
-    setImageUrl(null)
-    setReady(true)
-  }
+    const handleError = () => {
+      setImageUrl(null)
+      setError(true)
+      setReady(true)
+    }
 
-  const handleLoad = () => {
-    setReady(true)
-  }
+    const handleLoad = () => {
+      setReady(true)
+    }
 
-  useEffect(() => {
-    setImageUrl(src)
-    setReady(false)
-  }, [src])
+    useEffect(() => {
+      setImageUrl(src)
+      setReady(false)
+      setError(false)
+    }, [src])
 
-  return (
-    <div className={clsx(s.container)}>
-      <AspectRatioPrimitive.Root ratio={ratio} {...restProps}>
-        {imageUrl && (
+    return (
+      <div className={clsx(s.container)}>
+        <AspectRatioPrimitive.Root ratio={ratio} {...restProps}>
           <img
             alt={imageDescription}
-            className={clsx(s.image, !ready && s.hidden)}
+            className={clsx(s.image, (!ready || error || !imageUrl) && s.hidden)}
             onError={handleError}
             onLoad={handleLoad}
-            src={imageUrl}
+            ref={forwardedRef}
+            src={imageUrl || '/'}
           />
-        )}
-        {imageUrl && !ready && <div className={clsx(s.imagePlaceholder)}>Loading...</div>}
-        {!imageUrl && <div className={clsx(s.imagePlaceholder)}>No image</div>}
-      </AspectRatioPrimitive.Root>
-    </div>
-  )
-}
+          {imageUrl && !ready && <div className={clsx(s.imagePlaceholder)}>Loading...</div>}
+          {imageUrl && error && ready && (
+            <div className={clsx(s.imagePlaceholder)}>Error loading the image!</div>
+          )}
+          {!imageUrl && <div className={clsx(s.imagePlaceholder)}>No valid url</div>}
+        </AspectRatioPrimitive.Root>
+      </div>
+    )
+  }
+)
