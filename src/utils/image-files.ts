@@ -1,4 +1,4 @@
-import { IMAGE_EXTENSIONS } from '@/common/mime-types'
+import { BYTES_IN_MB } from '@/common/const/file-size-units'
 import mime from 'mime'
 
 export function createObjectUrl(data: Blob | File | null, previousUrl?: string) {
@@ -48,6 +48,9 @@ export async function getBase64DataUrl(file: Blob | File): Promise<null | string
 
 export const createImageHtmlElementFromDataUrl = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
+    // if (!url.includes('base64')) {
+    //   reject('use base64 dataUrl of a local image')
+    // }
     const image = new Image()
 
     image.onerror = err => {
@@ -61,15 +64,65 @@ export const createImageHtmlElementFromDataUrl = (url: string): Promise<HTMLImag
 function getExtensionFromBlob(blob: Blob): null | string {
   const mimeType = blob.type
 
-  return mimeType ? IMAGE_EXTENSIONS[mimeType] : mime.getExtension(mimeType)
+  return mime.getExtension(mimeType)
 }
 
 // get File instance from base64 dataUrl or any other url that leads to an image
-export async function getFileFromUrl(blobUrl: string): Promise<File> {
-  const response = await fetch(blobUrl)
-  const blob = await response.blob()
+export async function getFileFromUrl(blobUrl: string, name = 'image'): Promise<File | null> {
+  let blob = null
 
-  const fileType = getExtensionFromBlob(blob)
+  try {
+    const response = await fetch(blobUrl)
 
-  return new File([blob], `image.${fileType}`, { type: blob.type, lastModified: Date.now() })
+    blob = await response.blob()
+  } catch (err) {
+    console.warn(err)
+  }
+
+  const fileType = blob ? getExtensionFromBlob(blob) : 'unknown'
+
+  return blob
+    ? new File([blob], `${name}.${fileType}`, { type: blob.type, lastModified: Date.now() })
+    : null
+}
+
+export async function getFileSizeFromUrl(dataUrl: null | string) {
+  if (!dataUrl) {
+    return null
+  }
+  const file = await getFileFromUrl(dataUrl)
+
+  if (file) {
+    return file.size / BYTES_IN_MB
+  }
+
+  return null
+}
+
+export async function getImageDimensionsFromUrl(dataUrl: null | string | undefined) {
+  if (!dataUrl) {
+    return null
+  }
+  const image = await createImageHtmlElementFromDataUrl(dataUrl)
+
+  if (image) {
+    return { height: image.height, width: image.width }
+  }
+
+  return null
+}
+
+export function blobToString(file: Blob | File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+
+    reader.onload = e => {
+      if (e.target && typeof e.target.result === 'string') {
+        resolve(e.target.result)
+      }
+    }
+
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
 }
