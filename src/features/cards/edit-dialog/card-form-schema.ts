@@ -8,18 +8,21 @@ export const cardFormSchema = z.object({
   question: z.string().min(3, { message: '3 or more' }).max(500, { message: '500 or less' }),
   answer: z.string().min(3, { message: '3 or more' }).max(500, { message: '500 or less' }),
   questionImg: z
-    .array(z.string())
-    .length(2)
+    .string()
     .optional()
     .refine(
-      async images => {
-        if (!images || images[0] === IMAGE_WAS_ERASED) {
+      async image => {
+        if (!image || image === IMAGE_WAS_ERASED) {
           return true
         }
-        if (images) {
-          const imageCrop = images[1]
+        if (image) {
+          const imageCrop = image
 
-          const file = imageCrop ? await getFileFromUrl(imageCrop) : await getFileFromUrl(images[0])
+          const file = imageCrop ? await getFileFromUrl(imageCrop) : await getFileFromUrl(image)
+
+          if (!file) {
+            return false
+          }
 
           if (file.size > MAX_IMAGE_SIZE_BYTES) {
             //todo: use a toast
@@ -37,19 +40,21 @@ export const cardFormSchema = z.object({
       { message: 'Max image size is 1MB. Try zooming in, or use external editor' }
     ),
   answerImg: z
-    .array(z.string())
-    .length(2)
+    .string()
     .optional()
     .refine(
-      async images => {
-        if (!images || images[0] === IMAGE_WAS_ERASED) {
+      async image => {
+        if (!image || image === IMAGE_WAS_ERASED) {
           return true
         }
-        if (images) {
-          const imageCrop = images[1]
+        if (image) {
+          const imageCrop = image
 
-          const file = imageCrop ? await getFileFromUrl(imageCrop) : await getFileFromUrl(images[0])
+          const file = imageCrop ? await getFileFromUrl(imageCrop) : await getFileFromUrl(image)
 
+          if (!file) {
+            return false
+          }
           if (file.size > MAX_IMAGE_SIZE_BYTES) {
             //todo: use a toast
             console.warn(

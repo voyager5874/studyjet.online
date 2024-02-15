@@ -7,18 +7,21 @@ import * as z from 'zod'
 export const deckFormSchema = z.object({
   name: z.string().min(3, { message: '3 or more' }).max(30, { message: '30 or less' }),
   cover: z
-    .array(z.string())
-    .length(2)
+    .string()
     .optional()
     .refine(
-      async images => {
-        if (!images || images[0] === IMAGE_WAS_ERASED) {
+      async image => {
+        if (!image || image === IMAGE_WAS_ERASED) {
           return true
         }
-        if (images) {
-          const imageCrop = images[1]
+        if (image) {
+          const imageCrop = image
 
-          const file = imageCrop ? await getFileFromUrl(imageCrop) : await getFileFromUrl(images[0])
+          const file = await getFileFromUrl(imageCrop)
+
+          if (!file) {
+            return false
+          }
 
           if (file.size > MAX_IMAGE_SIZE_BYTES) {
             //todo: use a toast

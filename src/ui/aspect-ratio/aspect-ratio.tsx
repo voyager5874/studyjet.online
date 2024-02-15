@@ -10,10 +10,11 @@ type AspectRatioProps = {
   /** just for img alt*/
   imageDescription?: string
   ratio: number
+  shape?: 'rect' | 'round'
   src: null | string
 } & ComponentPropsWithoutRef<typeof AspectRatioPrimitive.Root>
 export const AspectRatio = forwardRef<ElementRef<'img'>, AspectRatioProps>(
-  ({ src, imageDescription, ratio, ...restProps }, forwardedRef) => {
+  ({ src, imageDescription, ratio, shape = 'rect', ...restProps }, forwardedRef) => {
     const [imageUrl, setImageUrl] = useState<null | string>(src)
     const [ready, setReady] = useState<boolean>(false)
     const [error, setError] = useState<boolean>(false)
@@ -35,7 +36,7 @@ export const AspectRatio = forwardRef<ElementRef<'img'>, AspectRatioProps>(
     }, [src])
 
     return (
-      <div className={clsx(s.container)}>
+      <div className={clsx(s.container, shape === 'round' && s.round)}>
         <AspectRatioPrimitive.Root ratio={ratio} {...restProps}>
           <img
             alt={imageDescription}

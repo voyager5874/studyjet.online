@@ -18,7 +18,7 @@ import {
   DialogTrigger,
 } from '@/ui/dialog'
 import { Form, FormControl, FormField, FormItem } from '@/ui/form'
-import { ImageInput } from '@/ui/image-input'
+import { DeckCoverInput } from '@/ui/image-input/deck-cover-input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs'
 import { TextField } from '@/ui/text-field'
 import { Typography } from '@/ui/typography'
@@ -41,21 +41,19 @@ export type EditCardDialogProps = {
 export function EditCardDialog(props: EditCardDialogProps) {
   const { card, trigger, isSuccess, disabled, onSubmit, title, ...restProps } = props
 
-  const [questionImgCropParams, setQuestionImgCropParams] = useState<Point>({ x: 0, y: 0 })
+  const [questionImgCenterPoint, setQuestionImgCenterPoint] = useState<Point>({ x: 0, y: 0 })
   const [questionImgZoom, setQuestionImgZoom] = useState<number>(1)
-  const [questionImgRotation, setQuestionImgRotation] = useState<number>(0)
 
-  const [answerImgCropParams, setAnswerImgCropParams] = useState<Point>({ x: 0, y: 0 })
+  const [answerImgCropCenterPoint, setAnswerImgCropCenterPoint] = useState<Point>({ x: 0, y: 0 })
   const [answerImgZoom, setAnswerImgZoom] = useState<number>(1)
-  const [answerImgRotation, setAnswerImgRotation] = useState<number>(0)
 
   const form = useForm({
     resolver: zodResolver(cardFormSchema),
     defaultValues: {
       question: card?.question || '',
       answer: card?.answer || '',
-      questionImg: ['', ''],
-      answerImg: ['', ''],
+      questionImg: '',
+      answerImg: '',
     },
   })
 
@@ -65,7 +63,6 @@ export function EditCardDialog(props: EditCardDialogProps) {
     form.getValues().question === '' ||
     form.formState.isValidating
 
-  //todo: investigate 'useImperativeHandle' hook for exposing .reset()
   //todo: check for accessibility (id, aria-labels...)
   //todo: if name is '' (create dialog), focus corresponding TextField
 
@@ -132,18 +129,14 @@ export function EditCardDialog(props: EditCardDialogProps) {
                     name={'questionImg'}
                     render={({ field, fieldState }) => (
                       <FormItem className={classNames.formItem}>
-                        <ImageInput
-                          cropAspect={2.5}
-                          cropParamsValue={questionImgCropParams}
-                          defaultImage={card?.questionImg}
+                        <DeckCoverInput
+                          centerPoint={questionImgCenterPoint}
+                          defaultValue={card?.questionImg || undefined}
                           errorMessage={fieldState.error?.message}
-                          itemName={'question'}
                           name={'questionImg'}
-                          onChange={field.onChange}
-                          onCropParamsChange={setQuestionImgCropParams}
-                          onRotationChange={setQuestionImgRotation}
+                          onCropCenterChange={setQuestionImgCenterPoint}
+                          onValueChange={field.onChange}
                           onZoomChange={setQuestionImgZoom}
-                          rotationValue={questionImgRotation}
                           value={field.value}
                           zoomValue={questionImgZoom}
                         />
@@ -174,18 +167,14 @@ export function EditCardDialog(props: EditCardDialogProps) {
                     name={'answerImg'}
                     render={({ field, fieldState }) => (
                       <FormItem className={classNames.formItem}>
-                        <ImageInput
-                          cropAspect={2.5}
-                          cropParamsValue={answerImgCropParams}
-                          defaultImage={card?.answerImg}
+                        <DeckCoverInput
+                          centerPoint={answerImgCropCenterPoint}
+                          defaultValue={card?.answerImg || undefined}
                           errorMessage={fieldState.error?.message}
-                          itemName={'answer'}
                           name={'answerImg'}
-                          onChange={field.onChange}
-                          onCropParamsChange={setAnswerImgCropParams}
-                          onRotationChange={setAnswerImgRotation}
+                          onCropCenterChange={setAnswerImgCropCenterPoint}
+                          onValueChange={field.onChange}
                           onZoomChange={setAnswerImgZoom}
-                          rotationValue={answerImgRotation}
                           value={field.value}
                           zoomValue={answerImgZoom}
                         />

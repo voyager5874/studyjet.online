@@ -1,12 +1,21 @@
-.imageContainer {
+.previewContainer {
   position: relative;
 
-  overflow: clip;
+  overflow: hidden;
 
   width: 100%;
 
-  // height: 200px;
-  margin-bottom: 5px;
+  background-color: var(--color-bg-secondary);
+  border-radius: 2px;
+}
+
+.currentImageContainer {
+  position: relative;
+
+  overflow: hidden;
+
+  width: 100%;
+  height: 100%;
 
   background-color: var(--color-bg-secondary);
   border-radius: 2px;
@@ -14,18 +23,21 @@
 
 .image {
   width: 100%;
-  height: auto;
-  min-height: 100%;
+  height: 100%;
   padding: 0;
-
   object-fit: cover;
 }
 
-.imageInfoContainer {
-  display: flex;
-  align-items: center;
-  height: 1em;
-  margin-bottom: 12px;
+.freeSizedImage {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+
+  height: 100%;
+  padding: 0;
+
+  object-fit: scale-down;
 }
 
 .buttonWithIcon {
@@ -40,22 +52,6 @@
 
 .buttonWidthFix {
   display: flex;
-}
-
-.savedSignContainer {
-  position: absolute;
-  z-index: 10;
-  top: 0;
-  left: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 100%;
-  height: 30px;
-
-  background-color: rgb(0 0 0 / 50%);
 }
 
 .imageControlsContainer {
@@ -80,4 +76,8 @@
 
 .opaque {
   opacity: 0;
+}
+
+.round {
+  border-radius: 50%;
 }
