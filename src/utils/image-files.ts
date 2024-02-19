@@ -99,14 +99,18 @@ export async function getFileSizeFromUrl(dataUrl: null | string) {
   return null
 }
 
-export async function getImageDimensionsFromUrl(dataUrl: null | string | undefined) {
-  if (!dataUrl) {
+export async function getImageDimensionsFromUrl(url: null | string | undefined) {
+  if (!url) {
     return null
   }
-  const image = await createImageHtmlElementFromDataUrl(dataUrl)
+  const image = await createImageHtmlElementFromDataUrl(url)
 
   if (image) {
-    return { height: image.height, width: image.width }
+    const height = image.height
+    const width = image.width
+    const aspectRatio = Math.round((width / height) * 10) / 10
+
+    return { height, width, aspectRatio }
   }
 
   return null

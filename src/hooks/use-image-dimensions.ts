@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { getImageDimensionsFromUrl } from '@/utils'
 
 type Dimensions = {
+  aspectRatio: number
   height: number
   width: number
 }

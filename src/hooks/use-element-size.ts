@@ -6,7 +6,7 @@ export interface Size {
   width: number
 }
 
-export function useElementSize<T extends HTMLElement>(): {
+export function useHtmlElementSize<T extends HTMLElement>(): {
   ref: RefObject<T>
   size: Size | null
 } {
