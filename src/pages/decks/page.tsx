@@ -224,7 +224,7 @@ export const Page = () => {
     if (imageDataUrl) {
       const cover = await getFileFromUrl(imageDataUrl)
 
-      formData.append('cover', cover)
+      cover && formData.append('cover', cover)
     }
     setAddDeckDialogOpen(false)
 
@@ -266,7 +266,7 @@ export const Page = () => {
     if (updatedImageDataUrl) {
       const cover = await getFileFromUrl(updatedImageDataUrl)
 
-      updateDeckFormData.append('cover', cover)
+      cover && updateDeckFormData.append('cover', cover)
     }
     if (imageWasErased) {
       // erase deck cover info on the server

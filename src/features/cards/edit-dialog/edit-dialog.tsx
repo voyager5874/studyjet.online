@@ -18,7 +18,8 @@ import {
   DialogTrigger,
 } from '@/ui/dialog'
 import { Form, FormControl, FormField, FormItem } from '@/ui/form'
-import { ImageInput } from '@/ui/image-input'
+import { CardAndDeckImageSelector } from '@/ui/image-input/card-and-deck-image-selector'
+import { ZERO_POINT } from '@/ui/image-input/const'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs'
 import { TextField } from '@/ui/text-field'
 import { Typography } from '@/ui/typography'
@@ -41,21 +42,21 @@ export type EditCardDialogProps = {
 export function EditCardDialog(props: EditCardDialogProps) {
   const { card, trigger, isSuccess, disabled, onSubmit, title, ...restProps } = props
 
-  const [questionImgCropParams, setQuestionImgCropParams] = useState<Point>({ x: 0, y: 0 })
+  const [questionSourceImg, setQuestionSourceImg] = useState<string>('')
+  const [questionImgCenterPoint, setQuestionImgCenterPoint] = useState<Point>(ZERO_POINT)
   const [questionImgZoom, setQuestionImgZoom] = useState<number>(1)
-  const [questionImgRotation, setQuestionImgRotation] = useState<number>(0)
 
-  const [answerImgCropParams, setAnswerImgCropParams] = useState<Point>({ x: 0, y: 0 })
+  const [answerSourceImg, setAnswerSourceImg] = useState<string>('')
+  const [answerImgCropCenterPoint, setAnswerImgCropCenterPoint] = useState<Point>(ZERO_POINT)
   const [answerImgZoom, setAnswerImgZoom] = useState<number>(1)
-  const [answerImgRotation, setAnswerImgRotation] = useState<number>(0)
 
   const form = useForm({
     resolver: zodResolver(cardFormSchema),
     defaultValues: {
       question: card?.question || '',
       answer: card?.answer || '',
-      questionImg: ['', ''],
-      answerImg: ['', ''],
+      questionImg: '',
+      answerImg: '',
     },
   })
 
@@ -65,7 +66,6 @@ export function EditCardDialog(props: EditCardDialogProps) {
     form.getValues().question === '' ||
     form.formState.isValidating
 
-  //todo: investigate 'useImperativeHandle' hook for exposing .reset()
   //todo: check for accessibility (id, aria-labels...)
   //todo: if name is '' (create dialog), focus corresponding TextField
 
@@ -84,6 +84,14 @@ export function EditCardDialog(props: EditCardDialogProps) {
     tabsTrigger: clsx(s.tabsTrigger),
     underline: clsx(s.underline),
   }
+
+  console.log({
+    form,
+    questionSourceImg,
+    questionImgCenterPoint,
+    questionImgZoom,
+    question: form.getValues('question'),
+  })
 
   return (
     <Dialog {...restProps}>
@@ -132,18 +140,19 @@ export function EditCardDialog(props: EditCardDialogProps) {
                     name={'questionImg'}
                     render={({ field, fieldState }) => (
                       <FormItem className={classNames.formItem}>
-                        <ImageInput
-                          cropAspect={2.5}
-                          cropParamsValue={questionImgCropParams}
-                          defaultImage={card?.questionImg}
+                        <CardAndDeckImageSelector
+                          centerPoint={questionImgCenterPoint}
                           errorMessage={fieldState.error?.message}
-                          itemName={'question'}
+                          initialContent={card?.questionImg || undefined}
                           name={'questionImg'}
-                          onChange={field.onChange}
-                          onCropParamsChange={setQuestionImgCropParams}
-                          onRotationChange={setQuestionImgRotation}
+                          onCropCenterChange={setQuestionImgCenterPoint}
+                          onSourceImageChange={setQuestionSourceImg}
+                          onValueChange={field.onChange}
                           onZoomChange={setQuestionImgZoom}
-                          rotationValue={questionImgRotation}
+                          sourceImage={questionSourceImg}
+                          triggerText={
+                            card?.questionImg ? 'change question image' : 'add question image'
+                          }
                           value={field.value}
                           zoomValue={questionImgZoom}
                         />
@@ -174,18 +183,17 @@ export function EditCardDialog(props: EditCardDialogProps) {
                     name={'answerImg'}
                     render={({ field, fieldState }) => (
                       <FormItem className={classNames.formItem}>
-                        <ImageInput
-                          cropAspect={2.5}
-                          cropParamsValue={answerImgCropParams}
-                          defaultImage={card?.answerImg}
+                        <CardAndDeckImageSelector
+                          centerPoint={answerImgCropCenterPoint}
                           errorMessage={fieldState.error?.message}
-                          itemName={'answer'}
+                          initialContent={card?.answerImg || undefined}
                           name={'answerImg'}
-                          onChange={field.onChange}
-                          onCropParamsChange={setAnswerImgCropParams}
-                          onRotationChange={setAnswerImgRotation}
+                          onCropCenterChange={setAnswerImgCropCenterPoint}
+                          onSourceImageChange={setAnswerSourceImg}
+                          onValueChange={field.onChange}
                           onZoomChange={setAnswerImgZoom}
-                          rotationValue={answerImgRotation}
+                          sourceImage={answerSourceImg}
+                          triggerText={card?.answerImg ? 'change answer image' : 'add answer image'}
                           value={field.value}
                           zoomValue={answerImgZoom}
                         />

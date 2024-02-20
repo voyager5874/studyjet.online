@@ -157,21 +157,21 @@ export const Page = () => {
     formData.append('question', data.question)
     formData.append('answer', data.answer)
 
-    const questionImageDataUrl = (data?.questionImg && data.questionImg[1]) || null
+    const questionImageDataUrl = data?.questionImg || null
 
     if (questionImageDataUrl) {
       const questionImage = await getFileFromUrl(questionImageDataUrl)
 
-      formData.append('questionImg', questionImage)
+      questionImage && formData.append('questionImg', questionImage)
     }
     setAddCardDialogOpen(false)
 
-    const answerImageDataUrl = (data?.answerImg && data.answerImg[1]) || null
+    const answerImageDataUrl = data?.answerImg || null
 
     if (answerImageDataUrl) {
       const answerImage = await getFileFromUrl(answerImageDataUrl)
 
-      formData.append('answerImg', answerImage)
+      answerImage && formData.append('answerImg', answerImage)
     }
     setAddCardDialogOpen(false)
 
@@ -202,12 +202,11 @@ export const Page = () => {
 
     const formData = new FormData()
 
-    const questionImageWasErased = data?.questionImg && data.questionImg[0] === IMAGE_WAS_ERASED
-    const updatedQuestionImageDataUrl =
-      !questionImageWasErased && data?.questionImg && data.questionImg[1]
+    const questionImageWasErased = data?.questionImg === IMAGE_WAS_ERASED
+    const updatedQuestionImageDataUrl = !questionImageWasErased && data?.questionImg
 
-    const answerImageWasErased = data?.answerImg && data.answerImg[0] === IMAGE_WAS_ERASED
-    const updatedAnswerImageDataUrl = !answerImageWasErased && data?.answerImg && data.answerImg[1]
+    const answerImageWasErased = data?.answerImg && data.answerImg === IMAGE_WAS_ERASED
+    const updatedAnswerImageDataUrl = !answerImageWasErased && data?.answerImg
 
     const questionChanged = data.question !== selectedCardData.question
     const answerChanged = data.answer !== selectedCardData.answer
@@ -218,7 +217,7 @@ export const Page = () => {
     if (updatedQuestionImageDataUrl) {
       const image = await getFileFromUrl(updatedQuestionImageDataUrl)
 
-      formData.append('questionImg', image)
+      image && formData.append('questionImg', image)
     }
     if (questionImageWasErased) {
       formData.append('questionImg', '')
@@ -227,7 +226,7 @@ export const Page = () => {
     if (updatedAnswerImageDataUrl) {
       const image = await getFileFromUrl(updatedAnswerImageDataUrl)
 
-      formData.append('answerImg', image)
+      image && formData.append('answerImg', image)
     }
     if (answerImageWasErased) {
       formData.append('answerImg', '')

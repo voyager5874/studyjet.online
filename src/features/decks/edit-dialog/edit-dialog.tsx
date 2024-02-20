@@ -18,7 +18,7 @@ import {
   DialogTrigger,
 } from '@/ui/dialog'
 import { Form, FormControl, FormField, FormItem } from '@/ui/form'
-import { ImageInput } from '@/ui/image-input'
+import { CardAndDeckImageSelector } from '@/ui/image-input/card-and-deck-image-selector'
 import { TextField } from '@/ui/text-field'
 import { Typography } from '@/ui/typography'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -44,7 +44,7 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
     resolver: zodResolver(deckFormSchema),
     defaultValues: {
       name: deck?.name || '',
-      cover: ['', ''],
+      cover: '',
       isPrivate: deck?.isPrivate || false,
     },
   })
@@ -64,7 +64,6 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
     dialogContent: clsx(s.content),
     formSection: clsx(s.formSection),
     formItem: clsx(s.formItem),
-    dialogFooter: clsx(s.dialogFooter),
   }
 
   return (
@@ -104,14 +103,12 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
                 name={'cover'}
                 render={({ field, fieldState }) => (
                   <FormItem className={classNames.formItem}>
-                    <ImageInput
-                      cropAspect={2.5}
-                      defaultImage={deck?.cover}
+                    <CardAndDeckImageSelector
                       errorMessage={fieldState.error?.message}
-                      itemName={'cover'}
-                      name={'cover'}
-                      onChange={field.onChange}
-                      value={field.value}
+                      initialContent={deck?.cover || undefined}
+                      onValueChange={field.onChange}
+                      triggerText={deck?.cover ? 'change cover image' : 'add cover image'}
+                      value={field.value || ''}
                     />
                   </FormItem>
                 )}
@@ -133,7 +130,7 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
                 )}
               />
             </section>
-            <DialogFooter className={classNames.dialogFooter}>
+            <DialogFooter>
               <DialogClose asChild>
                 <Button type={'button'} variant={'secondary'}>
                   Cancel

@@ -28,7 +28,6 @@ export const CreateDialog: Story = {
 export const EditDialog: Story = {
   args: {
     title: 'edit deck',
-    // defaultValues: { name: 'some deck', cover: ['', ''], isPrivate: false },
     deck: decksList[2],
     trigger: (
       <Button variant={'tertiary'}>

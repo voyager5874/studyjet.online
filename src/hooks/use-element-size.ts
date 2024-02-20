@@ -6,7 +6,7 @@ export interface Size {
   width: number
 }
 
-export function useElementSize<T extends HTMLElement>(): {
+export function useHtmlElementSize<T extends HTMLElement>(): {
   ref: RefObject<T>
   size: Size | null
 } {
@@ -17,10 +17,20 @@ export function useElementSize<T extends HTMLElement>(): {
   useEffect(() => {
     const element = ref.current
 
-    if (element) {
-      const { width, height } = element.getBoundingClientRect()
+    if (!element) {
+      return
+    }
+
+    const resizeObserver = new ResizeObserver(entries => {
+      const { width, height } = entries[0].contentRect
 
       setSize({ width, height })
+    })
+
+    resizeObserver.observe(element)
+
+    return () => {
+      resizeObserver.unobserve(element)
     }
   }, [ref])
 

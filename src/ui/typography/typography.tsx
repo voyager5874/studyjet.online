@@ -19,6 +19,7 @@ export const TypographyVariants = [
   'overline',
   'subtitle1',
   'subtitle2',
+  'subdued',
 ] as const
 
 type CustomProps<T extends ElementType> = {

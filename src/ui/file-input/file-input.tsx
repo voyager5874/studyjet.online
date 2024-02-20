@@ -17,7 +17,9 @@ import {
 } from 'react'
 
 import { AspectRatio } from '@/ui/aspect-ratio'
-import { getFileFromUrl } from '@/utils'
+import { getFileFromUrl, removeFileExtension } from '@/utils'
+
+import { getDefaultValueFileName } from './utils'
 
 type CustomComponentProps = {
   defaultValue?: File | string //is there any way to have a File set beforehand?
@@ -374,23 +376,3 @@ const FileInputClear = ({ className, children, ...props }: ComponentPropsWithout
 }
 
 export { FileInput, FileInputClear, FileInputPreview, FileInputTrigger }
-
-function removeFileExtension(str: string) {
-  const dotIndex = str.lastIndexOf('.')
-
-  return dotIndex > -1 ? str.substring(0, dotIndex) : str
-}
-
-const MAX_LENGTH = 100
-const DEFAULT_NAME = 'default-value'
-
-function getDefaultValueFileName(defaultValue: FileInputProps['defaultValue']) {
-  if (typeof defaultValue === 'string') {
-    return defaultValue.length > MAX_LENGTH ? DEFAULT_NAME : removeFileExtension(defaultValue)
-  }
-  if (defaultValue instanceof File) {
-    return defaultValue.name
-  }
-
-  return DEFAULT_NAME
-}
