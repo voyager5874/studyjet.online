@@ -1,0 +1,86 @@
+.formSection {
+  margin-bottom: 36px;
+
+  // padding: 24px 24px 0;
+}
+
+.content {
+  width: calc(500px + 48px);
+  padding: 24px 24px 41px;
+}
+
+.footer {
+  display: none;
+  justify-content: space-between;
+}
+
+.sectionTitle {
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.flexColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.flexRow {
+  display: flex;
+  column-gap: 10px;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0;
+}
+
+.avatarContainer {
+  position: relative;
+  height: 96px;
+  padding: 0;
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+}
+
+.avatarButton {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.nameContainer {
+  position: relative;
+  padding-right: calc(9px + 16px);
+  padding-left: calc(9px + 16px);
+}
+
+.nicknameButton {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}
+
+.name {
+  line-height: 36px;
+}
+
+.email {
+  margin-bottom: 13px;
+}
+
+.hidden {
+  display: none;
+}
+
+.notHidden {
+  display: flex;
+}
+
+.highlight {
+  box-shadow: 0 0 12px 20px #8c61ff59;
+}

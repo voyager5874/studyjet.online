@@ -1,0 +1,42 @@
+.previewContainer {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 96px;
+  height: 96px;
+  margin: 0;
+
+  border-radius: 50%;
+}
+
+.imagePreview {
+  // width: 96px;
+  // height: 96px;
+}
+
+.button {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.flexContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+
+  background-color: var(--color-bg-primary);
+  border-radius: 50%;
+}

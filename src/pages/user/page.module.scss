@@ -1,0 +1,13 @@
+@import '@/styles/mixins/flex-container';
+
+.page {
+  @include flex-container-column(center, flex-start);
+
+  padding-top: 36px;
+}
+
+.progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
