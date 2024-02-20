@@ -130,3 +130,9 @@ export function blobToString(file: Blob | File): Promise<string> {
     reader.readAsDataURL(file)
   })
 }
+
+export function removeFileExtension(str: string) {
+  const dotIndex = str.lastIndexOf('.')
+
+  return dotIndex > -1 ? str.substring(0, dotIndex) : str
+}

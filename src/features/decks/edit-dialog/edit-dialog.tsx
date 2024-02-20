@@ -18,7 +18,7 @@ import {
   DialogTrigger,
 } from '@/ui/dialog'
 import { Form, FormControl, FormField, FormItem } from '@/ui/form'
-import { DeckCoverInput } from '@/ui/image-input/deck-cover-input'
+import { CardAndDeckImageSelector } from '@/ui/image-input/card-and-deck-image-selector'
 import { TextField } from '@/ui/text-field'
 import { Typography } from '@/ui/typography'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -103,11 +103,12 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
                 name={'cover'}
                 render={({ field, fieldState }) => (
                   <FormItem className={classNames.formItem}>
-                    <DeckCoverInput
-                      defaultValue={deck?.cover || undefined}
+                    <CardAndDeckImageSelector
                       errorMessage={fieldState.error?.message}
+                      initialContent={deck?.cover || undefined}
                       onValueChange={field.onChange}
-                      value={field.value}
+                      triggerText={deck?.cover ? 'change cover image' : 'add cover image'}
+                      value={field.value || ''}
                     />
                   </FormItem>
                 )}

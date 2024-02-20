@@ -6,14 +6,14 @@ export type ImageInputContextType = {
   changeCropCenterPoint: (params: Point) => void
   changeRotation?: (rotation: number) => void
   changeZoom?: (zoom: number) => void
-  clearValue?: () => void
   cropCenterPoint?: Point
-  defaultValue?: string
   deleteImage?: () => void
   imageRotationValue?: number
+  initialContent?: string
   message?: string
   onCropComplete: (croppedArea: Area, newCroppedAreaPixels: Area) => Promise<void>
   onValueChange?: (value: string) => void
+  resetValue?: () => void
   sourceImage?: string
   triggerImageSelection?: () => void
   value?: string

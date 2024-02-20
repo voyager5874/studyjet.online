@@ -18,7 +18,8 @@ import {
   DialogTrigger,
 } from '@/ui/dialog'
 import { Form, FormControl, FormField, FormItem } from '@/ui/form'
-import { DeckCoverInput } from '@/ui/image-input/deck-cover-input'
+import { CardAndDeckImageSelector } from '@/ui/image-input/card-and-deck-image-selector'
+import { ZERO_POINT } from '@/ui/image-input/const'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs'
 import { TextField } from '@/ui/text-field'
 import { Typography } from '@/ui/typography'
@@ -41,10 +42,12 @@ export type EditCardDialogProps = {
 export function EditCardDialog(props: EditCardDialogProps) {
   const { card, trigger, isSuccess, disabled, onSubmit, title, ...restProps } = props
 
-  const [questionImgCenterPoint, setQuestionImgCenterPoint] = useState<Point>({ x: 0, y: 0 })
+  const [questionSourceImg, setQuestionSourceImg] = useState<string>('')
+  const [questionImgCenterPoint, setQuestionImgCenterPoint] = useState<Point>(ZERO_POINT)
   const [questionImgZoom, setQuestionImgZoom] = useState<number>(1)
 
-  const [answerImgCropCenterPoint, setAnswerImgCropCenterPoint] = useState<Point>({ x: 0, y: 0 })
+  const [answerSourceImg, setAnswerSourceImg] = useState<string>('')
+  const [answerImgCropCenterPoint, setAnswerImgCropCenterPoint] = useState<Point>(ZERO_POINT)
   const [answerImgZoom, setAnswerImgZoom] = useState<number>(1)
 
   const form = useForm({
@@ -81,6 +84,14 @@ export function EditCardDialog(props: EditCardDialogProps) {
     tabsTrigger: clsx(s.tabsTrigger),
     underline: clsx(s.underline),
   }
+
+  console.log({
+    form,
+    questionSourceImg,
+    questionImgCenterPoint,
+    questionImgZoom,
+    question: form.getValues('question'),
+  })
 
   return (
     <Dialog {...restProps}>
@@ -129,14 +140,19 @@ export function EditCardDialog(props: EditCardDialogProps) {
                     name={'questionImg'}
                     render={({ field, fieldState }) => (
                       <FormItem className={classNames.formItem}>
-                        <DeckCoverInput
+                        <CardAndDeckImageSelector
                           centerPoint={questionImgCenterPoint}
-                          defaultValue={card?.questionImg || undefined}
                           errorMessage={fieldState.error?.message}
+                          initialContent={card?.questionImg || undefined}
                           name={'questionImg'}
                           onCropCenterChange={setQuestionImgCenterPoint}
+                          onSourceImageChange={setQuestionSourceImg}
                           onValueChange={field.onChange}
                           onZoomChange={setQuestionImgZoom}
+                          sourceImage={questionSourceImg}
+                          triggerText={
+                            card?.questionImg ? 'change question image' : 'add question image'
+                          }
                           value={field.value}
                           zoomValue={questionImgZoom}
                         />
@@ -167,14 +183,17 @@ export function EditCardDialog(props: EditCardDialogProps) {
                     name={'answerImg'}
                     render={({ field, fieldState }) => (
                       <FormItem className={classNames.formItem}>
-                        <DeckCoverInput
+                        <CardAndDeckImageSelector
                           centerPoint={answerImgCropCenterPoint}
-                          defaultValue={card?.answerImg || undefined}
                           errorMessage={fieldState.error?.message}
+                          initialContent={card?.answerImg || undefined}
                           name={'answerImg'}
                           onCropCenterChange={setAnswerImgCropCenterPoint}
+                          onSourceImageChange={setAnswerSourceImg}
                           onValueChange={field.onChange}
                           onZoomChange={setAnswerImgZoom}
+                          sourceImage={answerSourceImg}
+                          triggerText={card?.answerImg ? 'change answer image' : 'add answer image'}
                           value={field.value}
                           zoomValue={answerImgZoom}
                         />
