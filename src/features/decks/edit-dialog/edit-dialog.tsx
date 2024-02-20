@@ -52,7 +52,6 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
   const submitButtonDisabled =
     disabled || form.getValues().name === '' || form.formState.isValidating
 
-  //todo: investigate 'useImperativeHandle' hook for exposing .reset()
   //todo: check for accessibility (id, aria-labels...)
   //todo: if name is '' (create dialog), focus corresponding TextField
 
@@ -106,6 +105,7 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
                     <CardAndDeckImageSelector
                       errorMessage={fieldState.error?.message}
                       initialContent={deck?.cover || undefined}
+                      name={'cover'}
                       onValueChange={field.onChange}
                       triggerText={deck?.cover ? 'change cover image' : 'add cover image'}
                       value={field.value || ''}

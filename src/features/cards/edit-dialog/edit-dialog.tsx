@@ -85,13 +85,7 @@ export function EditCardDialog(props: EditCardDialogProps) {
     underline: clsx(s.underline),
   }
 
-  console.log({
-    form,
-    questionSourceImg,
-    questionImgCenterPoint,
-    questionImgZoom,
-    question: form.getValues('question'),
-  })
+  //todo: try hiding an forceMount for TabsContent to get rid of useState
 
   return (
     <Dialog {...restProps}>
