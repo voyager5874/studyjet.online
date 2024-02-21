@@ -66,3 +66,9 @@
     flex-grow: 1;
   }
 }
+
+.hidden {
+  overflow: hidden;
+  height: 0;
+  margin: 0;
+}

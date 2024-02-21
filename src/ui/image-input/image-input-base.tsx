@@ -112,9 +112,7 @@ const ImageInput = forwardRef<ImageInputRef, ImageInputProps>((props, forwardedR
   const [localSourceImageDataUrl, setLocalSourceImageDataUrl] =
     useState<ImageInputProps['sourceImage']>('')
 
-  const [localCropCenterPoint, setLocalCropCenterPoint] = useState<Point>(
-    centerPoint ? centerPoint : ZERO_POINT
-  )
+  const [localCropCenterPoint, setLocalCropCenterPoint] = useState<Point>(ZERO_POINT)
   const [localRotation, setLocalRotation] = useState<number>(0)
   const [localZoom, setLocalZoom] = useState<number>(zoomValue || 1)
 
@@ -280,8 +278,6 @@ const ImageInput = forwardRef<ImageInputRef, ImageInputProps>((props, forwardedR
   }, [valueControlled, handleResetCrop, initialContent, onSourceImageChange, onValueChange])
 
   const handleDelete = useCallback(() => {
-    console.log('handleDelete', { valueControlled })
-
     if (valueControlled) {
       onValueChange && onValueChange(IMAGE_WAS_ERASED)
       onSourceImageChange && onSourceImageChange('')
@@ -346,7 +342,7 @@ const ImageInput = forwardRef<ImageInputRef, ImageInputProps>((props, forwardedR
     [
       valueControlled,
       value,
-      // localValueDataUrl,
+      localValueDataUrl,
       handleResetValue,
       handleDelete,
       changeRotation,
