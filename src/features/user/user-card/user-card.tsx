@@ -13,7 +13,7 @@ import { UserAvatar } from '@/ui/avatar'
 import { Button } from '@/ui/button'
 import { Card } from '@/ui/card'
 import { Form, FormControl, FormField, FormItem } from '@/ui/form'
-import { AvatarInput } from '@/ui/image-input/avatar-input'
+import { AvatarImageSelector } from '@/ui/image-input/avatar-image-selector'
 import { TextField } from '@/ui/text-field'
 import { Typography } from '@/ui/typography'
 import { getFileFromUrl } from '@/utils'
@@ -131,7 +131,7 @@ export const UserCard = ({ name, email, avatar, onSubmit }: UserCardProps) => {
                   <FormItem className={cn.avatarField}>
                     <FormControl>
                       <>
-                        <AvatarInput
+                        <AvatarImageSelector
                           className={cn.avatarInput}
                           errorMessage={fieldState.error?.message}
                           initialContent={avatar || ''}

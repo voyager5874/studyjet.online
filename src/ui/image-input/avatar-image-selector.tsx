@@ -8,15 +8,16 @@ import { ImageInputPlaceholder, ImageInputValuePreview } from '@/ui/image-input/
 import { clsx } from 'clsx'
 import { LucideImagePlus, LucidePenLine, LucideTrash, LucideUser } from 'lucide-react'
 
-import s from './avatar-input.module.scss'
+import s from './avatar-image-selector.module.scss'
 
 export type AvatarInputProps = Omit<
   ComponentPropsWithoutRef<typeof ImageInput>,
   'onSourceImageChange' | 'sourceImage'
 >
-export const AvatarInput = ({
+export const AvatarImageSelector = ({
   className,
   value,
+  onValueChange,
   initialContent,
   ...restProps
 }: AvatarInputProps) => {
@@ -32,20 +33,28 @@ export const AvatarInput = ({
     imagePreview: clsx(s.imagePreview),
   }
   const [localSourceImage, setLocalSourceImage] = useState('')
+  const [localResultImage, setLocalResultImage] = useState('')
 
   const showDeleteButton =
     Boolean(value && value.startsWith('data:image')) ||
-    (initialContent && value !== IMAGE_WAS_ERASED)
+    Boolean(localResultImage && localResultImage.startsWith('data:image')) ||
+    (initialContent && value !== IMAGE_WAS_ERASED && localResultImage !== IMAGE_WAS_ERASED)
 
   const showTriggerButton = !localSourceImage
+
+  const handleUpdateValue = (src: string) => {
+    onValueChange && onValueChange(src)
+    typeof value === 'undefined' && setLocalResultImage(src)
+  }
 
   return (
     <ImageInput
       {...restProps}
       initialContent={initialContent}
       onSourceImageChange={setLocalSourceImage}
+      onValueChange={handleUpdateValue}
       sourceImage={localSourceImage}
-      value={value || ''}
+      value={value || localResultImage}
     >
       <div className={cn.flexContainer}>
         <div className={cn.previewContainer}>
@@ -62,7 +71,9 @@ export const AvatarInput = ({
           {showTriggerButton && (
             <ImageInputTrigger>
               <Button className={cn.button} size={'dense'} variant={'secondary'}>
-                {value !== IMAGE_WAS_ERASED && (localSourceImage || initialContent) ? (
+                {value !== IMAGE_WAS_ERASED &&
+                localResultImage !== IMAGE_WAS_ERASED &&
+                (localSourceImage || initialContent) ? (
                   <LucidePenLine size={14} />
                 ) : (
                   <LucideImagePlus size={14} />
