@@ -82,6 +82,11 @@
   @include typography(var(--font-size-xs), var(--line-height-s), var(--font-weight-regular));
 }
 
+.subdued {
+  @include typography(var(--font-size-xs), var(--line-height-s), var(--font-weight-regular));
+  color: var(--color-text-subdued);
+}
+
 .link1,
 .link1:visited {
   @include link(var(--font-size-s), var(--color-text-normal), var(--font-weight-regular));

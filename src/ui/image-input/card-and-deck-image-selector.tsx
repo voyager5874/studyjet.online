@@ -28,11 +28,13 @@ export const CardAndDeckImageSelector = ({
   triggerText,
   sourceImage,
   onSourceImageChange,
+  onValueChange,
   value,
   initialContent,
   ...restProps
 }: CardAndDeckImageSelectorProps) => {
   const [localSourceImage, setLocalSourceImage] = useState('')
+  const [localResultImage, setLocalResultImage] = useState('')
 
   const showFileSize = localSourceImage && value && value !== IMAGE_WAS_ERASED
 
@@ -46,9 +48,12 @@ export const CardAndDeckImageSelector = ({
   }
 
   const showClearButton =
-    Boolean((sourceImage || localSourceImage) && initialContent) || value === IMAGE_WAS_ERASED
+    Boolean((sourceImage || localSourceImage) && initialContent) ||
+    (initialContent && (value === IMAGE_WAS_ERASED || localResultImage === IMAGE_WAS_ERASED))
+
   const showDeleteButton =
     Boolean(value && value.startsWith('data:image')) ||
+    Boolean(localResultImage && localResultImage.startsWith('data:image')) ||
     (initialContent && value !== IMAGE_WAS_ERASED)
 
   const showTriggerButton = !sourceImage && !localSourceImage
@@ -58,13 +63,19 @@ export const CardAndDeckImageSelector = ({
     typeof sourceImage === 'undefined' && setLocalSourceImage(source)
   }
 
+  const handleUpdateValue = (src: string) => {
+    onValueChange && onValueChange(src)
+    typeof value === 'undefined' && setLocalResultImage(src)
+  }
+
   return (
     <ImageInput
       {...restProps}
       initialContent={initialContent}
       onSourceImageChange={handleSourceChange}
+      onValueChange={handleUpdateValue}
       sourceImage={sourceImage || localSourceImage}
-      value={value || ''}
+      value={value || localResultImage}
     >
       <div className={cn.preview}>
         <ImageInputValuePreview aspect={500 / 200}>

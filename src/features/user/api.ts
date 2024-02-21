@@ -1,4 +1,5 @@
 import type { LoginResponse, SignUpResponse, UserData } from './types'
+import type { RootState } from '@/app/store'
 import type { SignInData } from '@/features/user/forms/sign-in-form-shema'
 import type { SignUpData } from '@/features/user/forms/sign-up-form-shema'
 
@@ -60,7 +61,66 @@ const api = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['User'],
     }),
+    updateUserData: builder.mutation<UserData, FormData>({
+      query: body => ({
+        url: 'auth/me',
+        method: 'PATCH',
+        body,
+      }),
+      onQueryStarted: async (data, { dispatch, queryFulfilled, getState }) => {
+        const state = getState() as RootState
+
+        const entries = api.util.selectInvalidatedBy(state, ['User'])
+
+        const patches = []
+        let avatarUrl = 'UNTOUCHED' as null | string
+
+        for (const { originalArgs } of entries) {
+          const patch = dispatch(
+            api.util.updateQueryData('me', originalArgs, draft => {
+              const user = draft
+
+              if (user) {
+                const name = data.get('name')
+                const avatarFile = data.get('avatar') as File | null | string
+
+                if (avatarFile instanceof File) {
+                  avatarUrl = URL.createObjectURL(avatarFile)
+                }
+                if (avatarFile === '') {
+                  avatarUrl = null
+                }
+
+                name && (draft.name = String(name))
+                avatarUrl !== 'UNTOUCHED' && (user.avatar = avatarUrl)
+              }
+            })
+          )
+
+          patches.push(patch)
+        }
+
+        try {
+          await queryFulfilled
+        } catch (error) {
+          if (patches.length) {
+            patches.forEach(patch => patch.undo())
+          }
+          console.error(error)
+        } finally {
+          avatarUrl && avatarUrl !== 'UNTOUCHED' && URL.revokeObjectURL(avatarUrl)
+        }
+      },
+
+      invalidatesTags: ['User'],
+    }),
   }),
 })
 
-export const { useMeQuery, useLoginMutation, useLogoutMutation, useSignUpMutation } = api
+export const {
+  useMeQuery,
+  useLoginMutation,
+  useLogoutMutation,
+  useSignUpMutation,
+  useUpdateUserDataMutation,
+} = api

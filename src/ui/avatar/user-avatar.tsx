@@ -3,6 +3,8 @@ import type * as AvatarPrimitive from '@radix-ui/react-avatar'
 import type { ComponentPropsWithoutRef, ElementRef } from 'react'
 import { forwardRef } from 'react'
 
+import { clsx } from 'clsx'
+
 import { AvatarFallback, AvatarImage, AvatarRoot } from './avatar-base'
 
 export type AvatarProps = {
@@ -12,11 +14,11 @@ export type AvatarProps = {
 
 const UserAvatar = forwardRef<ElementRef<typeof AvatarPrimitive.Root>, AvatarProps>(
   (props, forwardedRef) => {
-    const { username, image, ...restProps } = props
+    const { className, username, image, ...restProps } = props
     const fallbackText = getFallbackText(username)
 
     return (
-      <AvatarRoot {...restProps} ref={forwardedRef}>
+      <AvatarRoot {...restProps} className={clsx(className)} ref={forwardedRef}>
         {image && <AvatarImage src={image} />}
         <AvatarFallback>{fallbackText}</AvatarFallback>
       </AvatarRoot>
