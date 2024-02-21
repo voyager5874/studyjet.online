@@ -56,7 +56,8 @@ export const Overview: Story = {
   args: {
     value: '',
     sourceImage: '',
-    initialContent: 'https://upload.wikimedia.org/wikipedia/en/c/c6/NeoTheMatrix.jpg',
+    initialContent:
+      'https://andrii-flashcards.s3.eu-central-1.amazonaws.com/ea4cb27c-f182-446d-8422-83917e4216a6-image.webp',
   },
 }
 
@@ -70,6 +71,7 @@ export const ScaleDown: Story = {
 }
 
 export const NoInitialValue: Story = {
+  ...Template,
   args: {
     value: '',
     sourceImage: '',
