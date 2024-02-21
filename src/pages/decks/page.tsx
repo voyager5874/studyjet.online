@@ -219,7 +219,11 @@ export const Page = () => {
     formData.append('name', data.name)
     formData.append('isPrivate', String(data.isPrivate))
 
-    const imageDataUrl = data?.cover || null
+    let imageDataUrl = ''
+
+    if (data?.cover && data.cover.startsWith('data:image')) {
+      imageDataUrl = data.cover
+    }
 
     if (imageDataUrl) {
       const cover = await getFileFromUrl(imageDataUrl)
@@ -255,7 +259,6 @@ export const Page = () => {
     const updateDeckFormData = new FormData()
 
     const imageWasErased = data?.cover && data.cover === IMAGE_WAS_ERASED
-    // const updatedImageDataUrl = !imageWasErased && data?.cover && data.cover !== selectedDeckData.cover
     let updatedImageDataUrl = ''
 
     if (data?.cover && data.cover.startsWith('data:image')) {
