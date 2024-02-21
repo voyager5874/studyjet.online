@@ -157,7 +157,11 @@ export const Page = () => {
     formData.append('question', data.question)
     formData.append('answer', data.answer)
 
-    const questionImageDataUrl = data?.questionImg || null
+    let questionImageDataUrl = ''
+
+    if (data?.questionImg && data.questionImg.startsWith('data:image')) {
+      questionImageDataUrl = data.questionImg
+    }
 
     if (questionImageDataUrl) {
       const questionImage = await getFileFromUrl(questionImageDataUrl)
@@ -166,7 +170,11 @@ export const Page = () => {
     }
     setAddCardDialogOpen(false)
 
-    const answerImageDataUrl = data?.answerImg || null
+    let answerImageDataUrl = ''
+
+    if (data?.answerImg && data.answerImg.startsWith('data:image')) {
+      answerImageDataUrl = data.answerImg
+    }
 
     if (answerImageDataUrl) {
       const answerImage = await getFileFromUrl(answerImageDataUrl)
@@ -203,10 +211,18 @@ export const Page = () => {
     const formData = new FormData()
 
     const questionImageWasErased = data?.questionImg === IMAGE_WAS_ERASED
-    const updatedQuestionImageDataUrl = !questionImageWasErased && data?.questionImg
+    let updatedQuestionImageDataUrl = ''
+
+    if (data?.questionImg && data.questionImg?.startsWith('data:image')) {
+      updatedQuestionImageDataUrl = data.questionImg
+    }
 
     const answerImageWasErased = data?.answerImg && data.answerImg === IMAGE_WAS_ERASED
-    const updatedAnswerImageDataUrl = !answerImageWasErased && data?.answerImg
+    let updatedAnswerImageDataUrl = ''
+
+    if (data?.answerImg && data.answerImg?.startsWith('data:image')) {
+      updatedAnswerImageDataUrl = data.answerImg
+    }
 
     const questionChanged = data.question !== selectedCardData.question
     const answerChanged = data.answer !== selectedCardData.answer
