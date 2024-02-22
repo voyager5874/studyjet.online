@@ -34,7 +34,7 @@ export function DeckActions({ deck, onDelete, onEdit, onLearn }: Props) {
   return (
     <>
       <div className={s.flexContainer}>
-        <Button onClick={handleLearn} variant={'icon'}>
+        <Button disabled={deck.cardsCount === 0} onClick={handleLearn} variant={'icon'}>
           <PlayCircle size={14} />
         </Button>
         {authorId === userId && (
