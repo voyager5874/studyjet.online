@@ -3,9 +3,9 @@ import * as z from 'zod'
 export const changePasswordFormSchema = z
   .object({
     password: z.string().min(6, {
-      message: 'Enter your password',
+      message: 'your password is too short',
     }),
-    repeatPassword: z.string().min(1, {
+    repeatPassword: z.string().min(6, {
       message: 'please repeat you password',
     }),
   })

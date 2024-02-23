@@ -118,7 +118,9 @@ const api = baseApi.injectEndpoints({
       query: email => ({
         body: {
           email,
-          html: '<h1>Hi, ##name##</h1><p>Follow this <a href="http://localhost:5173/password-set-new/##token##">link</a> to create new password</p>',
+          html: import.meta.env.PROD
+            ? '<h1>Hi, ##name##</h1><p>Follow this <a href="https://studyjet-online.vercel.app/password-set-new/##token##">link</a> to create new password</p>'
+            : '<h1>Hi, ##name##</h1><p>Follow this <a href="http://localhost:5173/password-set-new/##token##">link</a> to create new password</p>',
           // html: '<h1>Hi, ##name##</h1><p>Follow this <a href="https://studyjet-online.vercel.app/password-set-new/##token##">link</a> to create new password</p>',
         },
         method: 'POST',
