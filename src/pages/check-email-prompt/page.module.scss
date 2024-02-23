@@ -1,0 +1,51 @@
+@import '@/styles/mixins/flex-container';
+
+.page {
+  @include flex-container-column(center, flex-start);
+
+  padding-top: 36px;
+}
+
+.pageHeader {
+  @include flex-container-row(center, space-between);
+
+  margin-top: 36px;
+  margin-bottom: 36px;
+}
+
+.progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.backLink {
+  align-self: flex-start;
+  text-decoration: none;
+}
+
+.card {
+  width: 420px;
+  padding: 33px 36px 29px;
+}
+
+.title {
+  margin-bottom: 27px;
+  text-align: center;
+}
+
+.pictureContainer {
+  margin-bottom: 20px;
+}
+
+.infoText {
+  margin-bottom: 65px;
+}
+
+.flexRow {
+  @include flex-container-row(center, space-between);
+}
+
+.flexColumn {
+  @include flex-container-column(center, flex-start);
+}

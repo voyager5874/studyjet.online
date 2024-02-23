@@ -25,8 +25,12 @@ option {
   color: inherit;
 }
 
-a:visited {
-  color: inherit;
+a {
+  text-decoration: none;
+  color: var(--color-text-link);
+  &:visited {
+    color: inherit;
+  }
 }
 
 input:-webkit-autofill,
@@ -82,7 +86,6 @@ body {
   --color-bg-tertiary: var(--color-dark-500);
 
   // layout
-  --header-height: 60px;
 
   margin: 0;
   padding: 0;
@@ -146,3 +149,10 @@ body {
 //   // borders
 //   --color-border-primary: #313131;
 // }
+
+.flexColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  justify-content: center;
+}

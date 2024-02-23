@@ -1,0 +1,16 @@
+:root {
+  --header-height: 60px;
+  .flex-row-center {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    align-items: center;
+    justify-content: center;
+  }
+  .flex-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    justify-content: center;
+  }
+}

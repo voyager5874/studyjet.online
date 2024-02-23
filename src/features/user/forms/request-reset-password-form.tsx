@@ -1,4 +1,4 @@
-import type { SignInData } from '@/features/user/forms/sign-in-form-shema'
+import type { RequestResetPasswordFormSchemaData } from '@/features/user/forms/reset-password-form-schema'
 
 import type { ComponentPropsWithoutRef } from 'react'
 import { useId } from 'react'
@@ -6,40 +6,34 @@ import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 
 import { paths } from '@/app/app-routes'
-import { signInFormSchema } from '@/features/user/forms/sign-in-form-shema'
+import { requestResetPasswordFormSchema } from '@/features/user/forms/reset-password-form-schema'
 import { Button } from '@/ui/button'
 import { Card } from '@/ui/card'
-import { Checkbox } from '@/ui/checkbox'
 import { Form, FormControl, FormField, FormItem } from '@/ui/form'
 import { TextField } from '@/ui/text-field'
 import { Typography } from '@/ui/typography'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { clsx } from 'clsx'
 
-import s from './sign-in-form.module.scss'
+import s from './password-reset-request-form.module.scss'
 
 type CustomProps = {
   defaultEmail?: string
-  defaultPassword?: string
-  defaultRememberMe?: boolean
-  onSubmit: (values: SignInData) => void
+  onSubmit: (data: { email: string }) => void
 }
 
-export type LoginFormProps = CustomProps & Omit<ComponentPropsWithoutRef<'form'>, keyof CustomProps>
+export type PasswordResetRequestFormProps = CustomProps &
+  Omit<ComponentPropsWithoutRef<'form'>, keyof CustomProps>
 
-export function SignInForm({
+export function RequestResetPasswordForm({
   onSubmit,
-  defaultPassword,
   defaultEmail,
-  defaultRememberMe,
   ...rest
-}: LoginFormProps) {
-  const form = useForm<SignInData>({
-    resolver: zodResolver(signInFormSchema),
+}: PasswordResetRequestFormProps) {
+  const form = useForm<RequestResetPasswordFormSchemaData>({
+    resolver: zodResolver(requestResetPasswordFormSchema),
     defaultValues: {
       email: defaultEmail || '',
-      password: defaultPassword || '',
-      rememberMe: defaultRememberMe || false,
     },
   })
 
@@ -58,7 +52,7 @@ export function SignInForm({
     <Form {...form}>
       <Card className={classNames.container}>
         <Typography as={'h1'} className={classNames.title} variant={'large'}>
-          Sign in
+          Forgot your password?
         </Typography>
         <form className={classNames.form} onSubmit={form.handleSubmit(onSubmit)} {...rest}>
           <FormField
@@ -70,7 +64,7 @@ export function SignInForm({
                   <TextField
                     autoComplete={'email'}
                     label={'Email'}
-                    placeholder={'email'}
+                    placeholder={'email you used to sign up'}
                     {...field}
                     errorMessage={fieldState.error?.message}
                     id={`${formId}-email`}
@@ -79,63 +73,29 @@ export function SignInForm({
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name={'password'}
-            render={({ field }) => (
-              <FormItem className={classNames.formItem}>
-                <FormControl>
-                  <TextField
-                    autoComplete={'current-password'}
-                    label={'Password'}
-                    placeholder={'password'}
-                    {...field}
-                    id={`${formId}-password`}
-                    type={'password'}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name={'rememberMe'}
-            render={({ field }) => (
-              <FormItem className={classNames.formItem}>
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    id={`${formId}-rememberMe`}
-                    label={'remember me'}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
           <div className={classNames.formItem}>
-            <Typography as={Link} to={paths.requestPasswordReset} variant={'link1'}>
-              Forgot password?
+            <Typography variant={'caption'}>
+              Enter your email address and we will send you further instructions
             </Typography>
           </div>
 
           <div className={classNames.button}>
             <Button size={'fill'} type={'submit'}>
-              Sign in
+              Send instructions
             </Button>
           </div>
         </form>
         <section className={classNames.footer}>
           <Typography className={classNames.footerItem} variant={'body2'}>
-            Don&apos;t have an account yet?
+            Have you remembered your password?
           </Typography>
           <Typography
             as={Link}
             className={classNames.footerItem}
-            to={paths.signUp}
+            to={paths.signIn}
             variant={'link2'}
           >
-            Sign up
+            Return to sign-in page
           </Typography>
         </section>
       </Card>
