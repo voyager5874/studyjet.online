@@ -27,3 +27,8 @@ export type SignUpResponse = {
   name: string
   updated: string
 }
+
+export type UpdatePasswordData = {
+  password: string
+  token: string
+}

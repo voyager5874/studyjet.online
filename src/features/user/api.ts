@@ -1,4 +1,4 @@
-import type { LoginResponse, SignUpResponse, UserData } from './types'
+import type { LoginResponse, SignUpResponse, UpdatePasswordData, UserData } from './types'
 import type { RootState } from '@/app/store'
 import type { SignInData } from '@/features/user/forms/sign-in-form-shema'
 import type { SignUpData } from '@/features/user/forms/sign-up-form-shema'
@@ -114,6 +114,26 @@ const api = baseApi.injectEndpoints({
 
       invalidatesTags: ['User'],
     }),
+    requestPasswordReset: builder.mutation<void, string>({
+      query: email => ({
+        body: {
+          email,
+          html: '<h1>Hi, ##name##</h1><p>Follow this <a href="http://localhost:5173/password-set-new/##token##">link</a> to create new password</p>',
+          // html: '<h1>Hi, ##name##</h1><p>Follow this <a href="https://studyjet-online.vercel.app/password-set-new/##token##">link</a> to create new password</p>',
+        },
+        method: 'POST',
+        url: 'auth/recover-password',
+      }),
+    }),
+    updatePassword: builder.mutation<void, UpdatePasswordData>({
+      query: ({ password, token }) => ({
+        body: {
+          password,
+        },
+        method: 'POST',
+        url: `auth/reset-password/${token}`,
+      }),
+    }),
   }),
 })
 
@@ -123,4 +143,6 @@ export const {
   useLogoutMutation,
   useSignUpMutation,
   useUpdateUserDataMutation,
+  useUpdatePasswordMutation,
+  useRequestPasswordResetMutation,
 } = api
