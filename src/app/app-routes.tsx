@@ -56,13 +56,24 @@ type PathsByKey = {
   [key in AppRoutesKey]: AppRoutesPath
 }
 
-export const paths: PathsByKey = {
-  ...AppRoutes.private.reduce((acc, route) => {
-    return { ...acc, [route.key]: route.path }
-  }, {} as PathsByKey),
-  ...AppRoutes.public.reduce((acc, route) => {
-    return { ...acc, [route.key]: route.path }
-  }, {} as PathsByKey),
+const cleanPath = (path: string) => {
+  let cleanedPath = path
+    .split('/')
+    .filter(part => !part.startsWith(':'))
+    .join('/')
+
+  if (cleanedPath.endsWith('/')) {
+    cleanedPath = cleanedPath.slice(0, -1)
+  }
+
+  return cleanedPath
 }
 
-console.log({ paths })
+export const paths: PathsByKey = {
+  ...AppRoutes.private.reduce((acc, route) => {
+    return { ...acc, [route.key]: cleanPath(route.path) }
+  }, {} as PathsByKey),
+  ...AppRoutes.public.reduce((acc, route) => {
+    return { ...acc, [route.key]: cleanPath(route.path) }
+  }, {} as PathsByKey),
+}
