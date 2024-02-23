@@ -1,4 +1,4 @@
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useLocation } from 'react-router-dom'
 
 import { AppRoutes } from '@/app/app-routes'
 import { AppLogo } from '@/assets/app-logo'
@@ -15,6 +15,7 @@ import { LucideLogOut, LucideMoon, LucideRoute, LucideSun, LucideUser } from 'lu
 import s from './main-layout.module.scss'
 
 export const MainLayout = () => {
+  const { pathname, state } = useLocation()
   const { data } = useMeQuery()
   // const isAuthenticated = Boolean(data && data?.id)
   const [logout] = useLogoutMutation()
@@ -83,9 +84,15 @@ export const MainLayout = () => {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
 
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled={pathname.endsWith('user')}>
                 <LucideUser size={16} />
-                <Typography as={Link} className={cn.link} to={'/user'} variant={'caption'}>
+                <Typography
+                  as={Link}
+                  className={cn.link}
+                  state={{ ...state, userPageReferer: `${pathname}` }}
+                  to={'/user'}
+                  variant={'caption'}
+                >
                   My profile
                 </Typography>
               </DropdownMenuItem>

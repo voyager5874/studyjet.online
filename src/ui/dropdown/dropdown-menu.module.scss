@@ -8,8 +8,6 @@
 }
 
 .item {
-  cursor: pointer;
-
   display: flex;
   gap: 0.4em;
   align-items: center;
@@ -21,8 +19,18 @@
   outline: 1px solid transparent;
 
   &[data-highlighted] {
+    cursor: pointer;
+
     * {
       color: var(--color-primary);
+    }
+  }
+
+  &[data-disabled] {
+    * {
+      pointer-events: none;
+      cursor: default;
+      color: var(--color-text-subdued);
     }
   }
 }

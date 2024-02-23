@@ -19,9 +19,7 @@ import s from './page.module.scss'
 
 export const Page = () => {
   const { id } = useParams<{ id: string }>()
-  const {
-    state: { referer },
-  } = useLocation()
+  const { state } = useLocation()
 
   const { data: currentDeckData } = useGetDeckByIdQuery(id ?? skipToken)
 
@@ -94,12 +92,18 @@ export const Page = () => {
       <ProgressBar className={cn.progress} show={cardToLeanFetching} />
 
       <div className={cn.page}>
-        <Link className={cn.backLink} replace to={referer ? `../${referer}` : '/decks'}>
+        <Link
+          className={cn.backLink}
+          replace
+          to={state?.referer ? `../${state.referer}` : '/decks'}
+        >
           <LucideArrowLeft size={16} />
 
           <Typography variant={'body2'}>
             Back to the{' '}
-            {referer.endsWith('cards') ? `cards of "${currentDeckData?.name}"` : 'decks page'}
+            {state?.referer && state.referer.endsWith('cards')
+              ? `cards of "${currentDeckData?.name}"`
+              : 'decks page'}
           </Typography>
         </Link>
         <Card className={cn.card}>

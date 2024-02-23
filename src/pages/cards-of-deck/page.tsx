@@ -3,7 +3,7 @@ import type { CardItem } from '@/features/cards/types'
 import type { Column } from '@/ui/table'
 
 import { type ChangeEvent, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 
 import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
 import { usePageSearchParams } from '@/features/cards'
@@ -46,6 +46,8 @@ import s from './page.module.scss'
 
 export const Page = () => {
   const { id } = useParams<{ id: string }>()
+  const { state } = useLocation()
+
   const { data: userData } = useMeQuery()
   const { data: currentDeckData } = useGetDeckByIdQuery(id ?? skipToken)
 
@@ -372,7 +374,7 @@ export const Page = () => {
                   <Link
                     className={cn.link}
                     replace
-                    state={{ referer: `decks/${id}/cards` }}
+                    state={{ ...state, referer: `decks/${id}/cards` }}
                     to={`/decks/${id}/learn`}
                   >
                     <LucidePlayCircle size={14} />
