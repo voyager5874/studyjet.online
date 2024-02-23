@@ -5,6 +5,7 @@ import { useId } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 
+import { paths } from '@/app/app-routes'
 import { signInFormSchema } from '@/features/user/forms/sign-in-form-shema'
 import { Button } from '@/ui/button'
 import { Card } from '@/ui/card'
@@ -113,7 +114,7 @@ export function SignInForm({
             )}
           />
           <div className={classNames.formItem}>
-            <Typography as={Link} to={'/password-reset'} variant={'link1'}>
+            <Typography as={Link} to={paths.requestPasswordReset} variant={'link1'}>
               Forgot password?
             </Typography>
           </div>
@@ -128,7 +129,12 @@ export function SignInForm({
           <Typography className={classNames.footerItem} variant={'body2'}>
             Don&apos;t have an account yet?
           </Typography>
-          <Typography as={Link} className={classNames.footerItem} to={'/sign-up'} variant={'link2'}>
+          <Typography
+            as={Link}
+            className={classNames.footerItem}
+            to={paths.signUp}
+            variant={'link2'}
+          >
             Sign up
           </Typography>
         </section>
