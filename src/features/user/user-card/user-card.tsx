@@ -6,7 +6,6 @@ import type { FetchBaseQueryError } from '@reduxjs/toolkit/query'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
 import { useLogoutMutation } from '@/features/user/api'
 import { userDataFormSchema } from '@/features/user/user-card/user-data-form-schema'
 import { UserAvatar } from '@/ui/avatar'
@@ -16,7 +15,7 @@ import { Form, FormControl, FormField, FormItem } from '@/ui/form'
 import { AvatarImageSelector } from '@/ui/image-input/avatar-image-selector'
 import { TextField } from '@/ui/text-field'
 import { Typography } from '@/ui/typography'
-import { getFileFromUrl } from '@/utils'
+import { getChangedDataFromTwoObjects, objectToFormData } from '@/utils/objects'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { clsx } from 'clsx'
 import { LucideImagePlus, LucideLogOut, LucidePenLine } from 'lucide-react'
@@ -71,36 +70,18 @@ export const UserCard = ({ name, email, avatar, onSubmit }: UserCardProps) => {
   }
 
   const handleSubmit = async (data: UserProfileFormData) => {
-    const profileData = new FormData()
+    const changed = await getChangedDataFromTwoObjects(data, { email, avatar } as UserData)
+    const submitData = objectToFormData(changed)
 
-    const imageWasErased = data?.avatar && data.avatar === IMAGE_WAS_ERASED
-    let updatedImageDataUrl = ''
+    const notEmpty = Boolean(Array.from(submitData.keys()).length)
 
-    if (data?.avatar && data.avatar.startsWith('data:image')) {
-      updatedImageDataUrl = data.avatar
-    }
-    const nameChanged = data?.name && name !== data.name
-
-    nameChanged && profileData.append('name', data.name)
-
-    if (updatedImageDataUrl) {
-      const avatar = await getFileFromUrl(updatedImageDataUrl)
-
-      avatar && profileData.append('avatar', avatar)
-    }
-    if (imageWasErased) {
-      profileData.append('avatar', '')
-    }
-    const notEmpty = Boolean(Array.from(profileData.keys()).length)
-
-    console.log({ profileData: Array.from(profileData.entries()), notEmpty })
     avatarIsBeingEdited && setAvatarIsBeingEdited(false)
     nameIsBeingEdited && setNameIsBeingEdited(false)
     notEmpty &&
-      onSubmit(profileData).then(res => {
+      onSubmit(submitData).then(res => {
         if ('error' in res) {
-          nameChanged && setAvatarIsBeingEdited(true)
-          updatedImageDataUrl && setNameIsBeingEdited(true)
+          changed?.avatar && setAvatarIsBeingEdited(true)
+          changed?.name && setNameIsBeingEdited(true)
         }
       })
   }
@@ -113,7 +94,7 @@ export const UserCard = ({ name, email, avatar, onSubmit }: UserCardProps) => {
 
   const handleLogout = useCallback(() => {
     logout()
-  }, [])
+  }, [logout])
 
   return (
     <>

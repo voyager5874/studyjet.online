@@ -5,7 +5,6 @@ import type { Column } from '@/ui/table'
 import { type ChangeEvent, useRef, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 
-import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
 import { usePageSearchParams } from '@/features/cards'
 import {
   useCreateCardMutation,
@@ -30,7 +29,8 @@ import { Table } from '@/ui/table'
 import { TextField } from '@/ui/text-field'
 import { useToast } from '@/ui/toast'
 import { Typography } from '@/ui/typography'
-import { getFileFromUrl, parseNumber } from '@/utils'
+import { parseNumber } from '@/utils'
+import { createSubmitData } from '@/utils/objects'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { clsx } from 'clsx'
 import {
@@ -153,39 +153,18 @@ export const Page = () => {
     if (!id) {
       return
     }
+    const submitData = await createSubmitData(data, {
+      answerImg: '',
+      questionImg: '',
+      answer: '',
+      question: '',
+      questionVideo: '',
+      answerVideo: '',
+    } as CardItem)
 
-    const formData = new FormData()
-
-    formData.append('question', data.question)
-    formData.append('answer', data.answer)
-
-    let questionImageDataUrl = ''
-
-    if (data?.questionImg && data.questionImg.startsWith('data:image')) {
-      questionImageDataUrl = data.questionImg
-    }
-
-    if (questionImageDataUrl) {
-      const questionImage = await getFileFromUrl(questionImageDataUrl)
-
-      questionImage && formData.append('questionImg', questionImage)
-    }
     setAddCardDialogOpen(false)
 
-    let answerImageDataUrl = ''
-
-    if (data?.answerImg && data.answerImg.startsWith('data:image')) {
-      answerImageDataUrl = data.answerImg
-    }
-
-    if (answerImageDataUrl) {
-      const answerImage = await getFileFromUrl(answerImageDataUrl)
-
-      answerImage && formData.append('answerImg', answerImage)
-    }
-    setAddCardDialogOpen(false)
-
-    createCard({ body: formData, deckId: id })
+    createCard({ body: submitData, deckId: id })
       .unwrap()
       .then(() => {
         toast({
@@ -209,50 +188,11 @@ export const Page = () => {
     if (!selectedCardData) {
       return
     }
-
-    const formData = new FormData()
-
-    const questionImageWasErased = data?.questionImg === IMAGE_WAS_ERASED
-    let updatedQuestionImageDataUrl = ''
-
-    if (data?.questionImg && data.questionImg?.startsWith('data:image')) {
-      updatedQuestionImageDataUrl = data.questionImg
-    }
-
-    const answerImageWasErased = data?.answerImg && data.answerImg === IMAGE_WAS_ERASED
-    let updatedAnswerImageDataUrl = ''
-
-    if (data?.answerImg && data.answerImg?.startsWith('data:image')) {
-      updatedAnswerImageDataUrl = data.answerImg
-    }
-
-    const questionChanged = data.question !== selectedCardData.question
-    const answerChanged = data.answer !== selectedCardData.answer
-
-    questionChanged && formData.append('question', data.question)
-    answerChanged && formData.append('answer', data.answer)
-
-    if (updatedQuestionImageDataUrl) {
-      const image = await getFileFromUrl(updatedQuestionImageDataUrl)
-
-      image && formData.append('questionImg', image)
-    }
-    if (questionImageWasErased) {
-      formData.append('questionImg', '')
-    }
-
-    if (updatedAnswerImageDataUrl) {
-      const image = await getFileFromUrl(updatedAnswerImageDataUrl)
-
-      image && formData.append('answerImg', image)
-    }
-    if (answerImageWasErased) {
-      formData.append('answerImg', '')
-    }
+    const submitData = await createSubmitData(data, selectedCardData)
 
     setEditCardDialogOpen(false)
 
-    updateCard({ body: formData, cardId: selectedCardData.id })
+    updateCard({ body: submitData, cardId: selectedCardData.id })
       .unwrap()
       .then(() => {
         setSelectedCardId(null)

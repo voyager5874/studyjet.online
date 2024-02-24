@@ -7,7 +7,6 @@ import type { CheckedState } from '@radix-ui/react-checkbox'
 import type { ChangeEvent } from 'react'
 import { useCallback, useRef, useState } from 'react'
 
-import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
 import { useGetRandomCardFromDeckQuery, useRateCardAcquisitionMutation } from '@/features/cards/api'
 import {
   useCreateDecksMutation,
@@ -33,7 +32,7 @@ import { Table } from '@/ui/table'
 import { TextField } from '@/ui/text-field'
 import { useToast } from '@/ui/toast'
 import { Typography } from '@/ui/typography'
-import { getFileFromUrl } from '@/utils'
+import { createSubmitData } from '@/utils/objects'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { clsx } from 'clsx'
 import { LucideVariable } from 'lucide-react'
@@ -214,25 +213,15 @@ export const Page = () => {
   ]
 
   const handleNewDeckDataSubmit = async (data: DeckFormData) => {
-    const formData = new FormData()
+    const submitData = await createSubmitData(data, {
+      name: '',
+      isPrivate: undefined,
+      cover: '',
+    } as Partial<DeckItem>)
 
-    formData.append('name', data.name)
-    formData.append('isPrivate', String(data.isPrivate))
-
-    let imageDataUrl = ''
-
-    if (data?.cover && data.cover.startsWith('data:image')) {
-      imageDataUrl = data.cover
-    }
-
-    if (imageDataUrl) {
-      const cover = await getFileFromUrl(imageDataUrl)
-
-      cover && formData.append('cover', cover)
-    }
     setAddDeckDialogOpen(false)
 
-    createDeck(formData)
+    createDeck(submitData)
       .unwrap()
       .then(() => {
         toast({
@@ -256,34 +245,12 @@ export const Page = () => {
     if (!selectedDeckData) {
       return
     }
-    const updateDeckFormData = new FormData()
 
-    const imageWasErased = data?.cover && data.cover === IMAGE_WAS_ERASED
-    let updatedImageDataUrl = ''
-
-    if (data?.cover && data.cover.startsWith('data:image')) {
-      updatedImageDataUrl = data.cover
-    }
-
-    const nameChanged = data?.name && selectedDeckData.name !== data.name
-    const isPrivateChanged = selectedDeckData.isPrivate !== data?.isPrivate
-
-    nameChanged && updateDeckFormData.append('name', data.name)
-    isPrivateChanged && updateDeckFormData.append('isPrivate', String(data.isPrivate))
-
-    if (updatedImageDataUrl) {
-      const cover = await getFileFromUrl(updatedImageDataUrl)
-
-      cover && updateDeckFormData.append('cover', cover)
-    }
-    if (imageWasErased) {
-      // erase deck cover info on the server
-      updateDeckFormData.append('cover', '')
-    }
+    const submitData = await createSubmitData(data, selectedDeckData)
 
     setEditDeckDialogOpen(false)
 
-    const patchData = { id: selectedDeckData.id, body: updateDeckFormData }
+    const patchData = { id: selectedDeckData.id, body: submitData }
 
     updateDeck(patchData)
       .unwrap()
