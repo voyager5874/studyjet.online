@@ -23,8 +23,6 @@ export const Page = () => {
     progress: clsx(s.progress),
   }
 
-  console.log({ state })
-
   return (
     <>
       <ProgressBar className={cn.progress} show={busy} />
