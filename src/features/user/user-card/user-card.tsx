@@ -36,7 +36,7 @@ export const UserCard = ({ name, email, avatar, onSubmit }: UserCardProps) => {
   const [avatarIsBeingEdited, setAvatarIsBeingEdited] = useState(false)
   const [nameIsBeingEdited, setNameIsBeingEdited] = useState(false)
 
-  const form = useForm<UserProfileFormData>({
+  const { setValue, ...form } = useForm<UserProfileFormData>({
     resolver: zodResolver(userDataFormSchema),
     defaultValues: {
       name: name || '',
@@ -96,13 +96,21 @@ export const UserCard = ({ name, email, avatar, onSubmit }: UserCardProps) => {
     logout()
   }, [logout])
 
+  const updateAvatar = useCallback(
+    (img: string) => {
+      //to make form.isDirty work, change image-input instead?
+      img !== avatar && setValue('avatar', img, { shouldDirty: true, shouldTouch: true })
+    },
+    [avatar, setValue]
+  )
+
   return (
     <>
       <Card className={cn.content}>
         <Typography as={'h1'} className={cn.sectionTitle} variant={'large'}>
           Personal information
         </Typography>
-        <Form {...form}>
+        <Form {...form} setValue={setValue}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <section className={cn.formSection}>
               <FormField
@@ -117,10 +125,10 @@ export const UserCard = ({ name, email, avatar, onSubmit }: UserCardProps) => {
                           errorMessage={fieldState.error?.message}
                           initialContent={avatar || ''}
                           name={'avatar'}
-                          onValueChange={useCallback((img: string) => {
-                            //to make form.isDirty work, change image-input instead?
-                            img !== avatar && field.onChange(img)
-                          }, [])}
+                          // onValueChange={(img: string) => {
+                          //   img !== avatar && field.onChange(img)
+                          // }}
+                          onValueChange={updateAvatar}
                           value={field.value}
                         />
                       </>
