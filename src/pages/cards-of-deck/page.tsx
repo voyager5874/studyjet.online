@@ -1,36 +1,26 @@
-import type { CardFormData } from '@/features/cards/edit-dialog/card-form-schema'
+import type { CardsPageDialogTypes } from './page-dialogs'
 import type { CardItem } from '@/features/cards/types'
 import type { Column } from '@/ui/table'
 
-import { type ChangeEvent, useRef, useState } from 'react'
+import { type ChangeEvent, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 
 import { usePageSearchParams } from '@/features/cards'
-import {
-  useCreateCardMutation,
-  useDeleteCardMutation,
-  useGetCardByIdQuery,
-  useGetCardsOfDeckQuery,
-  useUpdateCardMutation,
-} from '@/features/cards/api'
-import { DeleteCardDialog } from '@/features/cards/delete-dialog'
-import { EditCardDialog } from '@/features/cards/edit-dialog'
+import { useGetCardsOfDeckQuery } from '@/features/cards/api'
 import { cardsTableColumns } from '@/features/cards/table/cards-table-columns'
 import { CardActions } from '@/features/cards/table/table-card-actions'
 import { useGetDeckByIdQuery } from '@/features/decks/api'
 import { useMeQuery } from '@/features/user/api'
-import { useConfirm } from '@/hooks/use-confirm'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
+import { PageDialogs } from '@/pages/cards-of-deck/page-dialogs'
 import { Button } from '@/ui/button'
 import { DropdownMenu, DropdownMenuItem } from '@/ui/dropdown'
 import { Pagination } from '@/ui/pagination'
 import { ProgressBar } from '@/ui/progress-bar/progress-bar'
 import { Table } from '@/ui/table'
 import { TextField } from '@/ui/text-field'
-import { useToast } from '@/ui/toast'
 import { Typography } from '@/ui/typography'
 import { parseNumber } from '@/utils'
-import { createSubmitData } from '@/utils/objects'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { clsx } from 'clsx'
 import {
@@ -61,8 +51,6 @@ export const Page = () => {
     sortProp,
   } = usePageSearchParams()
 
-  const { toast } = useToast()
-
   const { text } = pageQueryParams
   const debouncedSearchText = useDebouncedValue(text, 1300)
   const params = { ...pageQueryParams, text: debouncedSearchText }
@@ -77,66 +65,18 @@ export const Page = () => {
 
   const deck = deckCurrentData ?? deckData
 
-  const [createCard, { isSuccess: createCardSuccess, isLoading: isCreating }] =
-    useCreateCardMutation()
+  const [selectedCardId, setSelectedCardId] = useState<null | string>(null)
 
-  const selectedCardId = useRef<null | string>(null)
-
-  const setSelectedCardId = (id: null | string) => {
-    selectedCardId.current = id
-  }
-
-  const { currentData: selectedCardData, isFetching: selectedCardFetching } = useGetCardByIdQuery(
-    selectedCardId?.current ?? skipToken
-  )
-
-  const [addCardDialogOpen, setAddCardDialogOpen] = useState<boolean>(false)
-
-  const [editCardDialogOpen, setEditCardDialogOpen] = useState<boolean>(false)
-  const [deleteCardDialogOpen, setDeleteCardDialogOpen] = useState<boolean>(false)
-
-  const [updateCard, { isSuccess: updateCardSuccess, isLoading: cardIsBeingUpdated }] =
-    useUpdateCardMutation()
-
-  const [deleteCard, { isLoading: isDeleting }] = useDeleteCardMutation()
-
-  const {
-    waitConfirm: waitDeleteConfirm,
-    cancel: cancelDelete,
-    confirm: confirmDelete,
-    initialize: initializeWaitForDelete,
-  } = useConfirm()
-  const handleCardDelete = (id: string) => {
-    initializeWaitForDelete(() => {
-      deleteCard(id)
-        .unwrap()
-        .then(() => {
-          toast({
-            title: 'Card has been deleted',
-            variant: 'success',
-            type: 'foreground',
-          })
-        })
-        .catch(() => {
-          toast({
-            title: 'Failed to delete the card',
-            variant: 'danger',
-            type: 'foreground',
-          })
-        })
-    })
-
-    setDeleteCardDialogOpen(true)
-  }
+  const [openedDialog, setOpenedDialog] = useState<CardsPageDialogTypes | null>(null)
 
   const prepareEdit = (id: string) => {
     setSelectedCardId(id)
-    setEditCardDialogOpen(true)
+    setOpenedDialog('update')
   }
 
-  const handleEditDialogOpenChange = (open: boolean) => {
-    setEditCardDialogOpen(open)
-    !open && setSelectedCardId(null)
+  const prepareDelete = (id: string) => {
+    setSelectedCardId(id)
+    setOpenedDialog('delete')
   }
 
   const columns: Column<CardItem>[] = [
@@ -144,74 +84,10 @@ export const Page = () => {
 
     {
       key: 'actions',
-      render: card => <CardActions card={card} onDelete={handleCardDelete} onEdit={prepareEdit} />,
+      render: card => <CardActions card={card} onDelete={prepareDelete} onEdit={prepareEdit} />,
       title: '',
     },
   ]
-
-  const handleNewCardDataSubmit = async (data: CardFormData) => {
-    if (!id) {
-      return
-    }
-    const submitData = await createSubmitData(data, {
-      answerImg: '',
-      questionImg: '',
-      answer: '',
-      question: '',
-      questionVideo: '',
-      answerVideo: '',
-    } as CardItem)
-
-    setAddCardDialogOpen(false)
-
-    createCard({ body: submitData, deckId: id })
-      .unwrap()
-      .then(() => {
-        toast({
-          title: 'New card added',
-          variant: 'success',
-          type: 'foreground',
-        })
-      })
-      .catch(err => {
-        toast({
-          title: 'Failed to add new card',
-          description: err?.data?.message || '',
-          variant: 'danger',
-          type: 'foreground',
-        })
-        setAddCardDialogOpen(true)
-      })
-  }
-
-  const handleEditedCardDataSubmit = async (data: CardFormData) => {
-    if (!selectedCardData) {
-      return
-    }
-    const submitData = await createSubmitData(data, selectedCardData)
-
-    setEditCardDialogOpen(false)
-
-    updateCard({ body: submitData, cardId: selectedCardData.id })
-      .unwrap()
-      .then(() => {
-        setSelectedCardId(null)
-        toast({
-          title: 'Card updated',
-          variant: 'success',
-          type: 'foreground',
-        })
-      })
-      .catch(err => {
-        toast({
-          title: 'Failed to update the card',
-          description: err?.data?.message || '',
-          variant: 'danger',
-          type: 'foreground',
-        })
-        setEditCardDialogOpen(true)
-      })
-  }
 
   const changeSearchString = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -225,16 +101,13 @@ export const Page = () => {
     }
   }
 
-  const busy =
-    isFetching ||
-    isLoading ||
-    cardIsBeingUpdated ||
-    isCreating ||
-    selectedCardFetching ||
-    isDeleting ||
-    deckDataFetching
+  const busy = isFetching || isLoading || deckDataFetching
 
   const isOwner = userData && currentDeckData && userData?.id === currentDeckData?.userId
+
+  const openCreateCardDialog = () => {
+    setOpenedDialog('create')
+  }
 
   const cn = {
     link: clsx(s.link),
@@ -251,19 +124,19 @@ export const Page = () => {
     !pageQueryParams?.text
   ) {
     return (
-      <div className={clsx(s.page)}>
-        <Typography>There is no cards in this deck</Typography>
-        {isOwner && id && (
-          <EditCardDialog
-            isSuccess={createCardSuccess}
-            onOpenChange={setAddCardDialogOpen}
-            onSubmit={handleNewCardDataSubmit}
-            open={addCardDialogOpen}
-            title={'add card'}
-            trigger={<Button>Add new card</Button>}
-          />
-        )}
-      </div>
+      <>
+        <PageDialogs
+          deckId={id}
+          openedDialog={openedDialog}
+          selectedCardId={selectedCardId}
+          setOpenedDialog={setOpenedDialog}
+          setSelectedCardId={setSelectedCardId}
+        />
+        <div className={clsx(s.page)}>
+          <Typography>There is no cards in this deck</Typography>
+          {id && isOwner && <Button onClick={openCreateCardDialog}>Add new card</Button>}
+        </div>
+      </>
     )
   }
 
@@ -345,16 +218,7 @@ export const Page = () => {
             )}
           </div>
         </div>
-        {id && isOwner && (
-          <EditCardDialog
-            isSuccess={createCardSuccess}
-            onOpenChange={setAddCardDialogOpen}
-            onSubmit={handleNewCardDataSubmit}
-            open={addCardDialogOpen}
-            title={'add card'}
-            trigger={<Button>Add new card</Button>}
-          />
-        )}
+        {id && isOwner && <Button onClick={() => setOpenedDialog('create')}>Add new card</Button>}
       </div>
 
       <div className={cn.searchCardInputWrapper}>
@@ -365,25 +229,13 @@ export const Page = () => {
           value={pageQueryParams?.text || ''}
         />
       </div>
-
-      {selectedCardData && (
-        <EditCardDialog
-          card={selectedCardData}
-          isSuccess={updateCardSuccess}
-          onOpenChange={handleEditDialogOpenChange}
-          onSubmit={handleEditedCardDataSubmit}
-          open={editCardDialogOpen}
-          title={'edit card'}
-        />
-      )}
-      {waitDeleteConfirm && (
-        <DeleteCardDialog
-          onCancel={cancelDelete}
-          onConfirm={confirmDelete}
-          onOpenChange={setDeleteCardDialogOpen}
-          open={deleteCardDialogOpen}
-        />
-      )}
+      <PageDialogs
+        deckId={id}
+        openedDialog={openedDialog}
+        selectedCardId={selectedCardId}
+        setOpenedDialog={setOpenedDialog}
+        setSelectedCardId={setSelectedCardId}
+      />
       {data?.items?.length && (
         <Table
           columns={columns}
