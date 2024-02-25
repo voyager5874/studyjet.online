@@ -10,7 +10,7 @@ import type { RootState } from '@/app/store'
 
 // import type { PatchCollection } from '@reduxjs/toolkit/src/query/core/buildThunks'
 import { baseApi } from '@/services/api'
-import { isObjectEmpty } from '@/utils/objects'
+import { getChangedData, isObjectEmpty, mutateObjectValues } from '@/utils/objects'
 
 const api = baseApi.injectEndpoints({
   endpoints: builder => ({
@@ -134,8 +134,9 @@ const api = baseApi.injectEndpoints({
 
         // const patches = [] as PatchCollection[]
         const patches = []
-        let questionImgUrl = 'UNTOUCHED' as null | string
-        let answerImgUrl = 'UNTOUCHED' as null | string
+
+        let questionImgUrl = null as null | string
+        let answerImgUrl = null as null | string
 
         for (const { originalArgs } of entries) {
           // it would be probably more efficient with deckId provided
@@ -144,29 +145,12 @@ const api = baseApi.injectEndpoints({
               const card = draft.items.find(card => card.id === cardId)
 
               if (card) {
-                const question = body.get('question')
-                const answer = body.get('answer')
-                const questionImgFile = body.get('questionImg') as File | null | string
-                const answerImgFile = body.get('answerImg') as File | null | string
+                const patchObj = getChangedData(body, card)
 
-                if (questionImgFile instanceof File) {
-                  questionImgUrl = URL.createObjectURL(questionImgFile)
-                }
-                if (questionImgFile === '') {
-                  questionImgUrl = null
-                }
+                patchObj?.questionImg && (questionImgUrl = patchObj.questionImg)
+                patchObj?.answerImg && (answerImgUrl = patchObj.answerImg)
 
-                if (answerImgFile instanceof File) {
-                  answerImgUrl = URL.createObjectURL(answerImgFile)
-                }
-                if (answerImgFile === '') {
-                  answerImgUrl = null
-                }
-
-                question && (card.question = String(question))
-                answer && (card.answer = String(answer))
-                questionImgUrl !== 'UNTOUCHED' && (card.questionImg = questionImgUrl)
-                answerImgUrl !== 'UNTOUCHED' && (card.answerImg = answerImgUrl)
+                mutateObjectValues(card, patchObj)
               }
             })
           )
@@ -182,8 +166,8 @@ const api = baseApi.injectEndpoints({
           }
           console.error(error)
         } finally {
-          questionImgUrl && questionImgUrl !== 'UNTOUCHED' && URL.revokeObjectURL(questionImgUrl)
-          answerImgUrl && answerImgUrl !== 'UNTOUCHED' && URL.revokeObjectURL(answerImgUrl)
+          questionImgUrl && URL.revokeObjectURL(questionImgUrl)
+          answerImgUrl && URL.revokeObjectURL(answerImgUrl)
         }
       },
 

@@ -4,6 +4,7 @@ import type { SignInData } from '@/features/user/forms/sign-in-form-shema'
 import type { SignUpData } from '@/features/user/forms/sign-up-form-shema'
 
 import { baseApi } from '@/services/api'
+import { getChangedData, mutateObjectValues } from '@/utils/objects'
 
 const api = baseApi.injectEndpoints({
   endpoints: builder => ({
@@ -48,7 +49,7 @@ const api = baseApi.injectEndpoints({
           dispatch(api.util.resetApiState())
         } catch (e) {
           //todo: use toast
-          console.log(e)
+          console.warn(e)
           patchResult.undo()
         }
       },
@@ -73,7 +74,7 @@ const api = baseApi.injectEndpoints({
         const entries = api.util.selectInvalidatedBy(state, ['User'])
 
         const patches = []
-        let avatarUrl = 'UNTOUCHED' as null | string
+        let avatarUrl = null as null | string
 
         for (const { originalArgs } of entries) {
           const patch = dispatch(
@@ -81,18 +82,11 @@ const api = baseApi.injectEndpoints({
               const user = draft
 
               if (user) {
-                const name = data.get('name')
-                const avatarFile = data.get('avatar') as File | null | string
+                const patchObj = getChangedData(data, user)
 
-                if (avatarFile instanceof File) {
-                  avatarUrl = URL.createObjectURL(avatarFile)
-                }
-                if (avatarFile === '') {
-                  avatarUrl = null
-                }
+                patchObj?.avatar && (avatarUrl = patchObj.avatar)
 
-                name && (draft.name = String(name))
-                avatarUrl !== 'UNTOUCHED' && (user.avatar = avatarUrl)
+                mutateObjectValues(user, patchObj)
               }
             })
           )
@@ -108,7 +102,7 @@ const api = baseApi.injectEndpoints({
           }
           console.error(error)
         } finally {
-          avatarUrl && avatarUrl !== 'UNTOUCHED' && URL.revokeObjectURL(avatarUrl)
+          avatarUrl && URL.revokeObjectURL(avatarUrl)
         }
       },
 

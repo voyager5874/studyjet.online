@@ -1,29 +1,18 @@
-import type { DeckFormData } from '@/features/decks/edit-dialog/deck-form-schema'
-import type { LearnDeckFormData } from '@/features/decks/learn-dialog/learn-deck-form-schema'
 import type { DeckItem } from '@/features/decks/types'
+import type { DialogTypes } from '@/pages/decks/page-dialogs'
 import type { Column } from '@/ui/table'
 import type { CheckedState } from '@radix-ui/react-checkbox'
 
 import type { ChangeEvent } from 'react'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 
-import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
-import { useGetRandomCardFromDeckQuery, useRateCardAcquisitionMutation } from '@/features/cards/api'
-import {
-  useCreateDecksMutation,
-  useDeleteDeckMutation,
-  useGetDeckByIdQuery,
-  useGetDecksQuery,
-  useUpdateDeckMutation,
-} from '@/features/decks/api'
-import { DeleteDeckDialog } from '@/features/decks/delete-dialog'
-import { EditDeckDialog } from '@/features/decks/edit-dialog'
-import { LearnDeckDialog } from '@/features/decks/learn-dialog'
+import { useGetDecksQuery } from '@/features/decks/api'
 import { decksTableColumns } from '@/features/decks/table/decks-table-columns'
 import { DeckActions } from '@/features/decks/table/table-deck-actions'
 import { usePageSearchParams } from '@/features/decks/use-page-search-params'
 import { useMeQuery } from '@/features/user/api'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
+import { PageDialogs } from '@/pages/decks/page-dialogs'
 import { Button } from '@/ui/button'
 import { Checkbox } from '@/ui/checkbox'
 import { Pagination } from '@/ui/pagination'
@@ -31,10 +20,7 @@ import { ProgressBar } from '@/ui/progress-bar/progress-bar'
 import { Slider } from '@/ui/slider'
 import { Table } from '@/ui/table'
 import { TextField } from '@/ui/text-field'
-import { useToast } from '@/ui/toast'
 import { Typography } from '@/ui/typography'
-import { getFileFromUrl } from '@/utils'
-import { skipToken } from '@reduxjs/toolkit/query'
 import { clsx } from 'clsx'
 import { LucideVariable } from 'lucide-react'
 
@@ -63,112 +49,39 @@ export const Page = () => {
     name,
   } = usePageSearchParams()
 
-  const { toast } = useToast()
-
   const { data, currentData, isFetching, isLoading } = useGetDecksQuery({
     currentPage,
     itemsPerPage,
     orderBy,
     authorId,
-    maxCardsCount: useDebouncedValue(maxCardsCount, 1300),
-    minCardsCount: useDebouncedValue(minCardsCount, 1300),
+    maxCardsCount,
+    minCardsCount,
     name: useDebouncedValue(name, 1300),
   })
   const decksDataForTable = currentData ?? data
 
   const { data: currentUser } = useMeQuery()
 
-  const [
-    createDeck,
-    {
-      isSuccess: createDeckSuccess,
-      isLoading: deckIsBeingCreated,
-      // isError: createDeckErrorFailure,
-      // error: createDeckErrorData,
-    },
-  ] = useCreateDecksMutation()
+  const [selectedDeckId, setSelectedDeckId] = useState<null | string>(null)
 
-  const [deleteDeck, { isLoading: isDeleting }] = useDeleteDeckMutation()
-  const [updateDeck, { isLoading: isUpdating, isSuccess: updateSuccessful }] =
-    useUpdateDeckMutation()
-  const [
-    rateCardAcquisition,
-    { isSuccess: cardGradeSubmitSuccessful, isLoading: cardGradeIsSubmitting },
-  ] = useRateCardAcquisitionMutation()
+  // const previousCardId = useRef<null | string>(null)
 
-  const selectedDeckId = useRef<null | string>(null)
-
-  const setSelectedDeckId = (id: null | string) => {
-    selectedDeckId.current = id
-  }
-
-  const previousCardId = useRef<null | string>(null)
-
-  const { currentData: selectedDeckData, isFetching: selectedDeckIsFetching } = useGetDeckByIdQuery(
-    selectedDeckId?.current ?? skipToken
-  )
-
-  const { currentData: cardToLearnData, isFetching: cardToLearnFetching } =
-    useGetRandomCardFromDeckQuery(
-      selectedDeckId?.current
-        ? {
-            deckId: selectedDeckId?.current,
-            ...(previousCardId.current && {
-              previousCardId: previousCardId.current,
-            }),
-          }
-        : skipToken
-    )
-
-  const [addDeckDialogOpen, setAddDeckDialogOpen] = useState<boolean>(false)
-  const [editDeckDialogOpen, setEditDeckDialogOpen] = useState<boolean>(false)
-  const [deleteDeckDialogOpen, setDeleteDeckDialogOpen] = useState<boolean>(false)
-  const [learnDialogOpen, setLearnDialogOpen] = useState<boolean>(false)
+  const [openedDialog, setOpenedDialog] = useState<DialogTypes | null>(null)
 
   const prepareEdit = useCallback((id: string) => {
     setSelectedDeckId(id)
-    setEditDeckDialogOpen(true)
+    setOpenedDialog('update')
   }, [])
 
   const prepareDelete = useCallback((id: string) => {
     setSelectedDeckId(id)
-    setDeleteDeckDialogOpen(true)
+    setOpenedDialog('delete')
   }, [])
 
   const prepareLearn = useCallback((id: string) => {
     setSelectedDeckId(id)
-    setLearnDialogOpen(true)
+    setOpenedDialog('learn')
   }, [])
-
-  const handleDelete = () => {
-    if (!selectedDeckId.current) {
-      return
-    }
-    deleteDeck(selectedDeckId.current)
-      .unwrap()
-      .then(() => {
-        toast({
-          description: 'Deck has been deleted successfully.',
-          variant: 'success',
-        })
-      })
-      .catch(() => {
-        toast({
-          description: 'Failed to delete the deck.',
-          variant: 'danger',
-        })
-      })
-  }
-
-  const handleEditDialogOpenChange = (open: boolean) => {
-    setEditDeckDialogOpen(open)
-    !open && setSelectedDeckId(null)
-  }
-
-  const handleLearnDialogOpenChange = (open: boolean) => {
-    setLearnDialogOpen(open)
-    selectedDeckId.current = null
-  }
 
   const handleCurrentUserDecksSearch = (checked: CheckedState) => {
     if (!currentUser) {
@@ -213,137 +126,6 @@ export const Page = () => {
     },
   ]
 
-  const handleNewDeckDataSubmit = async (data: DeckFormData) => {
-    const formData = new FormData()
-
-    formData.append('name', data.name)
-    formData.append('isPrivate', String(data.isPrivate))
-
-    let imageDataUrl = ''
-
-    if (data?.cover && data.cover.startsWith('data:image')) {
-      imageDataUrl = data.cover
-    }
-
-    if (imageDataUrl) {
-      const cover = await getFileFromUrl(imageDataUrl)
-
-      cover && formData.append('cover', cover)
-    }
-    setAddDeckDialogOpen(false)
-
-    createDeck(formData)
-      .unwrap()
-      .then(() => {
-        toast({
-          title: 'Deck has been created successfully',
-          variant: 'success',
-          type: 'foreground',
-        })
-      })
-      .catch(err => {
-        toast({
-          title: 'Failed to create deck',
-          description: err?.data?.message || '',
-          variant: 'dangerColored',
-          type: 'foreground',
-        })
-        setAddDeckDialogOpen(true)
-      })
-  }
-
-  const handleDeckUpdatedDataSubmit = async (data: DeckFormData) => {
-    if (!selectedDeckData) {
-      return
-    }
-    const updateDeckFormData = new FormData()
-
-    const imageWasErased = data?.cover && data.cover === IMAGE_WAS_ERASED
-    let updatedImageDataUrl = ''
-
-    if (data?.cover && data.cover.startsWith('data:image')) {
-      updatedImageDataUrl = data.cover
-    }
-
-    const nameChanged = data?.name && selectedDeckData.name !== data.name
-    const isPrivateChanged = selectedDeckData.isPrivate !== data?.isPrivate
-
-    nameChanged && updateDeckFormData.append('name', data.name)
-    isPrivateChanged && updateDeckFormData.append('isPrivate', String(data.isPrivate))
-
-    if (updatedImageDataUrl) {
-      const cover = await getFileFromUrl(updatedImageDataUrl)
-
-      cover && updateDeckFormData.append('cover', cover)
-    }
-    if (imageWasErased) {
-      // erase deck cover info on the server
-      updateDeckFormData.append('cover', '')
-    }
-
-    setEditDeckDialogOpen(false)
-
-    const patchData = { id: selectedDeckData.id, body: updateDeckFormData }
-
-    updateDeck(patchData)
-      .unwrap()
-      .then(() => {
-        toast({
-          title: 'Deck has been updated',
-          variant: 'success',
-          type: 'foreground',
-          position: 'bottomRight',
-          from: 'bottom',
-        })
-        setSelectedDeckId(null)
-      })
-      .catch(err => {
-        toast({
-          title: 'Failed to update deck',
-          description: err?.data?.message || '',
-          variant: 'danger',
-          position: 'bottomRight',
-          from: 'bottom',
-          type: 'foreground',
-        })
-        setEditDeckDialogOpen(true)
-      })
-  }
-
-  const handleCardGradeSubmit = (data: LearnDeckFormData) => {
-    if (!selectedDeckId.current || !cardToLearnData) {
-      return
-    }
-
-    const gradeAsNumber = Number.parseInt(data.grade)
-
-    if (!gradeAsNumber) {
-      return
-    }
-
-    rateCardAcquisition({
-      body: { cardId: cardToLearnData.id, grade: gradeAsNumber },
-      deckId: selectedDeckId.current,
-    })
-      .unwrap()
-      .then(() => {
-        previousCardId.current = cardToLearnData.id
-        // fetchNewCardToLearn() //no need for manual refetch
-      })
-      .catch(err => {
-        toast({
-          title: 'Failed to rate acquisition',
-          description: err?.data?.message || '',
-          variant: 'danger',
-          type: 'foreground',
-        })
-      })
-  }
-
-  const handleShowCardAnswer = () => {
-    // previousCardId.current = cardToLearnData.id
-  }
-
   const changeSearchString = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
 
@@ -354,13 +136,11 @@ export const Page = () => {
     }
   }
 
-  const busy =
-    isFetching ||
-    isLoading ||
-    isDeleting ||
-    isUpdating ||
-    deckIsBeingCreated ||
-    selectedDeckIsFetching
+  const openCreateDeckDialog = useCallback(() => {
+    setOpenedDialog('create')
+  }, [])
+
+  const busy = isFetching || isLoading
 
   const cn = {
     page: clsx(s.page),
@@ -386,14 +166,7 @@ export const Page = () => {
       <ProgressBar className={cn.progress} show={busy} />
       <div className={cn.pageHeader}>
         <Typography variant={'large'}>Decks list</Typography>
-        <EditDeckDialog
-          isSuccess={createDeckSuccess}
-          onOpenChange={setAddDeckDialogOpen}
-          onSubmit={handleNewDeckDataSubmit}
-          open={addDeckDialogOpen}
-          title={'add deck'}
-          trigger={<Button>Add new deck</Button>}
-        />
+        <Button onClick={openCreateDeckDialog}>Add new deck</Button>
       </div>
       <div className={cn.pageQueriesContainer}>
         <div className={cn.cardsCountSliderWrapper}>
@@ -424,39 +197,12 @@ export const Page = () => {
         </div>
       </div>
 
-      {selectedDeckData && (
-        <EditDeckDialog
-          deck={selectedDeckData}
-          isSuccess={updateSuccessful}
-          onOpenChange={handleEditDialogOpenChange}
-          onSubmit={handleDeckUpdatedDataSubmit}
-          open={editDeckDialogOpen}
-          title={'edit deck'}
-        />
-      )}
-      {selectedDeckData && (
-        <DeleteDeckDialog
-          description={`Do you really want to remove ${selectedDeckData.name}? All cards will be deleted.`}
-          itemName={'deck'}
-          onConfirm={handleDelete}
-          onOpenChange={setDeleteDeckDialogOpen}
-          open={deleteDeckDialogOpen}
-          title={'Delete deck ?'}
-        />
-      )}
-      {selectedDeckData && cardToLearnData && (
-        <LearnDeckDialog
-          card={cardToLearnData}
-          disabled={cardGradeIsSubmitting}
-          isLoading={cardToLearnFetching}
-          isSuccess={cardGradeSubmitSuccessful}
-          onOpenChange={handleLearnDialogOpenChange}
-          onShowAnswer={handleShowCardAnswer}
-          onSubmit={handleCardGradeSubmit}
-          open={learnDialogOpen}
-          title={`Learn "${selectedDeckData.name}"`}
-        />
-      )}
+      <PageDialogs
+        openedDialog={openedDialog}
+        selectedDeckId={selectedDeckId}
+        setOpenedDialog={setOpenedDialog}
+        setSelectedDeckId={setSelectedDeckId}
+      />
       <Table
         columns={columns}
         data={decksDataForTable?.items || []}

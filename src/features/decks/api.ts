@@ -9,7 +9,7 @@ import type {
 import type { RootState } from '@/app/store'
 
 import { baseApi } from '@/services/api'
-import { stripObjectEmptyProperties } from '@/utils/objects'
+import { getChangedData, mutateObjectValues, stripObjectEmptyProperties } from '@/utils/objects'
 
 const api = baseApi.injectEndpoints({
   endpoints: builder => {
@@ -96,7 +96,7 @@ const api = baseApi.injectEndpoints({
           const entries = api.util.selectInvalidatedBy(state, ['Decks'])
 
           const patches = []
-          let coverUrl = 'UNTOUCHED' as null | string
+          let coverUrl = null as null | string
 
           for (const { originalArgs } of entries) {
             const patch = dispatch(
@@ -104,20 +104,11 @@ const api = baseApi.injectEndpoints({
                 const deck = draft.items.find(deck => deck.id === id)
 
                 if (deck) {
-                  const name = body.get('name')
-                  const isPrivate = body.get('isPrivate')
-                  const coverFile = body.get('cover') as File | null | string
+                  const patchObj = getChangedData(body, deck)
 
-                  if (coverFile instanceof File) {
-                    coverUrl = URL.createObjectURL(coverFile)
-                  }
-                  if (coverFile === '') {
-                    coverUrl = null
-                  }
+                  patchObj?.cover && (coverUrl = patchObj.cover)
 
-                  name && (deck.name = String(name))
-                  coverUrl !== 'UNTOUCHED' && (deck.cover = coverUrl)
-                  isPrivate && (deck.isPrivate = Boolean(isPrivate))
+                  mutateObjectValues(deck, patchObj)
                 }
               })
             )
@@ -133,7 +124,7 @@ const api = baseApi.injectEndpoints({
             }
             console.error(error)
           } finally {
-            coverUrl && coverUrl !== 'UNTOUCHED' && URL.revokeObjectURL(coverUrl)
+            coverUrl && URL.revokeObjectURL(coverUrl)
           }
         },
         invalidatesTags: (result, _error, args) =>

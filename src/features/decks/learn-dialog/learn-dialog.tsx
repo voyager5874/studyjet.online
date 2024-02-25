@@ -48,6 +48,7 @@ export function LearnDeckDialog(props: LearnDeckDialogProps) {
   const [questionAsked, setQuestionAsked] = useState<boolean>(false)
 
   useEffect(() => {
+    // if there is only one  card in a deck this won't work
     setQuestionAsked(false)
   }, [card.id])
 
