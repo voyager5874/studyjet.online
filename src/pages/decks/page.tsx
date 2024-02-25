@@ -136,6 +136,10 @@ export const Page = () => {
     }
   }
 
+  const openCreateDeckDialog = useCallback(() => {
+    setOpenedDialog('create')
+  }, [])
+
   const busy = isFetching || isLoading
 
   const cn = {
@@ -162,7 +166,7 @@ export const Page = () => {
       <ProgressBar className={cn.progress} show={busy} />
       <div className={cn.pageHeader}>
         <Typography variant={'large'}>Decks list</Typography>
-        <Button onClick={() => setOpenedDialog('create')}>Add new deck</Button>
+        <Button onClick={openCreateDeckDialog}>Add new deck</Button>
       </div>
       <div className={cn.pageQueriesContainer}>
         <div className={cn.cardsCountSliderWrapper}>
