@@ -1,9 +1,11 @@
+import type { DecksDialogTypes } from '@/common/dialog-types'
 import type { DeckFormData } from '@/features/decks/edit-dialog/deck-form-schema'
 import type { LearnDeckFormData } from '@/features/decks/learn-dialog/learn-deck-form-schema'
 import type { DeckItem } from '@/features/decks/types'
 
 import { useRef } from 'react'
 
+import { decksDialogList } from '@/common/dialog-types'
 import { useGetRandomCardFromDeckQuery, useRateCardAcquisitionMutation } from '@/features/cards/api'
 import {
   useCreateDecksMutation,
@@ -22,17 +24,18 @@ import { clsx } from 'clsx'
 
 import s from './page.module.scss'
 
-export type DialogTypes = 'create' | 'delete' | 'learn' | 'update'
-
 type Props = {
-  openedDialog: DialogTypes | null
+  onError?: () => void
+  onSuccess?: () => void
+  openedDialog: DecksDialogTypes | null
   selectedDeckId: null | string
-  setOpenedDialog: (dialog: DialogTypes | null) => void
-  setSelectedDeckId: (deckId: null | string) => void
+  setOpenedDialog: (dialog: DecksDialogTypes | null) => void
+  setSelectedDeckId?: (deckId: null | string) => void
 }
 
-export const PageDialogs = (props: Props) => {
-  const { setSelectedDeckId, selectedDeckId, setOpenedDialog, openedDialog } = props
+export const DecksPageDialogs = (props: Props) => {
+  const { onSuccess, onError, setSelectedDeckId, selectedDeckId, setOpenedDialog, openedDialog } =
+    props
 
   const { toast } = useToast()
 
@@ -88,12 +91,14 @@ export const PageDialogs = (props: Props) => {
           description: 'Deck has been deleted successfully.',
           variant: 'success',
         })
+        onSuccess && onSuccess()
       })
       .catch(() => {
         toast({
           description: 'Failed to delete the deck.',
           variant: 'danger',
         })
+        onError && onError()
       })
   }
 
@@ -114,6 +119,7 @@ export const PageDialogs = (props: Props) => {
           variant: 'success',
           type: 'foreground',
         })
+        onSuccess && onSuccess()
       })
       .catch(err => {
         toast({
@@ -122,7 +128,8 @@ export const PageDialogs = (props: Props) => {
           variant: 'dangerColored',
           type: 'foreground',
         })
-        setOpenedDialog('create')
+        setOpenedDialog(decksDialogList.createDeck)
+        onError && onError()
       })
   }
 
@@ -145,7 +152,7 @@ export const PageDialogs = (props: Props) => {
           position: 'bottomRight',
           from: 'bottom',
         })
-        // selectedDeckId.current = null
+        onSuccess && onSuccess()
       })
       .catch(err => {
         toast({
@@ -156,7 +163,8 @@ export const PageDialogs = (props: Props) => {
           from: 'bottom',
           type: 'foreground',
         })
-        setOpenedDialog('update')
+        setOpenedDialog(decksDialogList.updateDeck)
+        onError && onError()
       })
   }
 
@@ -179,6 +187,7 @@ export const PageDialogs = (props: Props) => {
       .then(() => {
         previousCardId.current = cardToLearnCurrentData.id
         // fetchNewCardToLearn() //no need for manual refetch
+        onSuccess && onSuccess()
       })
       .catch(err => {
         toast({
@@ -187,6 +196,7 @@ export const PageDialogs = (props: Props) => {
           variant: 'danger',
           type: 'foreground',
         })
+        onError && onError()
       })
   }
 
@@ -201,8 +211,8 @@ export const PageDialogs = (props: Props) => {
 
   const handleClose = (open: boolean) => {
     !open && setOpenedDialog(null)
-    if (openedDialog === 'learn' || openedDialog === 'update') {
-      setSelectedDeckId(null)
+    if (openedDialog === 'learn' || openedDialog === decksDialogList.updateDeck) {
+      setSelectedDeckId && setSelectedDeckId(null)
     }
   }
 
@@ -214,7 +224,7 @@ export const PageDialogs = (props: Props) => {
         isSuccess={createDeckSuccess}
         onOpenChange={handleClose}
         onSubmit={handleNewDeckDataSubmit}
-        open={openedDialog === 'create'}
+        open={openedDialog === decksDialogList.createDeck}
         title={'add deck'}
       />
       {selectedDeckData && (
@@ -223,7 +233,7 @@ export const PageDialogs = (props: Props) => {
           isSuccess={updateSuccessful}
           onOpenChange={handleClose}
           onSubmit={handleDeckUpdatedDataSubmit}
-          open={openedDialog === 'update'}
+          open={openedDialog === decksDialogList.updateDeck}
           title={'edit deck'}
         />
       )}
@@ -233,7 +243,7 @@ export const PageDialogs = (props: Props) => {
           itemName={'deck'}
           onConfirm={handleDelete}
           onOpenChange={handleClose}
-          open={openedDialog === 'delete'}
+          open={openedDialog === decksDialogList.deleteDeck}
           title={'Delete deck ?'}
         />
       )}
