@@ -1,6 +1,10 @@
+import type { CardsPageDialogsTypes } from '@/common/dialog-types'
 import type { CardFormData } from '@/features/cards/edit-dialog/card-form-schema'
 import type { CardItem } from '@/features/cards/types'
 
+import { useNavigate } from 'react-router-dom'
+
+import { isDecksDialogType } from '@/common/dialog-types'
 import {
   useCreateCardMutation,
   useDeleteCardMutation,
@@ -9,6 +13,7 @@ import {
 } from '@/features/cards/api'
 import { DeleteCardDialog } from '@/features/cards/delete-dialog'
 import { EditCardDialog } from '@/features/cards/edit-dialog'
+import { DecksPageDialogs } from '@/pages/decks/decks-page-dialogs'
 import { ProgressBar } from '@/ui/progress-bar/progress-bar'
 import { useToast } from '@/ui/toast'
 import { createSubmitData } from '@/utils/objects'
@@ -17,17 +22,18 @@ import { clsx } from 'clsx'
 
 import s from './page.module.scss'
 
-export type CardsPageDialogTypes = 'create' | 'delete' | 'update'
-
 type Props = {
   deckId?: null | string
-  openedDialog: CardsPageDialogTypes | null
+  // deckName?: null | string
+  openedDialog: CardsPageDialogsTypes | null
   selectedCardId: null | string
-  setOpenedDialog: (dialog: CardsPageDialogTypes | null) => void
+  setOpenedDialog: (dialog: CardsPageDialogsTypes | null) => void
   setSelectedCardId: (id: null | string) => void
 }
-export const PageDialogs = (props: Props) => {
+export const CardsPageDialogs = (props: Props) => {
   const { selectedCardId, setSelectedCardId, openedDialog, setOpenedDialog, deckId } = props
+
+  const navigate = useNavigate()
 
   const { toast } = useToast()
 
@@ -41,7 +47,7 @@ export const PageDialogs = (props: Props) => {
   const [updateCard, { isSuccess: updateCardSuccess, isLoading: cardIsBeingUpdated }] =
     useUpdateCardMutation()
 
-  const [deleteCard, { isLoading: isDeleting }] = useDeleteCardMutation()
+  const [deleteCard, { isLoading: cardIsBeingDeleted }] = useDeleteCardMutation()
 
   const handleCardDelete = () => {
     if (!selectedCardId) {
@@ -96,7 +102,7 @@ export const PageDialogs = (props: Props) => {
           variant: 'danger',
           type: 'foreground',
         })
-        setOpenedDialog('create')
+        setOpenedDialog('create-card')
       })
   }
 
@@ -125,28 +131,41 @@ export const PageDialogs = (props: Props) => {
           variant: 'danger',
           type: 'foreground',
         })
-        setOpenedDialog('update')
+        setOpenedDialog('update-card')
       })
+  }
+
+  const handleDecksActionSuccess = () => {
+    if (openedDialog === 'delete-deck') {
+      navigate(-1)
+    }
   }
 
   const handleClose = (open: boolean) => {
     !open && setOpenedDialog(null)
-    if (openedDialog === 'delete' || openedDialog === 'update') {
+    if (openedDialog === 'delete-card' || openedDialog === 'update-card') {
       setSelectedCardId(null)
     }
   }
 
-  const busy = cardIsBeingUpdated || isCreating || selectedCardFetching || isDeleting
+  const busy = cardIsBeingUpdated || isCreating || selectedCardFetching || cardIsBeingDeleted
 
   return (
     <>
       <ProgressBar className={clsx(s.progress)} show={busy} />
-
+      {deckId && (
+        <DecksPageDialogs
+          onSuccess={handleDecksActionSuccess}
+          openedDialog={isDecksDialogType(openedDialog) ? openedDialog : null}
+          selectedDeckId={deckId}
+          setOpenedDialog={setOpenedDialog}
+        />
+      )}
       <EditCardDialog
         isSuccess={createCardSuccess}
         onOpenChange={handleClose}
         onSubmit={handleNewCardDataSubmit}
-        open={openedDialog === 'create'}
+        open={openedDialog === 'create-card'}
         title={'add card'}
       />
       {selectedCardData && (
@@ -155,14 +174,14 @@ export const PageDialogs = (props: Props) => {
           isSuccess={updateCardSuccess}
           onOpenChange={handleClose}
           onSubmit={handleEditedCardDataSubmit}
-          open={openedDialog === 'update'}
+          open={openedDialog === 'update-card'}
           title={'edit card'}
         />
       )}
       <DeleteCardDialog
         onConfirm={handleCardDelete}
         onOpenChange={handleClose}
-        open={openedDialog === 'delete'}
+        open={openedDialog === 'delete-card'}
       />
     </>
   )

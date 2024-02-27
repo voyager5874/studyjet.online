@@ -1,4 +1,4 @@
-import type { CardsPageDialogTypes } from './page-dialogs'
+import type { CardsPageDialogsTypes } from '@/common/dialog-types'
 import type { CardItem } from '@/features/cards/types'
 import type { Column } from '@/ui/table'
 
@@ -12,7 +12,7 @@ import { CardActions } from '@/features/cards/table/table-card-actions'
 import { useGetDeckByIdQuery } from '@/features/decks/api'
 import { useMeQuery } from '@/features/user/api'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
-import { PageDialogs } from '@/pages/cards-of-deck/page-dialogs'
+import { CardsPageDialogs } from '@/pages/cards-of-deck/cards-page-dialogs'
 import { Button } from '@/ui/button'
 import { DropdownMenu, DropdownMenuItem } from '@/ui/dropdown'
 import { Pagination } from '@/ui/pagination'
@@ -67,16 +67,16 @@ export const Page = () => {
 
   const [selectedCardId, setSelectedCardId] = useState<null | string>(null)
 
-  const [openedDialog, setOpenedDialog] = useState<CardsPageDialogTypes | null>(null)
+  const [openedDialog, setOpenedDialog] = useState<CardsPageDialogsTypes | null>(null)
 
   const prepareEdit = (id: string) => {
     setSelectedCardId(id)
-    setOpenedDialog('update')
+    setOpenedDialog('update-card')
   }
 
   const prepareDelete = (id: string) => {
     setSelectedCardId(id)
-    setOpenedDialog('delete')
+    setOpenedDialog('delete-card')
   }
 
   const columns: Column<CardItem>[] = [
@@ -106,7 +106,7 @@ export const Page = () => {
   const isOwner = userData && currentDeckData && userData?.id === currentDeckData?.userId
 
   const openCreateCardDialog = () => {
-    setOpenedDialog('create')
+    setOpenedDialog('create-card')
   }
 
   const cn = {
@@ -125,7 +125,7 @@ export const Page = () => {
   ) {
     return (
       <>
-        <PageDialogs
+        <CardsPageDialogs
           deckId={id}
           openedDialog={openedDialog}
           selectedCardId={selectedCardId}
@@ -176,7 +176,10 @@ export const Page = () => {
                 }
               >
                 {isOwner && (
-                  <DropdownMenuItem className={cn.dropdownMenuItem}>
+                  <DropdownMenuItem
+                    className={cn.dropdownMenuItem}
+                    onClick={() => setOpenedDialog('update-deck')}
+                  >
                     <div>
                       <LucidePencil size={14} />
                     </div>
@@ -196,7 +199,10 @@ export const Page = () => {
                 </DropdownMenuItem>
 
                 {isOwner && (
-                  <DropdownMenuItem className={cn.dropdownMenuItem}>
+                  <DropdownMenuItem
+                    className={cn.dropdownMenuItem}
+                    onClick={() => setOpenedDialog('delete-deck')}
+                  >
                     <div>
                       <LucideTrash size={14} />
                     </div>
@@ -218,7 +224,9 @@ export const Page = () => {
             )}
           </div>
         </div>
-        {id && isOwner && <Button onClick={() => setOpenedDialog('create')}>Add new card</Button>}
+        {id && isOwner && (
+          <Button onClick={() => setOpenedDialog('create-card')}>Add new card</Button>
+        )}
       </div>
 
       <div className={cn.searchCardInputWrapper}>
@@ -229,7 +237,7 @@ export const Page = () => {
           value={pageQueryParams?.text || ''}
         />
       </div>
-      <PageDialogs
+      <CardsPageDialogs
         deckId={id}
         openedDialog={openedDialog}
         selectedCardId={selectedCardId}

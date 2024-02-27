@@ -1,5 +1,5 @@
+import type { DecksDialogTypes } from '@/common/dialog-types'
 import type { DeckItem } from '@/features/decks/types'
-import type { DialogTypes } from '@/pages/decks/page-dialogs'
 import type { Column } from '@/ui/table'
 import type { CheckedState } from '@radix-ui/react-checkbox'
 
@@ -12,7 +12,7 @@ import { DeckActions } from '@/features/decks/table/table-deck-actions'
 import { usePageSearchParams } from '@/features/decks/use-page-search-params'
 import { useMeQuery } from '@/features/user/api'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
-import { PageDialogs } from '@/pages/decks/page-dialogs'
+import { DecksPageDialogs } from '@/pages/decks/decks-page-dialogs'
 import { Button } from '@/ui/button'
 import { Checkbox } from '@/ui/checkbox'
 import { Pagination } from '@/ui/pagination'
@@ -66,16 +66,16 @@ export const Page = () => {
 
   // const previousCardId = useRef<null | string>(null)
 
-  const [openedDialog, setOpenedDialog] = useState<DialogTypes | null>(null)
+  const [openedDialog, setOpenedDialog] = useState<DecksDialogTypes | null>(null)
 
   const prepareEdit = useCallback((id: string) => {
     setSelectedDeckId(id)
-    setOpenedDialog('update')
+    setOpenedDialog('update-deck')
   }, [])
 
   const prepareDelete = useCallback((id: string) => {
     setSelectedDeckId(id)
-    setOpenedDialog('delete')
+    setOpenedDialog('delete-deck')
   }, [])
 
   const prepareLearn = useCallback((id: string) => {
@@ -137,7 +137,7 @@ export const Page = () => {
   }
 
   const openCreateDeckDialog = useCallback(() => {
-    setOpenedDialog('create')
+    setOpenedDialog('create-deck')
   }, [])
 
   const busy = isFetching || isLoading
@@ -197,7 +197,7 @@ export const Page = () => {
         </div>
       </div>
 
-      <PageDialogs
+      <DecksPageDialogs
         openedDialog={openedDialog}
         selectedDeckId={selectedDeckId}
         setOpenedDialog={setOpenedDialog}
