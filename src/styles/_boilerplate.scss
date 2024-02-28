@@ -26,10 +26,13 @@ option {
 }
 
 a {
-  text-decoration: none;
   color: var(--color-text-link);
+  text-decoration: none;
+  &:hover {
+    color: var(--color-text-normal);
+  }
   &:visited {
-    color: inherit;
+    color: var(--color-text-normal);
   }
 }
 

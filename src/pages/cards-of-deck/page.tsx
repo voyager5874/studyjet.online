@@ -5,12 +5,14 @@ import type { Column } from '@/ui/table'
 import { type ChangeEvent, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 
+import { decksDialogList } from '@/common/dialog-types'
 import { usePageSearchParams } from '@/features/cards'
 import { useGetCardsOfDeckQuery } from '@/features/cards/api'
 import { cardsTableColumns } from '@/features/cards/table/cards-table-columns'
 import { CardActions } from '@/features/cards/table/table-card-actions'
 import { useGetDeckByIdQuery } from '@/features/decks/api'
 import { useMeQuery } from '@/features/user/api'
+import { useLocalStorage } from '@/hooks'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import { CardsPageDialogs } from '@/pages/cards-of-deck/cards-page-dialogs'
 import { Button } from '@/ui/button'
@@ -50,6 +52,15 @@ export const Page = () => {
     handleSortChange,
     sortProp,
   } = usePageSearchParams()
+
+  const [favoriteDecks, setFavoritesDeck] = useLocalStorage('favorites')
+
+  const handleAddToFavorites = () => {
+    if (!id) {
+      return
+    }
+    setFavoritesDeck([...favoriteDecks, id])
+  }
 
   const { text } = pageQueryParams
   const debouncedSearchText = useDebouncedValue(text, 1300)
@@ -160,7 +171,10 @@ export const Page = () => {
       <div className={cn.pageHeader}>
         <div className={clsx(s.flexRow)}>
           <div className={clsx(s.flexColumn)}>
-            <Link className={cn.link} to={'/decks'}>
+            <Link
+              className={cn.link}
+              to={state?.cardsPageReferer ? state.cardsPageReferer : '/decks'}
+            >
               <LucideArrowLeft size={14} />
               <Typography variant={'body2'}>Back to the decks list</Typography>
             </Link>
@@ -178,22 +192,23 @@ export const Page = () => {
                 {isOwner && (
                   <DropdownMenuItem
                     className={cn.dropdownMenuItem}
-                    onClick={() => setOpenedDialog('update-deck')}
+                    onClick={() => setOpenedDialog(decksDialogList.updateDeck)}
                   >
                     <div>
-                      <LucidePencil size={14} />
+                      <LucidePencil size={12} />
                     </div>
-                    <Typography variant={'body2'}>Edit</Typography>
+                    <Typography as={'h5'} variant={'body2'}>
+                      Edit
+                    </Typography>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem className={cn.dropdownMenuItem}>
+                <DropdownMenuItem asChild className={cn.dropdownMenuItem}>
                   <Link
                     className={cn.link}
-                    replace
                     state={{ ...state, referer: `decks/${id}/cards` }}
                     to={`/decks/${id}/learn`}
                   >
-                    <LucidePlayCircle size={14} />
+                    <LucidePlayCircle size={12} />
                     <Typography variant={'body2'}>{`Learn "${deck?.name}"`}</Typography>
                   </Link>
                 </DropdownMenuItem>
@@ -204,14 +219,14 @@ export const Page = () => {
                     onClick={() => setOpenedDialog('delete-deck')}
                   >
                     <div>
-                      <LucideTrash size={14} />
+                      <LucideTrash size={12} />
                     </div>
                     <Typography variant={'body2'}>Delete</Typography>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem className={cn.dropdownMenuItem}>
+                <DropdownMenuItem className={cn.dropdownMenuItem} onClick={handleAddToFavorites}>
                   <div>
-                    <LucideBookmark size={14} />
+                    <LucideBookmark size={12} />
                   </div>
                   <Typography variant={'body2'}>Add to favorites</Typography>
                 </DropdownMenuItem>

@@ -1,6 +1,6 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
 
-import { AppRoutes } from '@/app/app-routes'
+import { paths } from '@/app/app-routes'
 import { AppLogo } from '@/assets/app-logo'
 import { useLogoutMutation, useMeQuery } from '@/features/user/api'
 import { useLocalStorage } from '@/hooks/use-local-storage'
@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from '@/ui/drop
 import { Toaster } from '@/ui/toast'
 import { Typography } from '@/ui/typography'
 import { clsx } from 'clsx'
-import { LucideLogOut, LucideMoon, LucideRoute, LucideSun, LucideUser } from 'lucide-react'
+import { LucideBookmark, LucideLogOut, LucideMoon, LucideSun, LucideUser } from 'lucide-react'
 
 import s from './main-layout.module.scss'
 
@@ -42,29 +42,29 @@ export const MainLayout = () => {
         </Link>
 
         <div className={cn.headerPart}>
-          <DropdownMenu
-            trigger={
-              <Button variant={'ghost'}>
-                <LucideRoute />
-              </Button>
-            }
-          >
-            {AppRoutes.public.map(item => (
-              <DropdownMenuItem key={item.name}>
-                <Link className={cn.link} to={item.path}>
-                  {item.name}
-                </Link>
-              </DropdownMenuItem>
-            ))}
+          {/*<DropdownMenu*/}
+          {/*  trigger={*/}
+          {/*    <Button variant={'ghost'}>*/}
+          {/*      <LucideRoute />*/}
+          {/*    </Button>*/}
+          {/*  }*/}
+          {/*>*/}
+          {/*  {AppRoutes.public.map(item => (*/}
+          {/*    <DropdownMenuItem key={item.name}>*/}
+          {/*      <Link className={cn.link} to={item.path}>*/}
+          {/*        {item.name}*/}
+          {/*      </Link>*/}
+          {/*    </DropdownMenuItem>*/}
+          {/*  ))}*/}
 
-            {AppRoutes.private.map(item => (
-              <DropdownMenuItem key={item.name}>
-                <Link className={cn.link} to={item.path}>
-                  {item.name}
-                </Link>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenu>
+          {/*  {AppRoutes.private.map(item => (*/}
+          {/*    <DropdownMenuItem key={item.name}>*/}
+          {/*      <Link className={cn.link} to={item.path}>*/}
+          {/*        {item.name}*/}
+          {/*      </Link>*/}
+          {/*    </DropdownMenuItem>*/}
+          {/*  ))}*/}
+          {/*</DropdownMenu>*/}
           <ThemeToggle />
           {data && (
             <DropdownMenu
@@ -84,17 +84,25 @@ export const MainLayout = () => {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
 
-              <DropdownMenuItem disabled={pathname.endsWith('user')}>
-                <LucideUser size={16} />
-                <Typography
-                  as={Link}
+              <DropdownMenuItem asChild disabled={pathname.endsWith('user')}>
+                <Link
                   className={cn.link}
                   state={{ ...state, userPageReferer: `${pathname}` }}
                   to={'/user'}
-                  variant={'caption'}
                 >
-                  My profile
-                </Typography>
+                  <LucideUser size={16} />
+                  <Typography as={'h5'} variant={'caption'}>
+                    My profile
+                  </Typography>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild disabled={pathname.includes('favorite')}>
+                <Link className={cn.link} state={state} to={paths.favoriteDecks}>
+                  <LucideBookmark size={16} />
+                  <Typography as={'h5'} variant={'caption'}>
+                    Bookmarks
+                  </Typography>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>

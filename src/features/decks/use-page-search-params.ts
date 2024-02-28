@@ -15,7 +15,7 @@ import {
   selectOrderBy,
 } from '@/features/decks/store-selectors'
 
-export const usePageSearchParams = () => {
+export const usePageSearchParams = (baseUrl = '/decks') => {
   const dispatch = useAppDispatch()
 
   const {
@@ -119,8 +119,17 @@ export const usePageSearchParams = () => {
       name: deckName,
     })
 
-    history.replaceState(null, '', `/decks${query}`)
-  }, [deckName, authorId, orderBy, currentPage, itemsPerPage, maxCardsCount, minCardsCount])
+    history.replaceState(null, '', `${baseUrl}${query}`)
+  }, [
+    deckName,
+    authorId,
+    orderBy,
+    currentPage,
+    itemsPerPage,
+    maxCardsCount,
+    minCardsCount,
+    baseUrl,
+  ])
 
   let activeFiltersCount = 0
 

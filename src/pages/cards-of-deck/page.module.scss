@@ -49,10 +49,16 @@
 }
 
 .link {
-  @include flex-container-row(center, flex-start);
+  @include flex-container-row(center, center);
 
   padding: 0;
   text-decoration: none;
+
+  &[data-disabled] {
+    pointer-events: none;
+    cursor: default;
+    color: var(--color-text-subdued);
+  }
 }
 
 .subduedText {
