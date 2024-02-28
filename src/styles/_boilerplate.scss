@@ -26,11 +26,13 @@ option {
 }
 
 a {
-  color: var(--color-text-link);
+  color: var(--color-text-normal);
   text-decoration: none;
+
   &:hover {
     color: var(--color-text-normal);
   }
+
   &:visited {
     color: var(--color-text-normal);
   }
