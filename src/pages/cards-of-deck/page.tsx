@@ -5,6 +5,7 @@ import type { Column } from '@/ui/table'
 import { type ChangeEvent, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 
+import { decksDialogList } from '@/common/dialog-types'
 import { usePageSearchParams } from '@/features/cards'
 import { useGetCardsOfDeckQuery } from '@/features/cards/api'
 import { cardsTableColumns } from '@/features/cards/table/cards-table-columns'
@@ -191,21 +192,23 @@ export const Page = () => {
                 {isOwner && (
                   <DropdownMenuItem
                     className={cn.dropdownMenuItem}
-                    onClick={() => setOpenedDialog('update-deck')}
+                    onClick={() => setOpenedDialog(decksDialogList.updateDeck)}
                   >
                     <div>
-                      <LucidePencil size={14} />
+                      <LucidePencil size={12} />
                     </div>
-                    <Typography variant={'body2'}>Edit</Typography>
+                    <Typography as={'h5'} variant={'body2'}>
+                      Edit
+                    </Typography>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem className={cn.dropdownMenuItem}>
+                <DropdownMenuItem asChild className={cn.dropdownMenuItem}>
                   <Link
                     className={cn.link}
                     state={{ ...state, referer: `decks/${id}/cards` }}
                     to={`/decks/${id}/learn`}
                   >
-                    <LucidePlayCircle size={14} />
+                    <LucidePlayCircle size={12} />
                     <Typography variant={'body2'}>{`Learn "${deck?.name}"`}</Typography>
                   </Link>
                 </DropdownMenuItem>
@@ -216,14 +219,14 @@ export const Page = () => {
                     onClick={() => setOpenedDialog('delete-deck')}
                   >
                     <div>
-                      <LucideTrash size={14} />
+                      <LucideTrash size={12} />
                     </div>
                     <Typography variant={'body2'}>Delete</Typography>
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem className={cn.dropdownMenuItem} onClick={handleAddToFavorites}>
                   <div>
-                    <LucideBookmark size={14} />
+                    <LucideBookmark size={12} />
                   </div>
                   <Typography variant={'body2'}>Add to favorites</Typography>
                 </DropdownMenuItem>

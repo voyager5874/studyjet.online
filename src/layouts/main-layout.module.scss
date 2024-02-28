@@ -32,6 +32,12 @@
 
 .link {
   text-decoration: none;
+
+  &[data-disabled] {
+    pointer-events: none;
+    cursor: default;
+    color: var(--color-text-subdued);
+  }
 }
 
 .userMenuHeadingItem {
