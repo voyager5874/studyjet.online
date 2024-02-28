@@ -84,6 +84,38 @@ const api = baseApi.injectEndpoints({
         }),
         providesTags: (_result, _error, id) => [{ type: 'Decks', id }],
       }),
+      getDecksByIdsList: builder.query<
+        { items: DeckItem[] } | null,
+        { ids: string[]; maxCardsCount?: number; minCardsCount?: number; name?: string }
+      >({
+        async queryFn({ ids }, _api, _extraOptions, baseQuery) {
+          const result = [] as DeckItem[]
+
+          for (const id of ids) {
+            try {
+              const data = await baseQuery({
+                url: `decks/${id}`,
+                method: 'GET',
+              })
+
+              if (data?.data) {
+                result.push(data.data as DeckItem)
+              } else {
+                return { data: null }
+              }
+            } catch (error) {
+              return { data: null }
+            }
+          }
+
+          // return { data: { items: filterResults(result, args) } }
+          return { data: { items: result } }
+        },
+        providesTags: (result, _error, { ids }) =>
+          result?.items
+            ? result.items.map(item => ({ type: 'Decks', id: item.id }))
+            : ids.map(id => ({ type: 'Decks', id })),
+      }),
       updateDeck: builder.mutation<DeckItem, UpdateDeckParams>({
         query: ({ id, body }) => ({
           url: `decks/${id}`,
@@ -142,4 +174,53 @@ export const {
   useGetDecksQuery,
   useCreateDecksMutation,
   useDeleteDeckMutation,
+  useGetDecksByIdsListQuery,
 } = api
+
+// using args and filter within endpoint would cause unnecessary network requests
+// function filterResults(
+//   response: DeckItem[],
+//   arg: { maxCardsCount?: number; minCardsCount?: number; name?: string }
+// ) {
+//   if (!response?.length) {
+//     return []
+//   }
+//
+//   let result = response
+//
+//   if (arg?.minCardsCount) {
+//     result = result.filter(item => {
+//       if (!arg?.minCardsCount) {
+//         return item
+//       }
+//
+//       return item.cardsCount >= arg.minCardsCount
+//     })
+//   }
+//
+//   if (arg?.maxCardsCount) {
+//     result = result.filter(item => {
+//       if (!arg?.maxCardsCount) {
+//         return item
+//       }
+//
+//       return item.cardsCount <= arg.maxCardsCount
+//     })
+//   }
+//
+//   if (arg?.name) {
+//     const filterFn = (item: DeckItem) => {
+//       if (!arg?.name) {
+//         return item
+//       }
+//       const normalizedDeckName = item.name.toLowerCase()
+//       const normalizedSearchString = arg.name.trim().toLowerCase()
+//
+//       return normalizedDeckName.includes(normalizedSearchString)
+//     }
+//
+//     result = result.filter(filterFn)
+//   }
+//
+//   return result
+// }

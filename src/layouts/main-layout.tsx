@@ -1,6 +1,6 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
 
-import { AppRoutes } from '@/app/app-routes'
+import { AppRoutes, paths } from '@/app/app-routes'
 import { AppLogo } from '@/assets/app-logo'
 import { useLogoutMutation, useMeQuery } from '@/features/user/api'
 import { useLocalStorage } from '@/hooks/use-local-storage'
@@ -10,7 +10,14 @@ import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from '@/ui/drop
 import { Toaster } from '@/ui/toast'
 import { Typography } from '@/ui/typography'
 import { clsx } from 'clsx'
-import { LucideLogOut, LucideMoon, LucideRoute, LucideSun, LucideUser } from 'lucide-react'
+import {
+  LucideBookmark,
+  LucideLogOut,
+  LucideMoon,
+  LucideRoute,
+  LucideSun,
+  LucideUser,
+} from 'lucide-react'
 
 import s from './main-layout.module.scss'
 
@@ -94,6 +101,18 @@ export const MainLayout = () => {
                   variant={'caption'}
                 >
                   My profile
+                </Typography>
+              </DropdownMenuItem>
+              <DropdownMenuItem disabled={pathname.includes('favorite')}>
+                <LucideBookmark size={16} />
+                <Typography
+                  as={Link}
+                  className={cn.link}
+                  state={state}
+                  to={paths.favoriteDecks}
+                  variant={'caption'}
+                >
+                  Bookmarks
                 </Typography>
               </DropdownMenuItem>
               <DropdownMenuSeparator />

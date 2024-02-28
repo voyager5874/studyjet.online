@@ -94,7 +94,7 @@ export const Page = () => {
       <div className={cn.page}>
         <Link
           className={cn.backLink}
-          replace
+          state={state}
           to={state?.referer ? `../${state.referer}` : '/decks'}
         >
           <LucideArrowLeft size={16} />

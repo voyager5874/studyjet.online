@@ -1,6 +1,7 @@
 import { CardsOfDeckPage } from '@/pages/cards-of-deck'
 import { CheckEmailPromptPage } from '@/pages/check-email-prompt'
 import { DecksPage } from '@/pages/decks'
+import { FavoriteDecksPage } from '@/pages/favorite-decks'
 import { LearnPage } from '@/pages/learn'
 import { RequestPasswordResetPage } from '@/pages/password-reset-request'
 import { SetNewPasswordPage } from '@/pages/password-set-new'
@@ -11,6 +12,12 @@ import { UserPage } from '@/pages/user'
 export const AppRoutes = {
   private: [
     { element: <DecksPage />, name: 'Decks', path: '/decks', key: 'decks' },
+    {
+      element: <FavoriteDecksPage />,
+      name: 'Favorite decks',
+      path: '/favorite-decks',
+      key: 'favoriteDecks',
+    },
     { element: <UserPage />, name: 'User profile', path: '/user', key: 'userProfile' },
     {
       element: <CardsOfDeckPage />,
