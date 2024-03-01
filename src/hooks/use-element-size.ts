@@ -6,21 +6,27 @@ export interface Size {
   width: number
 }
 
-export function useHtmlElementSize<T extends HTMLElement>(): {
+export function useHtmlElementSize<T extends HTMLElement>(
+  externalRef?: RefObject<T>
+): {
+  initialSize: Size | null
   ref: RefObject<T>
   size: Size | null
 } {
   const [size, setSize] = useState<Size | null>(null)
+  const [initialSize, setInitialSize] = useState<Size | null>(null)
 
   const ref = useRef<T | null>(null)
 
   useEffect(() => {
-    const element = ref.current
+    const element = externalRef ? externalRef.current : ref.current
 
     if (!element) {
       return
     }
-
+    if (initialSize === null && size) {
+      setInitialSize(size)
+    }
     const resizeObserver = new ResizeObserver(entries => {
       const { width, height } = entries[0].contentRect
 
@@ -32,7 +38,7 @@ export function useHtmlElementSize<T extends HTMLElement>(): {
     return () => {
       resizeObserver.unobserve(element)
     }
-  }, [ref])
+  }, [ref, externalRef])
 
-  return { size, ref }
+  return { size, ref, initialSize }
 }
