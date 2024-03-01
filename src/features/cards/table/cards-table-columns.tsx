@@ -2,7 +2,7 @@ import type { CardItem } from '@/features/cards/types'
 import type { Column } from '@/ui/table'
 
 import { CardContent } from '@/features/cards/table/card-content'
-import { Grade } from '@/ui/grade'
+import { Rating } from '@/ui/rating'
 import { Typography } from '@/ui/typography'
 import { getFormattedDate } from '@/utils/dates'
 
@@ -33,7 +33,7 @@ export const cardsTableColumns: Column<CardItem>[] = [
     key: 'grade',
     render: card => (
       <Typography style={{ verticalAlign: 'baseline' }} variant={'body2'}>
-        {<Grade grade={card.grade} />}
+        {<Rating rating={card.grade} />}
       </Typography>
     ),
     sortable: true,
