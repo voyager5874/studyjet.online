@@ -10,6 +10,7 @@ import type { RootState } from '@/app/store'
 
 // import type { PatchCollection } from '@reduxjs/toolkit/src/query/core/buildThunks'
 import { baseApi } from '@/services/api'
+import { getErrorInformation } from '@/utils'
 import { getChangedData, isObjectEmpty, mutateObjectValues } from '@/utils/objects'
 
 const api = baseApi.injectEndpoints({
@@ -116,6 +117,9 @@ const api = baseApi.injectEndpoints({
         method: 'POST',
         body,
       }),
+      transformErrorResponse: (response, _meta, _arg) => {
+        return getErrorInformation(response)
+      },
       invalidatesTags: result =>
         result
           ? ['Cards', 'Decks', { type: 'Decks', id: 'LIST' }, { type: 'Decks', id: result.deckId }]

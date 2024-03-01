@@ -4,6 +4,7 @@ import type { SignInData } from '@/features/user/forms/sign-in-form-shema'
 import type { SignUpData } from '@/features/user/forms/sign-up-form-shema'
 
 import { baseApi } from '@/services/api'
+import { getErrorInformation } from '@/utils'
 import { getChangedData, mutateObjectValues } from '@/utils/objects'
 
 const api = baseApi.injectEndpoints({
@@ -34,7 +35,10 @@ const api = baseApi.injectEndpoints({
         method: 'POST',
         body,
       }),
-      invalidatesTags: ['User'],
+      transformErrorResponse: (response, _meta, _arg) => {
+        return getErrorInformation(response)
+      },
+      invalidatesTags: (response, _error, _args) => (response?.accessToken ? ['User'] : []),
     }),
     logout: builder.mutation<void, void>({
       query: () => ({
@@ -60,7 +64,11 @@ const api = baseApi.injectEndpoints({
         method: 'POST',
         body,
       }),
-      invalidatesTags: ['User'],
+      transformErrorResponse: (response, _meta, _arg) => {
+        return getErrorInformation(response)
+      },
+      // invalidatesTags: ['User'],
+      // invalidatesTags: (response, _error, _args) => (response?.id ? ['User'] : []),
     }),
     updateUserData: builder.mutation<UserData, FormData>({
       query: body => ({
@@ -129,6 +137,9 @@ const api = baseApi.injectEndpoints({
         method: 'POST',
         url: `auth/reset-password/${token}`,
       }),
+      transformErrorResponse: (response, _meta, _arg) => {
+        return getErrorInformation(response)
+      },
     }),
   }),
 })

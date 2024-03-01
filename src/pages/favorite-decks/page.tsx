@@ -147,7 +147,7 @@ export const Page = () => {
     <>
       <ProgressBar className={cn.progress} show={busy} />
       <div className={cn.pageHeader}>
-        <Typography variant={'large'}>Decks list</Typography>
+        <Typography variant={'large'}>Favorite decks</Typography>
       </div>
       <div className={cn.pageQueriesContainer}>
         <div className={cn.cardsCountSliderWrapper}>

@@ -6,9 +6,9 @@ export const signUpFormSchema = z
       message: 'Enter a valid email',
     }),
     password: z.string().min(6, {
-      message: 'Enter your password',
+      message: 'at least 6 symbols',
     }),
-    repeatPassword: z.string().min(1, {
+    repeatPassword: z.string().min(6, {
       message: 'please repeat you password',
     }),
   })

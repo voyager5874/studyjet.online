@@ -46,7 +46,7 @@ function SignUpForm({ onSubmit, ...rest }: RegisterFormProps) {
     <Form {...form}>
       <Card className={classNames.container}>
         <Typography as={'h1'} className={classNames.title} variant={'large'}>
-          Sign in
+          Sign up
         </Typography>
         <form {...rest} className={classNames.form} onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
