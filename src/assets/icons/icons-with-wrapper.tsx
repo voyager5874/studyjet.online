@@ -12,19 +12,29 @@ export const IconsWithWrapper = {
       <Icons.gitHub {...svgProps} />
     </IconWrapper>
   ),
-  // star: ({ svgProps, ...props }: IconWrapperProps) => (
-  //   <IconWrapper {...props}>
-  //     <Icons.star {...svgProps} />
-  //   </IconWrapper>
-  // ),
-  // starFilled: ({ svgProps, ...props }: IconWrapperProps) => (
-  //   <IconWrapper {...props}>
-  //     <Icons.starFilled {...svgProps} />
-  //   </IconWrapper>
-  // ),
+  playCircle: ({ svgProps, ...props }: IconWrapperProps) => (
+    <IconWrapper {...props}>
+      <Icons.playCircle {...svgProps} />
+    </IconWrapper>
+  ),
+  user: ({ svgProps, ...props }: IconWrapperProps) => (
+    <IconWrapper {...props}>
+      <Icons.user {...svgProps} />
+    </IconWrapper>
+  ),
   star: ({ svgProps, fill, ...props }: IconWrapperProps) => (
     <IconWrapper {...props}>
       <Icons.star {...svgProps} fill={fill} />
+    </IconWrapper>
+  ),
+  bookMarked: ({ svgProps, fill, ...props }: IconWrapperProps) => (
+    <IconWrapper {...props}>
+      <Icons.bookMarked {...svgProps} />
+    </IconWrapper>
+  ),
+  logout: ({ svgProps, fill, ...props }: IconWrapperProps) => (
+    <IconWrapper {...props}>
+      <Icons.logout {...svgProps} />
     </IconWrapper>
   ),
 }
