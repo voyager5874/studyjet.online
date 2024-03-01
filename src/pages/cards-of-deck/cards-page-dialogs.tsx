@@ -24,7 +24,6 @@ import s from './page.module.scss'
 
 type Props = {
   deckId?: null | string
-  // deckName?: null | string
   openedDialog: CardsPageDialogsTypes | null
   selectedCardId: null | string
   setOpenedDialog: (dialog: CardsPageDialogsTypes | null) => void
@@ -98,7 +97,7 @@ export const CardsPageDialogs = (props: Props) => {
       .catch(err => {
         toast({
           title: 'Failed to add new card',
-          description: err?.data?.message || '',
+          description: err || '',
           variant: 'danger',
           type: 'foreground',
         })

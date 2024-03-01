@@ -9,6 +9,7 @@ import type {
 import type { RootState } from '@/app/store'
 
 import { baseApi } from '@/services/api'
+import { getErrorInformation } from '@/utils'
 import { getChangedData, mutateObjectValues, stripObjectEmptyProperties } from '@/utils/objects'
 
 const api = baseApi.injectEndpoints({
@@ -34,6 +35,9 @@ const api = baseApi.injectEndpoints({
           method: 'POST',
           body,
         }),
+        transformErrorResponse: (response, _meta, _arg) => {
+          return getErrorInformation(response)
+        },
         invalidatesTags: ['Decks', { type: 'Decks', id: 'LIST' }],
       }),
       deleteDeck: builder.mutation<DeleteDeckResponse, string>({

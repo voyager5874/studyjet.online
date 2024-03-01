@@ -39,15 +39,8 @@ export const DecksPageDialogs = (props: Props) => {
 
   const { toast } = useToast()
 
-  const [
-    createDeck,
-    {
-      isSuccess: createDeckSuccess,
-      isLoading: deckIsBeingCreated,
-      // isError: createDeckErrorFailure,
-      // error: createDeckErrorData,
-    },
-  ] = useCreateDecksMutation()
+  const [createDeck, { isSuccess: createDeckSuccess, isLoading: deckIsBeingCreated }] =
+    useCreateDecksMutation()
 
   const [deleteDeck, { isLoading: isDeleting }] = useDeleteDeckMutation()
 
@@ -124,7 +117,7 @@ export const DecksPageDialogs = (props: Props) => {
       .catch(err => {
         toast({
           title: 'Failed to create deck',
-          description: err?.data?.message || '',
+          description: err || '',
           variant: 'dangerColored',
           type: 'foreground',
         })
