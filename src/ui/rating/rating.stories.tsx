@@ -18,7 +18,7 @@ type Story = StoryObj<typeof meta>
 
 export const Overview: Story = {
   args: {
-    grade: 3,
-    maxGrade: 3,
+    rating: 3,
+    maxRating: 3,
   },
 }
