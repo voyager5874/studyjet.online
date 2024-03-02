@@ -19,7 +19,7 @@ import {
 import { Form, FormControl, FormField, FormItem } from '@/ui/form'
 import { CardAndDeckImageSelector } from '@/ui/image-input/card-and-deck-image-selector'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs'
-import { TextField } from '@/ui/text-field'
+import { TextArea } from '@/ui/text-area'
 import { Typography } from '@/ui/typography'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { clsx } from 'clsx'
@@ -118,10 +118,14 @@ export function EditCardDialog(props: EditCardDialogProps) {
                     render={({ field, fieldState }) => (
                       <FormItem>
                         <FormControl>
-                          <TextField
+                          <TextArea
                             label={'question'}
                             {...field}
+                            autoHeight
                             errorMessage={fieldState.error?.message}
+                            maxHeight={200}
+                            onValueChange={field.onChange}
+                            rows={3}
                           />
                         </FormControl>
                       </FormItem>
@@ -155,10 +159,14 @@ export function EditCardDialog(props: EditCardDialogProps) {
                     render={({ field, fieldState }) => (
                       <FormItem>
                         <FormControl>
-                          <TextField
+                          <TextArea
                             label={'answer'}
                             {...field}
+                            autoHeight
                             errorMessage={fieldState.error?.message}
+                            maxHeight={200}
+                            onValueChange={field.onChange}
+                            rows={3}
                           />
                         </FormControl>
                       </FormItem>
