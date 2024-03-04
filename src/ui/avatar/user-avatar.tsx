@@ -33,7 +33,7 @@ function getFallbackText(name: string | undefined) {
 
   const nameSplit = name.split(' ')
 
-  if (nameSplit.length === 2) {
+  if (nameSplit.length >= 2) {
     return `${nameSplit[0][0].toUpperCase()}${nameSplit[1][0].toUpperCase()}`
   }
 

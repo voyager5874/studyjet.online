@@ -1,0 +1,20 @@
+// need more specificity
+// this works
+// .avatar.avatar {
+//   font-size: 36px;
+//   font-weight: 700;
+// }
+
+// this works
+.avatarContainer {
+  .avatar {
+    font-size: 36px;
+    font-weight: 700;
+  }
+}
+
+// doesn't work
+// .avatar {
+//   font-size: 36px;
+//   font-weight: 700;
+// }

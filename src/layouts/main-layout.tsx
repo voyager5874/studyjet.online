@@ -29,6 +29,8 @@ export const MainLayout = () => {
     headerPart: clsx(s.headerPart),
     header: clsx(s.header),
     logo: clsx(s.logo),
+    avatar: clsx(s.avatar),
+    avatarContainer: clsx(s.avatarContainer),
     email: clsx(s.subduedText),
     main: clsx(s.main),
     menuHeadingItem: clsx(s.userMenuHeadingItem),
@@ -47,10 +49,20 @@ export const MainLayout = () => {
           {data && (
             <DropdownMenu
               align={'end'}
-              trigger={<UserAvatar image={data?.avatar} username={data?.name} />}
+              trigger={
+                <div className={cn.avatarContainer}>
+                  <UserAvatar className={cn.avatar} image={data?.avatar} username={data?.name} />
+                </div>
+              }
             >
               <DropdownMenuItem className={cn.menuHeadingItem}>
-                <UserAvatar image={data?.avatar} username={data?.name || 'alex void'} />
+                <div className={cn.avatarContainer}>
+                  <UserAvatar
+                    className={cn.avatar}
+                    image={data?.avatar}
+                    username={data?.name || 'john doe'}
+                  />
+                </div>
                 <div className={cn.userMenuHeadingItemContainer}>
                   <Typography as={'h3'} variant={'subtitle2'}>
                     {data?.name}
