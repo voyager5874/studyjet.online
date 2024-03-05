@@ -1,5 +1,9 @@
 :root {
   --font-family-primary: 'Roboto', sans-serif;
+  --fm-capitalHeight: 1.46; //1456
+  --fm-descender: 0.51; //512
+  --fm-ascender: 1.95; //1536 //win- 1946
+  --fm-linegap: 0; //hhead 0 //typo 102
 
   // line heights
   --line-height-s: 16px;
