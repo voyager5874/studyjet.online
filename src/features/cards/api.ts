@@ -12,6 +12,7 @@ import type { RootState } from '@/app/store'
 import { baseApi } from '@/services/api'
 import { getErrorInformation } from '@/utils'
 import { getChangedData, isObjectEmpty, mutateObjectValues } from '@/utils/objects'
+import uniqueBy from 'lodash/uniqBy'
 
 const api = baseApi.injectEndpoints({
   endpoints: builder => ({
@@ -20,80 +21,48 @@ const api = baseApi.injectEndpoints({
       { id: string; params: GetCardsQueryParams & { text?: string } }
     >({
       queryFn: async ({ id, params }, _api, _extraOptions, baseQuery) => {
-        if (!isObjectEmpty(params) && !('text' in params)) {
-          try {
-            const result = (await baseQuery({
-              url: `decks/${id}/cards`,
-              method: 'GET',
-              params,
-            })) as GetCardsOfDeckQueryFnResponse
+        if (!isObjectEmpty(params) && params?.text) {
+          const result = { data: {} as GetCardsOfDeckResponse }
 
-            if (result?.error) {
-              return { error: result.error }
-            }
+          const byQuestionParams = { ...params }
 
-            return { data: result.data }
-          } catch (error) {
-            return { error } as GetCardsOfDeckQueryFnResponse
+          delete byQuestionParams.text
+          delete byQuestionParams.answer
+          byQuestionParams.question = params.text
+
+          const byAnswerParams = { ...params }
+
+          delete byAnswerParams.text
+          delete byAnswerParams.question
+          byAnswerParams.answer = params.text
+
+          const [byQuestionResult, byAnswerResult] = await Promise.all([
+            getCardsOfDeck(baseQuery, id, byQuestionParams),
+            getCardsOfDeck(baseQuery, id, byAnswerParams),
+          ])
+
+          if (byQuestionResult?.error) {
+            return { error: byQuestionResult.error }
           }
-        }
-
-        if (!isObjectEmpty(params) && 'text' in params) {
-          try {
-            const paramsCopy = { ...params }
-
-            delete paramsCopy.text
-            delete paramsCopy.answer
-            const result = (await baseQuery({
-              url: `decks/${id}/cards`,
-              method: 'GET',
-              params: { ...paramsCopy, question: params.text },
-            })) as GetCardsOfDeckQueryFnResponse
-
-            if (result?.error) {
-              return { error: result.error }
-            }
-            if (result.data?.items?.length === 0) {
-              try {
-                const paramsCopy = { ...params }
-
-                delete paramsCopy.text
-                delete paramsCopy.question
-                const result = (await baseQuery({
-                  url: `decks/${id}/cards`,
-                  method: 'GET',
-                  params: { ...paramsCopy, answer: params.text },
-                })) as GetCardsOfDeckQueryFnResponse
-
-                if (result?.error) {
-                  return { error: result.error }
-                }
-
-                return { data: result.data }
-              } catch (error) {
-                return { error } as GetCardsOfDeckQueryFnResponse
-              }
-            }
-
-            return { data: result.data }
-          } catch (error) {
-            return { error } as GetCardsOfDeckQueryFnResponse
+          if (byAnswerResult?.error) {
+            return { error: byAnswerResult.error }
           }
-        }
-        try {
-          const result = (await baseQuery({
-            url: `decks/${id}/cards`,
-            method: 'GET',
-          })) as GetCardsOfDeckQueryFnResponse
 
-          if (result?.error) {
-            return { error: result.error }
+          const { items: byQuestionItems = [] } = byQuestionResult.data
+          const { items: byAnswerItems = [] } = byAnswerResult.data
+
+          const cards = uniqueBy([...byQuestionItems, ...byAnswerItems], item => item.id)
+
+          result.data = byQuestionResult.data //byAnswerResult.data ?
+
+          if (cards.length) {
+            result.data.items = cards
           }
 
           return { data: result.data }
-        } catch (error) {
-          return { error } as GetCardsOfDeckQueryFnResponse
         }
+
+        return await getCardsOfDeck(baseQuery, id, params)
       },
       providesTags: (result, _err, _args) =>
         result
@@ -292,3 +261,34 @@ export const {
   useGetCardByIdQuery,
   useDeleteCardMutation,
 } = api
+
+async function getCardsOfDeck(
+  baseQuery: Function,
+  id: string,
+  params?: GetCardsQueryParams
+): Promise<GetCardsOfDeckQueryFnResponse> {
+  try {
+    const result = (await baseQuery({
+      url: `decks/${id}/cards`,
+      method: 'GET',
+      params,
+    })) as GetCardsOfDeckQueryFnResponse
+
+    if (result?.error) {
+      return { error: result.error } as GetCardsOfDeckQueryFnResponse
+    }
+
+    if (!result?.data) {
+      return {
+        error: {
+          status: 'FETCH_ERROR',
+          error: 'something went wrong',
+        },
+      } as GetCardsOfDeckQueryFnResponse
+    }
+
+    return { data: result.data as GetCardsOfDeckResponse } as GetCardsOfDeckQueryFnResponse
+  } catch (error) {
+    return { error } as GetCardsOfDeckQueryFnResponse
+  }
+}
