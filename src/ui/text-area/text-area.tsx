@@ -4,6 +4,7 @@ import type {
   ElementRef,
   KeyboardEvent,
   MouseEvent,
+  RefObject,
 } from 'react'
 import { forwardRef, useEffect, useId, useImperativeHandle, useRef, useState } from 'react'
 
@@ -54,9 +55,22 @@ export const TextArea = forwardRef<ElementRef<'textarea'>, TextAreaProps>(
 
     useEffect(() => {
       if (textAreaRef?.current) {
-        initialHeight.current = textAreaRef.current.offsetHeight
+        if (!textAreaRef?.current?.value) {
+          initialHeight.current = textAreaRef.current.offsetHeight
+        }
+        if (textAreaRef?.current?.value) {
+          const requiredHeight = getRequiredHeight(textAreaRef)
+
+          if (maxHeight && autoHeight && requiredHeight) {
+            requiredHeight <= maxHeight
+              ? (textAreaRef.current.style.height = `${requiredHeight}px`)
+              : (textAreaRef.current.style.height = `${maxHeight}px`)
+          }
+          if (!maxHeight && autoHeight) {
+            requiredHeight && (textAreaRef.current.style.height = `${requiredHeight + 12}px`)
+          }
+        }
       }
-      // console.log('effect', getElementHeight(textAreaRef))
     }, [])
 
     useImperativeHandle(
@@ -93,30 +107,22 @@ export const TextArea = forwardRef<ElementRef<'textarea'>, TextAreaProps>(
         return
       }
 
-      const paddingsHeight = 12
       const currentHeight = textAreaRef.current.offsetHeight
 
       if (!maxHeight) {
-        textAreaRef.current.style.height = '0px'
-        const { scrollHeight: requiredHeight } = textAreaRef.current
+        const requiredHeight = getRequiredHeight(textAreaRef)
 
         textAreaRef.current.style.height =
-          currentHeight > requiredHeight + paddingsHeight
-            ? `${currentHeight}px`
-            : `${requiredHeight + paddingsHeight}px`
+          currentHeight > requiredHeight ? `${currentHeight}px` : `${requiredHeight}px`
 
         return
       }
 
       if (currentHeight && maxHeight) {
-        textAreaRef.current.style.height = '0px'
-        const { scrollHeight: requiredHeight } = textAreaRef.current
+        const requiredHeight = getRequiredHeight(textAreaRef)
 
-        if (
-          requiredHeight + paddingsHeight <= maxHeight &&
-          currentHeight < requiredHeight + paddingsHeight
-        ) {
-          textAreaRef.current.style.height = `${requiredHeight + paddingsHeight}px`
+        if (requiredHeight <= maxHeight && currentHeight < requiredHeight) {
+          textAreaRef.current.style.height = `${requiredHeight}px`
         } else {
           textAreaRef.current.style.height = `${currentHeight}px`
         }
@@ -225,3 +231,22 @@ export const TextArea = forwardRef<ElementRef<'textarea'>, TextAreaProps>(
 //       with the font size unless manually changed.'
 
 // 'line-height: inherit' for textarea seems not to work; look at _boilerplate.scss
+
+function getRequiredHeight(ref: RefObject<any>) {
+  if (!ref?.current) {
+    return null
+  }
+  const styles = getComputedStyle(ref?.current)
+  const valueString = styles.getPropertyValue('padding')
+  const paddingNumber = Number.parseInt(valueString)
+
+  const offsetHeight = ref.current.offsetHeight
+  // const clientHeight = ref.current.clientHeight
+
+  ref.current.style.height = '0px'
+  const { scrollHeight: requiredHeight } = ref.current
+
+  ref.current.style.height = `${offsetHeight}px`
+
+  return requiredHeight + paddingNumber
+}
