@@ -8,6 +8,7 @@ import { useLocalStorage } from '@/hooks/use-local-storage'
 import { UserAvatar } from '@/ui/avatar'
 import { Button } from '@/ui/button'
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from '@/ui/dropdown/dropdown-menu'
+import { Spinner } from '@/ui/spinner'
 import { Toaster } from '@/ui/toast'
 import { Typography } from '@/ui/typography'
 import { clsx } from 'clsx'
@@ -17,12 +18,17 @@ import s from './main-layout.module.scss'
 
 export const MainLayout = () => {
   const { pathname, state } = useLocation()
-  const { data } = useMeQuery()
-  // const isAuthenticated = Boolean(data && data?.id)
+
+  const { data, isLoading: userDataLoading, isError: loggedOut } = useMeQuery()
+
   const [logout] = useLogoutMutation()
   const handleLogout = () => {
     logout()
   }
+
+  const [value] = useLocalStorage('theme', 'dark')
+
+  document.body.dataset.theme = value
 
   const cn = {
     link: clsx(s.link),
@@ -35,6 +41,10 @@ export const MainLayout = () => {
     main: clsx(s.main),
     menuHeadingItem: clsx(s.userMenuHeadingItem),
     userMenuHeadingItemContainer: clsx(s.userMenuHeadingItemContainer),
+  }
+
+  if (userDataLoading) {
+    return <Spinner />
   }
 
   return (
@@ -104,7 +114,7 @@ export const MainLayout = () => {
         </div>
       </header>
       <main className={cn.main}>
-        <Outlet />
+        <Outlet context={loggedOut} />
       </main>
       <Toaster />
     </>

@@ -1,10 +1,15 @@
 import type { AppRoutesPath } from '@/app/app-routes'
 import type { RouteObject } from 'react-router-dom'
 
-import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom'
+import {
+  Navigate,
+  Outlet,
+  RouterProvider,
+  createBrowserRouter,
+  useOutletContext,
+} from 'react-router-dom'
 
 import { AppRoutes } from '@/app/app-routes'
-import { useMeQuery } from '@/features/user/api'
 import { MainLayout } from '@/layouts/main-layout'
 import { NotFoundPage } from '@/pages/not-found'
 
@@ -26,19 +31,15 @@ const publicRoutes: RouteObject[] = AppRoutes.public.map(item => ({
 }))
 
 function PrivateRoutes() {
-  const { data } = useMeQuery()
+  const loggedOut = useOutletContext<boolean>()
 
-  const isAuthenticated = Boolean(data && data?.id)
-
-  return isAuthenticated ? <MainLayout /> : <Navigate to={'/sign-in'} />
+  return loggedOut ? <Navigate to={'/sign-in'} /> : <Outlet />
 }
 
 function PublicRoutes() {
-  const { data } = useMeQuery()
+  const loggedOut = useOutletContext<boolean>()
 
-  const isAuthenticated = Boolean(data && data?.id)
-
-  return isAuthenticated ? <Navigate to={'/decks'} /> : <MainLayout />
+  return loggedOut ? <Outlet /> : <Navigate to={'/decks'} />
 }
 
 /* eslint "perfectionist/sort-objects": "off" */
@@ -46,15 +47,19 @@ function PublicRoutes() {
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <PrivateRoutes />,
-    children: [...privateRoutes, ...generateRedirects('/decks')],
-    errorElement: <NotFoundPage />,
-  },
-  {
-    path: '/',
-    element: <PublicRoutes />,
-    children: [...publicRoutes, ...generateRedirects('/sign-in')],
-    errorElement: <NotFoundPage />,
+    element: <MainLayout />,
+    children: [
+      {
+        element: <PrivateRoutes />,
+        children: [...privateRoutes, ...generateRedirects('/decks')],
+        errorElement: <NotFoundPage />,
+      },
+      {
+        element: <PublicRoutes />,
+        children: [...publicRoutes, ...generateRedirects('/sign-in')],
+        errorElement: <NotFoundPage />,
+      },
+    ],
   },
 ])
 

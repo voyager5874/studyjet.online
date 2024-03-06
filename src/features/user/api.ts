@@ -9,23 +9,11 @@ import { getChangedData, mutateObjectValues } from '@/utils/objects'
 
 const api = baseApi.injectEndpoints({
   endpoints: builder => ({
-    me: builder.query<UserData | null, void>({
-      async queryFn(_args, _api, _extraOptions, baseQuery) {
-        const result = await baseQuery({
-          url: `auth/me`,
-          method: 'GET',
-        })
-
-        if (result.error) {
-          // there is an infinite loop when no data returned (i.e. if the standard query is used)
-          return { data: null }
-        }
-
-        return { data: result.data as UserData }
-      },
-      extraOptions: {
-        maxRetries: 0,
-      },
+    me: builder.query<UserData, void>({
+      query: _ => ({
+        url: 'auth/me',
+        method: 'GET',
+      }),
       providesTags: ['User'],
     }),
 
@@ -46,15 +34,12 @@ const api = baseApi.injectEndpoints({
         method: 'POST',
       }),
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(api.util.updateQueryData('me', undefined, _draft => null))
-
         try {
           await queryFulfilled
           dispatch(api.util.resetApiState())
         } catch (e) {
           //todo: use toast
           console.warn(e)
-          patchResult.undo()
         }
       },
     }),
