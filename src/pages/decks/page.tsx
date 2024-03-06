@@ -140,6 +140,13 @@ export const Page = () => {
     setOpenedDialog('create-deck')
   }, [])
 
+  const handleDecksDialogSuccess = (dialog: DecksDialogTypes) => {
+    if (dialog === 'create-deck') {
+      handlePageChange(1)
+      handleSortChange<DeckItem>({ key: 'updated', direction: 'desc' })
+    }
+  }
+
   const busy = isFetching || isLoading
 
   const cn = {
@@ -198,6 +205,7 @@ export const Page = () => {
       </div>
 
       <DecksPageDialogs
+        onSuccess={handleDecksDialogSuccess}
         openedDialog={openedDialog}
         selectedDeckId={selectedDeckId}
         setOpenedDialog={setOpenedDialog}
