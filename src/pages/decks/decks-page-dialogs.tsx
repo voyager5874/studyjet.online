@@ -26,7 +26,7 @@ import s from './page.module.scss'
 
 type Props = {
   onError?: () => void
-  onSuccess?: () => void
+  onSuccess?: (dialog: DecksDialogTypes) => void
   openedDialog: DecksDialogTypes | null
   selectedDeckId: null | string
   setOpenedDialog: (dialog: DecksDialogTypes | null) => void
@@ -84,7 +84,7 @@ export const DecksPageDialogs = (props: Props) => {
           description: 'Deck has been deleted successfully.',
           variant: 'success',
         })
-        onSuccess && onSuccess()
+        onSuccess && onSuccess('delete-deck')
       })
       .catch(() => {
         toast({
@@ -112,7 +112,7 @@ export const DecksPageDialogs = (props: Props) => {
           variant: 'success',
           type: 'foreground',
         })
-        onSuccess && onSuccess()
+        onSuccess && onSuccess('create-deck')
       })
       .catch(err => {
         toast({
@@ -145,7 +145,7 @@ export const DecksPageDialogs = (props: Props) => {
           position: 'bottomRight',
           from: 'bottom',
         })
-        onSuccess && onSuccess()
+        onSuccess && onSuccess('update-deck')
       })
       .catch(err => {
         toast({
@@ -180,7 +180,7 @@ export const DecksPageDialogs = (props: Props) => {
       .then(() => {
         previousCardId.current = cardToLearnCurrentData.id
         // fetchNewCardToLearn() //no need for manual refetch
-        onSuccess && onSuccess()
+        onSuccess && onSuccess('learn')
       })
       .catch(err => {
         toast({
