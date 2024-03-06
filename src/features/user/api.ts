@@ -38,9 +38,11 @@ const api = baseApi.injectEndpoints({
           await queryFulfilled
           dispatch(api.util.resetApiState())
         } catch (e) {
-          //todo: use toast
           console.warn(e)
         }
+      },
+      transformErrorResponse: (response, _meta, _arg) => {
+        return getErrorInformation(response)
       },
     }),
     signUp: builder.mutation<SignUpResponse, Pick<SignUpData, 'email' | 'password'>>({

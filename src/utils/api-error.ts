@@ -25,6 +25,10 @@ export function getErrorInformation(error?: FetchBaseQueryError) {
   }
 
   if (error && 'status' in error) {
+    if (error.status === 'FETCH_ERROR') {
+      return 'network error; check your connection'
+    }
+
     return `error code: ${error.status}`
   }
 

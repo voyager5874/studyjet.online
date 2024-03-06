@@ -14,6 +14,7 @@ import { Card } from '@/ui/card'
 import { Form, FormControl, FormField, FormItem } from '@/ui/form'
 import { AvatarImageSelector } from '@/ui/image-input/avatar-image-selector'
 import { TextField } from '@/ui/text-field'
+import { useToast } from '@/ui/toast'
 import { Typography } from '@/ui/typography'
 import { getChangedDataFromTwoObjects, objectToFormData } from '@/utils/objects'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -91,10 +92,21 @@ export const UserCard = ({ name, email, avatar, onSubmit }: UserCardProps) => {
     nameIsBeingEdited && setNameIsBeingEdited(false)
     form.reset()
   }
-
+  const { toast } = useToast()
   const handleLogout = useCallback(() => {
     logout()
-  }, [logout])
+      .unwrap()
+      .catch(err => {
+        toast({
+          type: 'foreground',
+          from: 'right',
+          position: 'bottomRight',
+          variant: 'warning',
+          title: "Couldn't log out",
+          description: err || '',
+        })
+      })
+  }, [logout, toast])
 
   const updateAvatar = useCallback(
     (img: string) => {

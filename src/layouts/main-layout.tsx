@@ -9,7 +9,7 @@ import { UserAvatar } from '@/ui/avatar'
 import { Button } from '@/ui/button'
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from '@/ui/dropdown/dropdown-menu'
 import { Spinner } from '@/ui/spinner'
-import { Toaster } from '@/ui/toast'
+import { Toaster, useToast } from '@/ui/toast'
 import { Typography } from '@/ui/typography'
 import { clsx } from 'clsx'
 import { LucideMoon, LucideSun } from 'lucide-react'
@@ -22,8 +22,21 @@ export const MainLayout = () => {
   const { data, isLoading: userDataLoading, isError: loggedOut } = useMeQuery()
 
   const [logout] = useLogoutMutation()
+
+  const { toast } = useToast()
   const handleLogout = () => {
     logout()
+      .unwrap()
+      .catch(err => {
+        toast({
+          type: 'foreground',
+          from: 'right',
+          position: 'bottomRight',
+          variant: 'warning',
+          title: "Couldn't log out",
+          description: err || '',
+        })
+      })
   }
 
   const [value] = useLocalStorage('theme', 'dark')
