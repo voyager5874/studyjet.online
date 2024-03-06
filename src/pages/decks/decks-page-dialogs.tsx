@@ -203,8 +203,8 @@ export const DecksPageDialogs = (props: Props) => {
   }
 
   const handleClose = (open: boolean) => {
-    !open && setOpenedDialog(null)
-    if (openedDialog === 'learn' || openedDialog === decksDialogList.updateDeck) {
+    if (!open) {
+      setOpenedDialog(null)
       setSelectedDeckId && setSelectedDeckId(null)
     }
   }
