@@ -17,7 +17,7 @@ export const CreateDialog: Story = {
   args: {
     trigger: <Button>Add new card</Button>,
     title: 'Add new card?',
-    onSubmit: (data: any) => {
+    onSubmit: async (data: any) => {
       alert(JSON.stringify(data))
     },
   },

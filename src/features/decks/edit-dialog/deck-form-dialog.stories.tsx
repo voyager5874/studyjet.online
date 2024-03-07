@@ -19,7 +19,7 @@ export const CreateDialog: Story = {
   args: {
     trigger: <Button>Add new deck</Button>,
     title: 'Add new deck?',
-    onSubmit: (data: any) => {
+    onSubmit: async (data: any) => {
       console.log(data)
     },
   },
@@ -27,6 +27,7 @@ export const CreateDialog: Story = {
 
 export const EditDialog: Story = {
   args: {
+    onSubmit: async () => {},
     title: 'edit deck',
     deck: decksList[2],
     trigger: (
@@ -38,7 +39,7 @@ export const EditDialog: Story = {
   render: args => {
     const { onSubmit, ...restArgs } = args
     const [_, _setArgs] = useArgs()
-    const handleSubmit = (data: any) => {
+    const handleSubmit = async (data: any) => {
       alert(JSON.stringify(data))
     }
 
