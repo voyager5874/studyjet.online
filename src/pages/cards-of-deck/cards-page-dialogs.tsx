@@ -13,7 +13,7 @@ import {
 } from '@/features/cards/api'
 import { DeleteCardDialog } from '@/features/cards/delete-dialog'
 import { EditCardDialog } from '@/features/cards/edit-dialog'
-import { DecksPageDialogs } from '@/pages/decks/decks-page-dialogs'
+import { DecksPageDialogs } from '@/features/decks/page-dialogs/decks-page-dialogs'
 import { ProgressBar } from '@/ui/progress-bar/progress-bar'
 import { useToast } from '@/ui/toast'
 import { createSubmitData } from '@/utils/objects'
@@ -140,7 +140,6 @@ export const CardsPageDialogs = (props: Props) => {
   }
 
   const handleClose = (open: boolean) => {
-    console.log('handle close')
     !open && setOpenedDialog(null)
     if (openedDialog === 'delete-card' || openedDialog === 'update-card') {
       setSelectedCardId(null)

@@ -22,11 +22,11 @@ import { createSubmitData } from '@/utils/objects'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { clsx } from 'clsx'
 
-import s from './page.module.scss'
+import s from './page-dialogs.module.scss'
 
 type Props = {
   onError?: () => void
-  onSuccess?: () => void
+  onSuccess?: (dialog: DecksDialogTypes) => void
   openedDialog: DecksDialogTypes | null
   selectedDeckId: null | string
   setOpenedDialog: (dialog: DecksDialogTypes | null) => void
@@ -39,20 +39,11 @@ export const DecksPageDialogs = (props: Props) => {
 
   const { toast } = useToast()
 
-  const [
-    createDeck,
-    {
-      isSuccess: createDeckSuccess,
-      isLoading: deckIsBeingCreated,
-      // isError: createDeckErrorFailure,
-      // error: createDeckErrorData,
-    },
-  ] = useCreateDecksMutation()
+  const [createDeck, { isLoading: deckIsBeingCreated }] = useCreateDecksMutation()
 
   const [deleteDeck, { isLoading: isDeleting }] = useDeleteDeckMutation()
 
-  const [updateDeck, { isLoading: isUpdating, isSuccess: updateSuccessful }] =
-    useUpdateDeckMutation()
+  const [updateDeck, { isLoading: isUpdating }] = useUpdateDeckMutation()
 
   const [
     rateCardAcquisition,
@@ -91,7 +82,7 @@ export const DecksPageDialogs = (props: Props) => {
           description: 'Deck has been deleted successfully.',
           variant: 'success',
         })
-        onSuccess && onSuccess()
+        onSuccess && onSuccess('delete-deck')
       })
       .catch(() => {
         toast({
@@ -110,27 +101,27 @@ export const DecksPageDialogs = (props: Props) => {
     } as Partial<DeckItem>)
 
     setOpenedDialog(null)
+    try {
+      await createDeck(submitData).unwrap()
+      toast({
+        title: 'Deck has been created successfully',
+        variant: 'success',
+        type: 'foreground',
+      })
+      onSuccess && onSuccess('create-deck')
+    } catch (err) {
+      const error = typeof err === 'string' ? err : 'failed'
 
-    createDeck(submitData)
-      .unwrap()
-      .then(() => {
-        toast({
-          title: 'Deck has been created successfully',
-          variant: 'success',
-          type: 'foreground',
-        })
-        onSuccess && onSuccess()
+      toast({
+        title: 'Failed to create deck',
+        description: error,
+        variant: 'dangerColored',
+        type: 'foreground',
       })
-      .catch(err => {
-        toast({
-          title: 'Failed to create deck',
-          description: err?.data?.message || '',
-          variant: 'dangerColored',
-          type: 'foreground',
-        })
-        setOpenedDialog(decksDialogList.createDeck)
-        onError && onError()
-      })
+      setOpenedDialog(decksDialogList.createDeck)
+      onError && onError()
+      throw new Error(error)
+    }
   }
 
   const handleDeckUpdatedDataSubmit = async (data: DeckFormData) => {
@@ -141,31 +132,32 @@ export const DecksPageDialogs = (props: Props) => {
     const submitData = await createSubmitData(data, selectedDeckData)
 
     setOpenedDialog(null)
+    try {
+      await updateDeck({ id: selectedDeckData.id, body: submitData }).unwrap()
+      toast({
+        title: 'Deck has been updated',
+        variant: 'success',
+        type: 'foreground',
+        position: 'bottomRight',
+        from: 'bottom',
+      })
+      onSuccess && onSuccess('update-deck')
+    } catch (err) {
+      const error = typeof err === 'string' ? err : 'failed'
 
-    updateDeck({ id: selectedDeckData.id, body: submitData })
-      .unwrap()
-      .then(() => {
-        toast({
-          title: 'Deck has been updated',
-          variant: 'success',
-          type: 'foreground',
-          position: 'bottomRight',
-          from: 'bottom',
-        })
-        onSuccess && onSuccess()
+      toast({
+        title: 'Failed to update deck',
+        description: error,
+        variant: 'danger',
+        position: 'bottomRight',
+        from: 'bottom',
+        type: 'foreground',
       })
-      .catch(err => {
-        toast({
-          title: 'Failed to update deck',
-          description: err?.data?.message || '',
-          variant: 'danger',
-          position: 'bottomRight',
-          from: 'bottom',
-          type: 'foreground',
-        })
-        setOpenedDialog(decksDialogList.updateDeck)
-        onError && onError()
-      })
+      setOpenedDialog(decksDialogList.updateDeck)
+      onError && onError()
+
+      throw new Error(error)
+    }
   }
 
   const handleCardGradeSubmit = (data: LearnDeckFormData) => {
@@ -187,7 +179,7 @@ export const DecksPageDialogs = (props: Props) => {
       .then(() => {
         previousCardId.current = cardToLearnCurrentData.id
         // fetchNewCardToLearn() //no need for manual refetch
-        onSuccess && onSuccess()
+        onSuccess && onSuccess('learn')
       })
       .catch(err => {
         toast({
@@ -206,12 +198,11 @@ export const DecksPageDialogs = (props: Props) => {
 
   const cn = {
     progress: clsx(s.progress),
-    dialog: clsx(busy && s.inactive),
   }
 
   const handleClose = (open: boolean) => {
-    !open && setOpenedDialog(null)
-    if (openedDialog === 'learn' || openedDialog === decksDialogList.updateDeck) {
+    if (!open) {
+      setOpenedDialog(null)
       setSelectedDeckId && setSelectedDeckId(null)
     }
   }
@@ -221,7 +212,6 @@ export const DecksPageDialogs = (props: Props) => {
       <ProgressBar className={cn.progress} show={busy} />
 
       <EditDeckDialog
-        isSuccess={createDeckSuccess}
         onOpenChange={handleClose}
         onSubmit={handleNewDeckDataSubmit}
         open={openedDialog === decksDialogList.createDeck}
@@ -230,7 +220,6 @@ export const DecksPageDialogs = (props: Props) => {
       {selectedDeckData && (
         <EditDeckDialog
           deck={selectedDeckData}
-          isSuccess={updateSuccessful}
           onOpenChange={handleClose}
           onSubmit={handleDeckUpdatedDataSubmit}
           open={openedDialog === decksDialogList.updateDeck}
