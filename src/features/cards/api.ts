@@ -144,6 +144,9 @@ const api = baseApi.injectEndpoints({
         }
       },
 
+      transformErrorResponse: (response, _meta, _arg) => {
+        return getErrorInformation(response)
+      },
       invalidatesTags: (_result, _error, { cardId }) => [
         { type: 'Cards', id: 'LIST' },
         { type: 'Cards', id: cardId },

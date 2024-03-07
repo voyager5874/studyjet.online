@@ -3,7 +3,6 @@ import type { DeckItem } from '@/features/decks'
 import type { DialogProps } from '@radix-ui/react-dialog'
 
 import type { ReactNode } from 'react'
-import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { Button } from '@/ui/button'
@@ -32,13 +31,12 @@ import { deckFormSchema } from './deck-form-schema'
 export type EditDeckDialogProps = {
   deck?: DeckItem
   disabled?: boolean
-  isSuccess?: boolean
-  onSubmit: (data: DeckFormData) => void
+  onSubmit: (data: DeckFormData) => Promise<void>
   title: string
   trigger?: ReactNode
 } & DialogProps
 export function EditDeckDialog(props: EditDeckDialogProps) {
-  const { deck, trigger, isSuccess, disabled, onSubmit, title, ...restProps } = props
+  const { deck, trigger, disabled, onSubmit, title, ...restProps } = props
 
   const form = useForm<DeckFormData>({
     resolver: zodResolver(deckFormSchema),
@@ -55,9 +53,11 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
   //todo: check for accessibility (id, aria-labels...)
   //todo: if name is '' (create dialog), focus corresponding TextField
 
-  useEffect(() => {
-    form.formState.isSubmitted && isSuccess && form.reset()
-  }, [form, isSuccess])
+  const handleSubmit = async (data: DeckFormData) => {
+    onSubmit(data)
+      .then(() => form.reset())
+      .catch(err => console.warn(err))
+  }
 
   const classNames = {
     dialogContent: clsx(s.content),
@@ -70,7 +70,7 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <Form {...form}>
         <DialogContent asChild className={classNames.dialogContent}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogHeader>
               <Typography as={DialogTitle} variant={'h2'}>
                 {title}

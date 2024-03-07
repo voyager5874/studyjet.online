@@ -163,6 +163,9 @@ const api = baseApi.injectEndpoints({
             coverUrl && URL.revokeObjectURL(coverUrl)
           }
         },
+        transformErrorResponse: (response, _meta, _arg) => {
+          return getErrorInformation(response)
+        },
         invalidatesTags: (result, _error, args) =>
           result
             ? ['Decks', { type: 'Decks', id: 'LIST' }, { type: 'Decks', id: args.id }]
