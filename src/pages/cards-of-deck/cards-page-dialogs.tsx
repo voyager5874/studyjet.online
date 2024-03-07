@@ -36,15 +36,13 @@ export const CardsPageDialogs = (props: Props) => {
 
   const { toast } = useToast()
 
-  const [createCard, { isSuccess: createCardSuccess, isLoading: isCreating }] =
-    useCreateCardMutation()
+  const [createCard, { isLoading: isCreating }] = useCreateCardMutation()
 
   const { currentData: selectedCardData, isFetching: selectedCardFetching } = useGetCardByIdQuery(
     selectedCardId ?? skipToken
   )
 
-  const [updateCard, { isSuccess: updateCardSuccess, isLoading: cardIsBeingUpdated }] =
-    useUpdateCardMutation()
+  const [updateCard, { isLoading: cardIsBeingUpdated }] = useUpdateCardMutation()
 
   const [deleteCard, { isLoading: cardIsBeingDeleted }] = useDeleteCardMutation()
 
@@ -84,25 +82,26 @@ export const CardsPageDialogs = (props: Props) => {
     } as CardItem)
 
     setOpenedDialog(null)
+    try {
+      await createCard({ body: submitData, deckId }).unwrap()
+      toast({
+        title: 'New card added',
+        variant: 'success',
+        type: 'foreground',
+      })
+    } catch (err) {
+      const error = typeof err === 'string' ? err : 'failed'
 
-    createCard({ body: submitData, deckId })
-      .unwrap()
-      .then(() => {
-        toast({
-          title: 'New card added',
-          variant: 'success',
-          type: 'foreground',
-        })
+      toast({
+        title: 'Failed to add new card',
+        description: error,
+        variant: 'danger',
+        type: 'foreground',
       })
-      .catch(err => {
-        toast({
-          title: 'Failed to add new card',
-          description: err || '',
-          variant: 'danger',
-          type: 'foreground',
-        })
-        setOpenedDialog('create-card')
-      })
+      setOpenedDialog('create-card')
+
+      throw new Error(error)
+    }
   }
 
   const handleEditedCardDataSubmit = async (data: CardFormData) => {
@@ -112,26 +111,26 @@ export const CardsPageDialogs = (props: Props) => {
     const submitData = await createSubmitData(data, selectedCardData)
 
     setOpenedDialog(null)
+    try {
+      await updateCard({ body: submitData, cardId: selectedCardData.id }).unwrap()
+      toast({
+        title: 'Card updated',
+        variant: 'success',
+        type: 'foreground',
+      })
+    } catch (err) {
+      const error = typeof err === 'string' ? err : 'failed'
 
-    updateCard({ body: submitData, cardId: selectedCardData.id })
-      .unwrap()
-      .then(() => {
-        setSelectedCardId(null)
-        toast({
-          title: 'Card updated',
-          variant: 'success',
-          type: 'foreground',
-        })
+      toast({
+        title: 'Failed to update the card',
+        description: error,
+        variant: 'danger',
+        type: 'foreground',
       })
-      .catch(err => {
-        toast({
-          title: 'Failed to update the card',
-          description: err?.data?.message || '',
-          variant: 'danger',
-          type: 'foreground',
-        })
-        setOpenedDialog('update-card')
-      })
+      setOpenedDialog('update-card')
+      //
+      throw new Error(error)
+    }
   }
 
   const handleDecksActionSuccess = () => {
@@ -141,6 +140,7 @@ export const CardsPageDialogs = (props: Props) => {
   }
 
   const handleClose = (open: boolean) => {
+    console.log('handle close')
     !open && setOpenedDialog(null)
     if (openedDialog === 'delete-card' || openedDialog === 'update-card') {
       setSelectedCardId(null)
@@ -161,7 +161,6 @@ export const CardsPageDialogs = (props: Props) => {
         />
       )}
       <EditCardDialog
-        isSuccess={createCardSuccess}
         onOpenChange={handleClose}
         onSubmit={handleNewCardDataSubmit}
         open={openedDialog === 'create-card'}
@@ -170,7 +169,6 @@ export const CardsPageDialogs = (props: Props) => {
       {selectedCardData && (
         <EditCardDialog
           card={selectedCardData}
-          isSuccess={updateCardSuccess}
           onOpenChange={handleClose}
           onSubmit={handleEditedCardDataSubmit}
           open={openedDialog === 'update-card'}

@@ -3,7 +3,7 @@ import type { CardItem } from '@/features/cards'
 import type { DialogProps } from '@radix-ui/react-dialog'
 
 import type { ReactNode } from 'react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { Button } from '@/ui/button'
@@ -32,13 +32,12 @@ import { cardFormSchema } from './card-form-schema'
 export type EditCardDialogProps = {
   card?: CardItem
   disabled?: boolean
-  isSuccess?: boolean
-  onSubmit: (data: CardFormData) => void
+  onSubmit: (data: CardFormData) => Promise<void>
   title: string
   trigger?: ReactNode
 } & DialogProps
 export function EditCardDialog(props: EditCardDialogProps) {
-  const { card, trigger, isSuccess, disabled, onSubmit, title, ...restProps } = props
+  const { card, trigger, disabled, onSubmit, title, ...restProps } = props
 
   const [currentTab, setCurrentTab] = useState('question')
 
@@ -61,9 +60,11 @@ export function EditCardDialog(props: EditCardDialogProps) {
   //todo: check for accessibility (id, aria-labels...)
   //todo: if name is '' (create dialog), focus corresponding TextField
 
-  useEffect(() => {
-    form.formState.isSubmitted && isSuccess && form.reset()
-  }, [form, isSuccess])
+  const handleSubmit = async (data: CardFormData) => {
+    onSubmit(data)
+      .then(() => form.reset())
+      .catch(err => console.warn(err))
+  }
 
   const handleTabChange = (tab: string) => {
     if (tab !== currentTab) {
@@ -90,7 +91,7 @@ export function EditCardDialog(props: EditCardDialogProps) {
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <Form {...form}>
         <DialogContent asChild className={cn.dialogContent}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogHeader className={cn.dialogHeader}>
               <Typography as={DialogTitle} variant={'h2'}>
                 {title}
