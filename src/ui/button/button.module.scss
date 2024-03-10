@@ -51,7 +51,9 @@
   background-color: var(--color-primary);
 
   // box-shadow: 0 4px 18px 0 rgb(from var(--color-primary) r g b/ 50%);
-  box-shadow: 0 4px 18px 0 color-mix(in srgb, var(--color-primary), transparent 50%); //supported better
+  box-shadow: 0 4px 18px 0 color-mix(in srgb, var(--color-primary), transparent 50%);
+
+  //color-mix supported better
 
   &:hover {
     background-color: var(--color-primary-hover);

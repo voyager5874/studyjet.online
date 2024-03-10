@@ -63,6 +63,10 @@
   &:disabled {
     pointer-events: none;
     color: var(--color-text-disabled);
+
+    &::placeholder {
+      color: var(--color-text-disabled);
+    }
   }
 
   &:hover:not(:focus) {
