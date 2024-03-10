@@ -144,6 +144,7 @@ export const Page = () => {
     if (dialog === 'create-deck') {
       handlePageChange(1)
       handleSortChange<DeckItem>({ key: 'updated', direction: 'desc' })
+      handleItemsMinCountChange(null)
     }
   }
 

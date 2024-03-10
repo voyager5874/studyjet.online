@@ -81,6 +81,7 @@ export const DecksPageDialogs = (props: Props) => {
         toast({
           description: 'Deck has been deleted successfully.',
           variant: 'success',
+          from: 'bottom',
         })
         onSuccess && onSuccess('delete-deck')
       })
@@ -104,7 +105,8 @@ export const DecksPageDialogs = (props: Props) => {
     try {
       await createDeck(submitData).unwrap()
       toast({
-        title: 'Deck has been created successfully',
+        title: `Deck ${data.name} created`,
+        from: 'bottom',
         variant: 'success',
         type: 'foreground',
       })
