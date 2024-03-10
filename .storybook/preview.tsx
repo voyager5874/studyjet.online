@@ -4,10 +4,18 @@ import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/700.css'
 
 import { darkTheme } from './dark-theme'
+import { CurrentThemeProvider } from '../src/storybook-utils'
 
 import '../src/styles/index.scss'
 
 const preview: Preview = {
+  decorators: [
+    Story => (
+      <CurrentThemeProvider>
+        <Story />
+      </CurrentThemeProvider>
+    ),
+  ],
   parameters: {
     backgrounds: {
       default: 'dark',
