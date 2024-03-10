@@ -1,25 +1,29 @@
 .tabsList {
-  align-items: center;
-  justify-content: center;
+  border: none;
+  outline-color: transparent;
 }
 
 .tabsTrigger {
+  overflow: hidden;
   align-items: center;
   justify-content: center;
 
   padding: 6px 24px;
 
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1.25rem;
+  font-size: var(--font-size-s);
+  line-height: var(--line-height-m);
+  text-overflow: ellipsis;
   white-space: nowrap;
 
   background-color: transparent;
-  border: 1px solid var(--color-dark-300);
+  border: 1px solid var(--color-border);
+  border-right: none;
+  outline-color: transparent;
+  outline-offset: -1px;
 
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 300ms;
-  transition-property: all;
+  transition-property: background-color, color, border-color, outline-color;
 
   &:first-child {
     border-top-left-radius: 2px;
@@ -27,42 +31,42 @@
   }
 
   &:last-child {
+    border-right: 1px solid var(--color-border);
     border-top-right-radius: 2px;
     border-bottom-right-radius: 2px;
   }
 
   &:hover {
     cursor: pointer;
-    background-color: var(--color-dark-300);
-    border: 1px solid var(--color-dark-100);
+
+    color: var(--color-text-highlighted);
+
+    background-color: var(--color-bg-tertiary);
+    border-color: transparent;
+    outline: 1px solid var(--color-border-highlighted);
   }
 
   &:focus-visible {
-    border: 1px solid transparent;
+    border-color: transparent;
     outline: 2px solid var(--color-info-900);
     outline-offset: -2px;
   }
 
-  &:active {
-    background-color: var(--color-accent-500);
-    border: 1px solid var(--color-accent-500);
-  }
-
   &[data-state='active'] {
-    background-color: var(--color-accent-500);
-    border: 1px solid var(--color-accent-500);
-    outline: none;
+    cursor: default;
+
+    color: var(--color-button-text);
+
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    outline-color: var(--color-primary);
   }
 
   &[data-disabled] {
     pointer-events: none;
-
-    color: var(--color-dark-300);
-
-    opacity: 0.5;
-    background-color: var(--color-dark-700);
-    border: 1px solid var(--color-dark-300);
-    outline: none;
+    color: var(--color-text-disabled);
+    background-color: var(--color-bg-secondary);
+    outline-color: transparent;
   }
 }
 
@@ -72,11 +76,7 @@
 
 .disabledTab {
   pointer-events: none;
-
-  color: var(--color-dark-300);
-
-  opacity: 0.5;
-  background-color: var(--color-dark-700);
-  border: 1px solid var(--color-dark-300);
-  outline: none;
+  color: var(--color-text-disabled);
+  background-color: var(--color-bg-secondary);
+  outline-color: transparent;
 }

@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
+import { Typography } from '@/ui/typography'
+
 import * as Tabs from './tabs'
 
 const meta = {
@@ -31,6 +33,7 @@ const Template: Story = {
           </Tabs.TabsTrigger>
         ))}
       </Tabs.TabsList>
+      <Typography variant={'large'}>Tab content: </Typography>
       {tabsItems.map((item, index) => (
         <Tabs.TabsContent key={index} value={item}>
           {item}

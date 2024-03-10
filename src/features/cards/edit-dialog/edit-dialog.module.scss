@@ -22,8 +22,6 @@
 .tabsList {
   position: relative;
   display: flex;
-  align-items: flex-end;
-  outline-color: transparent;
 
   &::after,
   &::before {
@@ -33,7 +31,6 @@
     min-height: 10px;
     padding: 6px 0;
 
-    font-weight: 500;
     color: transparent;
 
     border-bottom: 1px solid var(--color-border);
@@ -53,19 +50,15 @@
   .tabsTrigger {
     border-bottom: none;
     border-radius: 0;
-    outline-color: transparent;
 
-    &:first-child {
-      border-top-left-radius: 2px;
-    }
-
-    &:last-child {
-      border-top-right-radius: 2px;
-    }
-  }
-
-  .underline {
-    flex-grow: 1;
+    // causes border issues within flex container
+    // &:first-child {
+    //   border-radius: 4px 0 0;
+    // }
+    //
+    // &:last-child {
+    //   border-radius: 0 4px 0 0;
+    // }
   }
 }
 
