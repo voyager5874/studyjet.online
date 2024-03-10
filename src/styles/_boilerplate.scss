@@ -82,7 +82,9 @@ select:-webkit-autofill:focus {
   --color-text-link: var(--color-accent-500);
   --color-button-text: var(--color-light-100);
 
-  --color-pagination-current: var(--color-light-100);
+  // pagination
+  --color-pagination-bg: var(--color-light-100);
+  --color-pagination-text-active: var(--color-dark-900);
 
   // borders
   --color-border: var(--color-dark-500);
@@ -94,6 +96,7 @@ select:-webkit-autofill:focus {
   --color-bg-paper: var(--color-dark-700);
   --color-bg-tertiary: var(--color-dark-500);
 
+  //
   --color-active: var(--color-accent-900);
 
   // layout
@@ -107,6 +110,7 @@ select:-webkit-autofill:focus {
 
   &[data-theme='light'] {
     --color-bg-primary: var(--color-light-300);
+    --color-primary-hover: var(--color-accent-700);
     --color-bg-secondary: var(--color-light-300);
     --color-bg-tertiary: var(--color-dark-100);
     --color-primary: var(--color-accent-500);
@@ -124,7 +128,9 @@ select:-webkit-autofill:focus {
     --color-text-link: var(--color-accent-500);
     --color-text-disabled: var(--color-dark-100);
 
-    --color-pagination-current: var(--color-light-900);
+    // pagination
+    --color-pagination-bg: var(--color-light-900);
+    --color-pagination-text-active: var(--color-dark-700);
   }
 }
 

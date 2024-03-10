@@ -14,13 +14,13 @@
   color: var(--color-text-normal);
 
   &:hover {
-    color: var(--color-text-normal);
-    background-color: var(--color-dark-500);
+    color: var(--color-pagination-text);
+    background-color: var(--color-border);
   }
 
   &:active {
     color: var(--color-text-inverted);
-    background-color: var(--color-text-normal);
+    background-color: var(--color-pagination-bg);
   }
 
   &:focus-visible {
@@ -32,8 +32,8 @@
 .current,
 .current:hover {
   pointer-events: none;
-  color: var(--color-text-inverted);
-  background-color: var(--color-text-normal);
+  color: var(--color-pagination-text-active) !important;
+  background-color: var(--color-pagination-bg);
 }
 
 .dots {
