@@ -56,19 +56,19 @@ button {
   &:not([data-disabled]):hover::after {
     z-index: 1;
     transform: translate(-50%, -50%) scale(2.2);
-    background-color: var(--color-bg-tertiary);
+    background-color: var(--color-border);
     transition: all 30ms;
   }
 
   &:not([data-disabled]):active::after {
-    z-index: 1;
-    background-color: var(--color-text-subdued);
+    z-index: 2;
+    background-color: var(--color-active);
     transition: all 0ms;
   }
 
   &:not([data-disabled]):focus-visible::after {
     transform: translate(-50%, -50%) scale(2.2);
-    background-color: var(--color-text-subdued);
+    background-color: var(--color-active);
     transition: all 0ms;
   }
 
