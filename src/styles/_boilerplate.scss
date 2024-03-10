@@ -58,13 +58,13 @@ select:-webkit-autofill:focus {
 
   transition: background-color 5000s ease-in-out 0s;
 
-  -webkit-text-fill-color: var(--color-light-100);
+  -webkit-text-fill-color: var(--color-text-subdued);
 }
 
-body {
+@mixin body {
   --color-primary: var(--color-accent-500);
   --color-primary-hover: var(--color-accent-300);
-  --color-primary-active: var(--color-accent-700);
+  --color-primary-active: var(--color-accent-900);
   --color-primary-disabled: var(--color-accent-900);
   --color-secondary: var(--color-dark-300);
   --color-danger: var(--color-danger-300);
@@ -75,20 +75,29 @@ body {
 
   // text
   --color-text-normal: var(--color-light-100);
+  --color-text-highlighted: var(--color-light-900);
   --color-text-subdued: var(--color-dark-100);
   --color-text-disabled: var(--color-dark-300);
   --color-text-inverted: var(--color-dark-900);
   --color-text-link: var(--color-accent-500);
+  --color-button-text: var(--color-light-100);
 
-  //   // borders
-  // --color-border-primary: #313131;
+  // pagination
+  --color-pagination-bg: var(--color-light-100);
+  --color-pagination-text-active: var(--color-dark-900);
+
+  // borders
   --color-border: var(--color-dark-500);
+  --color-border-highlighted: var(--color-dark-100);
 
   // backgrounds
   --color-bg-primary: var(--color-dark-900);
   --color-bg-secondary: var(--color-dark-700);
   --color-bg-paper: var(--color-dark-700);
   --color-bg-tertiary: var(--color-dark-500);
+
+  // active decorators
+  --color-active: var(--color-accent-900);
 
   // layout
 
@@ -97,67 +106,38 @@ body {
 
   font-family: var(--font-family-primary), sans-serif;
   line-height: var(--line-height-m);
-  color: var(--color-light-100);
+  color: var(--color-text-normal);
 
   &[data-theme='light'] {
     --color-bg-primary: var(--color-light-300);
+    --color-primary-hover: var(--color-accent-700);
     --color-bg-secondary: var(--color-light-300);
-    --color-bg-tertiary: var(--color-light-900);
+    --color-bg-tertiary: var(--color-dark-100);
     --color-primary: var(--color-accent-500);
+    --color-primary-disabled: var(--color-accent-100);
+    --color-primary-active: var(--color-accent-100);
+
+    // borders
     --color-border: var(--color-light-900);
+    --color-border-highlighted: var(--color-dark-100);
+
+    // active decorators
+    --color-active: var(--color-accent-100);
 
     // text
     --color-text-normal: var(--color-dark-700);
-    --color-text-subdued: var(--color-dark-300);
+    --color-text-highlighted: var(--color-dark-900);
+    --color-text-subdued: var(--color-dark-100);
     --color-text-inverted: var(--color-light-100);
     --color-text-link: var(--color-accent-500);
+    --color-text-disabled: var(--color-dark-100);
+
+    // pagination
+    --color-pagination-bg: var(--color-light-900);
+    --color-pagination-text-active: var(--color-dark-700);
   }
 }
 
-// .dark {
-//   // --color-primary: var(--color-accent-500);
-//   --color-primary-hover: var(--color-accent-300);
-//   --color-primary-active: var(--color-accent-700);
-//   --color-secondary: #ffc700;
-//   --color-danger: var(--color-danger-500);
-//   --color-danger-hover: var(--color-danger-600);
-//   --color-danger-active: var(--color-danger-700);
-//   --color-outline-focus: var(--color-info-700);
-//   // text
-//   --color-text-primary: var(--color-light-100);
-//   --color-text-link: var(--color-primary);
-//   // backgrounds
-//   --color-bg-primary: var(--color-dark-900);
-//   --color-bg-secondary: #fcfcfc;
-//   --color-bg-tertiary: #efefef;
-//   --color-bg-paper: var(--color-dark-700);
-//   // borders
-//   --color-border-primary: #313131;
-// }
-// .light {
-//   // --color-primary: var(--color-accent-500);
-//   --color-primary-hover: var(--color-accent-300);
-//   --color-primary-active: var(--color-accent-700);
-//   --color-secondary: #ffc700;
-//   --color-danger: var(--color-danger-500);
-//   --color-danger-hover: var(--color-danger-600);
-//   --color-danger-active: var(--color-danger-700);
-//   --color-outline-focus: var(--color-info-700);
-//   // text
-//   --color-text-primary: var(--color-light-100);
-//   --color-text-link: var(--color-primary);
-//   // backgrounds
-//   --color-bg-primary: var(--color-light-100);
-//   --color-bg-secondary: #fcfcfc;
-//   --color-bg-tertiary: #efefef;
-//   --color-bg-paper: var(--color-dark-700);
-//   // borders
-//   --color-border-primary: #313131;
-// }
-
-.flexColumn {
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  justify-content: center;
+body {
+  @include body;
 }

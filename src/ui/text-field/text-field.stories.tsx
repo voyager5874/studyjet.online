@@ -32,7 +32,7 @@ const Template: Story = {
     const { value, ...restArgs } = args
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [, setArgs] = useArgs()
+    const [_, setArgs] = useArgs()
 
     const updateValue = (e: ChangeEvent<HTMLInputElement>) => {
       setArgs({ ...args, value: e.target.value })

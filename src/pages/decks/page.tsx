@@ -7,7 +7,7 @@ import type { ChangeEvent } from 'react'
 import { useCallback, useState } from 'react'
 
 import { useGetDecksQuery } from '@/features/decks/api'
-import { DecksPageDialogs } from '@/features/decks/page-dialogs/decks-page-dialogs'
+import { DecksPageDialogs } from '@/features/decks/page-dialogs'
 import { decksTableColumns } from '@/features/decks/table/decks-table-columns'
 import { DeckActions } from '@/features/decks/table/table-deck-actions'
 import { usePageSearchParams } from '@/features/decks/use-page-search-params'
@@ -144,6 +144,7 @@ export const Page = () => {
     if (dialog === 'create-deck') {
       handlePageChange(1)
       handleSortChange<DeckItem>({ key: 'updated', direction: 'desc' })
+      handleItemsMinCountChange(null)
     }
   }
 
