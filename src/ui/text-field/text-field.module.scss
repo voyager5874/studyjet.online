@@ -1,8 +1,8 @@
 .root {
-  color: var(--color-dark-100);
+  color: var(--color-text-subdued);
 
   &:focus-within {
-    color: var(--color-text-normal);
+    color: var(--color-text-subdued);
   }
 }
 
@@ -11,7 +11,7 @@
 }
 
 .label {
-  color: var(--color-dark-100);
+  color: inherit;
 }
 
 .prefixIcon {
@@ -44,40 +44,35 @@
   width: 100%;
   padding: 6px;
 
-  color: var(--color-dark-100);
+  color: inherit;
 
   background-color: transparent;
   border: 0;
   border-radius: 2px;
-  outline: 1px solid var(--color-dark-100);
+  outline: 1px solid var(--color-border);
 
   &::-webkit-search-cancel-button {
     appearance: none;
   }
 
   &:focus-visible {
+    color: var(--color-text-normal);
     outline: 2px solid var(--color-outline-focus);
-
-    // &:not(:placeholder-shown) {
-    //   color: var(--color-light-100);
-    // }
   }
 
   &:disabled {
     pointer-events: none;
-    color: var(--color-dark-300);
-    outline: 1px solid var(--color-dark-300);
+    color: var(--color-text-disabled);
   }
 
   &:hover:not(:focus) {
-    // background-color: var(--color-dark-700); // forms have the same background
-    background-color: var(--color-dark-500);
-    outline: 1px solid var(--color-dark-100);
+    background-color: var(--color-border);
+    outline: 1px solid var(--color-border-highlighted);
   }
 }
 
 .errorInput {
-  color: red;
+  color: var(--color-danger);
   outline: 1px solid var(--color-danger);
 
   &:hover {
@@ -98,16 +93,16 @@
 }
 
 .disabled {
-  color: var(--color-dark-300);
+  color: var(--color-text-disabled);
 }
 
-.whiteOutline {
-  color: var(--color-light-100);
-  outline: 1px solid var(--color-light-100);
+.active {
+  color: var(--color-text-normal);
+  outline: 1px solid var(--color-text-normal);
 
   &:focus {
-    color: var(--color-light-100);
-    outline: 1px solid var(--color-light-100);
+    color: var(--color-text-normal);
+    outline: 1px solid var(--color-text-normal);
   }
 }
 

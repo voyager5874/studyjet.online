@@ -43,6 +43,7 @@ const TextFieldBase = forwardRef<ElementRef<'input'>, TextFieldProps>(
     const [active, setActive] = useState(false)
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+      !active && setActive(true)
       onKeyDown && onKeyDown(e)
       setActive(true)
     }
@@ -52,10 +53,16 @@ const TextFieldBase = forwardRef<ElementRef<'input'>, TextFieldProps>(
       setActive(true)
     }
 
-    const classNames = {
+    const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
+      onBlur && onBlur(e)
+      setActive(false)
+    }
+    const autoId = useId()
+
+    const cn = {
       input: clsx(
         s.input,
-        active && s.whiteOutline,
+        active && s.active,
         errorMessage && s.error,
         prefixIcon && s.inputWithPrefix,
         suffixIcon && s.inputWithSuffix,
@@ -67,27 +74,16 @@ const TextFieldBase = forwardRef<ElementRef<'input'>, TextFieldProps>(
       suffixIcon: clsx(s.suffixIcon),
     }
 
-    const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
-      onBlur && onBlur(e)
-      setActive(false)
-    }
-    const autoId = useId()
-
     return (
       <div className={s.root}>
-        <Typography
-          as={'label'}
-          className={classNames.label}
-          htmlFor={id || autoId}
-          variant={'body2'}
-        >
+        <Typography as={'label'} className={cn.label} htmlFor={id || autoId} variant={'body2'}>
           {label}
         </Typography>
         <div className={s.inputContainer}>
-          {prefixIcon && <div className={classNames.prefixIcon}>{prefixIcon}</div>}
+          {prefixIcon && <div className={cn.prefixIcon}>{prefixIcon}</div>}
           <input
             aria-describedby={`${id || autoId}-field-message`}
-            className={classNames.input}
+            className={cn.input}
             disabled={disabled}
             id={id || autoId}
             onBlur={handleBlur}
@@ -98,12 +94,12 @@ const TextFieldBase = forwardRef<ElementRef<'input'>, TextFieldProps>(
             value={value}
             {...rest}
           />
-          {suffixIcon && <div className={classNames.suffixIcon}>{suffixIcon}</div>}
+          {suffixIcon && <div className={cn.suffixIcon}>{suffixIcon}</div>}
         </div>
         {errorMessage && (
           <Typography
             aria-live={'assertive'}
-            className={classNames.error}
+            className={cn.error}
             id={`${id || autoId}-field-message`}
             variant={'error'}
           >

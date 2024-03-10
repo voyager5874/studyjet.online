@@ -1,8 +1,8 @@
 .container {
-  color: var(--color-dark-100);
+  color: var(--color-text-subdued);
 
   &:focus-within {
-    color: var(--color-text-normal);
+    color: var(--color-text-subdued);
   }
 }
 
@@ -11,7 +11,7 @@
 }
 
 .label {
-  color: var(--color-dark-100);
+  color: inherit;
 }
 
 textarea {
@@ -20,16 +20,13 @@ textarea {
 
   //chrome default (normal) is 1.2 font-size
   // line-height: var(--line-height-s);
-  color: var(--color-dark-100);
+  color: var(--color-text-subdued);
 
   background-color: transparent;
   border: 0;
   border-radius: 2px;
-  outline: 1px solid var(--color-dark-100);
+  outline: 1px solid var(--color-border);
   box-shadow: 0 0 7px rgb(0 0 0 / 10%);
-
-  &::placeholder {
-  }
 
   &:focus-visible {
     outline: 2px solid var(--color-outline-focus);
@@ -37,13 +34,16 @@ textarea {
 
   &:disabled {
     pointer-events: none;
-    color: var(--color-dark-300);
-    outline: 1px solid var(--color-dark-300);
+    color: var(--color-text-disabled);
+
+    &::placeholder {
+      color: var(--color-text-disabled);
+    }
   }
 
   &:hover:not(:focus) {
-    background-color: var(--color-dark-500);
-    outline: 1px solid var(--color-dark-100);
+    background-color: var(--color-border);
+    outline: 1px solid var(--color-border-highlighted);
   }
 }
 
@@ -53,16 +53,16 @@ textarea {
 
 .disabled {
   pointer-events: none;
-  color: var(--color-dark-300);
+  color: var(--color-text-disabled);
 }
 
-.whiteOutline {
-  color: var(--color-light-100);
-  outline: 1px solid var(--color-light-100);
+.active {
+  color: var(--color-text-normal);
+  outline: 1px solid var(--color-text-normal);
 
   &:focus {
-    color: var(--color-light-100);
-    outline: 1px solid var(--color-light-100);
+    color: var(--color-text-normal);
+    outline: 1px solid var(--color-text-normal);
   }
 }
 

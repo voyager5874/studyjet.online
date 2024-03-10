@@ -2,6 +2,7 @@ import type {
   ChangeEvent,
   ComponentPropsWithoutRef,
   ElementRef,
+  FocusEvent,
   KeyboardEvent,
   MouseEvent,
   RefObject,
@@ -43,6 +44,7 @@ export const TextArea = forwardRef<ElementRef<'textarea'>, TextAreaProps>(
       autoHeight = false,
       resizeable = 'none',
       onClick,
+      onBlur,
       ...restProps
     },
     forwardedRef
@@ -97,9 +99,9 @@ export const TextArea = forwardRef<ElementRef<'textarea'>, TextAreaProps>(
     }
 
     const handleAreaTextChange = (event: ChangeEvent<HTMLTextAreaElement>): void => {
+      !active && setActive(true)
       onChange && onChange(event)
       onValueChange && onValueChange(event.currentTarget.value)
-
       if (!autoHeight) {
         return
       }
@@ -141,9 +143,14 @@ export const TextArea = forwardRef<ElementRef<'textarea'>, TextAreaProps>(
       // console.log('click', getElementHeight(textAreaRef))
     }
 
+    const handleBlur = (e: FocusEvent<HTMLTextAreaElement>) => {
+      onBlur && onBlur(e)
+      setActive(false)
+    }
+
     const cn = {
       container: clsx(s.container, disabled && s.disabled),
-      area: clsx(s.area, active && s.whiteOutline, errorMessage && s.errorInput),
+      area: clsx(s.area, active && s.active, errorMessage && s.errorInput),
       label: clsx(s.label, disabled && s.disabled),
       error: clsx(!errorMessage && s.transparent),
     }
@@ -158,6 +165,7 @@ export const TextArea = forwardRef<ElementRef<'textarea'>, TextAreaProps>(
           className={cn.area}
           disabled={disabled}
           id={id || autoId}
+          onBlur={handleBlur}
           onChange={handleAreaTextChange}
           onClick={handleClick}
           onKeyDown={handleEnterKeyPress}
@@ -186,51 +194,6 @@ export const TextArea = forwardRef<ElementRef<'textarea'>, TextAreaProps>(
     )
   }
 )
-
-// function getElementHeight(ref: RefObject<any>) {
-//   if (!ref?.current) {
-//     return null
-//   }
-//   const offsetHeight = ref.current.offsetHeight
-//   const clientHeight = ref.current.clientHeight
-//   const boundingClientRect = ref.current.getBoundingClientRect()
-//   const initScrollHeight = ref.current.scrollHeight
-//
-//   //get height which would house all the text
-//
-//   ref.current.style.height = '0px'
-//   const { scrollHeight: requiredHeight } = ref.current
-//
-//   //restore initial height
-//   ref.current.style.height = `${offsetHeight}px`
-//
-//   return { offsetHeight, boundingClientRect, clientHeight, requiredHeight, initScrollHeight }
-// }
-
-//   {
-//       "offsetHeight": 69,
-//       "boundingClientRect": {
-//       "x": 711,
-//           "y": 745.6953125,
-//           "width": 498,
-//           "height": 69,
-//           "top": 745.6953125,
-//           "right": 1209,
-//           "bottom": 814.6953125,
-//           "left": 711
-//   },
-//       "clientHeight": 69,
-//       16 * 1.2 * 3 + 2 * 6 = 69.6
-
-//       "scrollHeight": 31,
-// (font-size=16px, chrome normal is 1.2 font-size) -> 16 * 1.2 * 1 row + 2*6px (paddings) = 31.2
-// if line-height set to 16px -> {offsetHeight: 60, clientHeight: 60, requiredHeight: 28, initScrollHeight: 60}
-//       "initScrollHeight": 69
-//   }
-//       'By default, the chrome line-height: normal is 1.2 times the current font size, and adjusts automatically
-//       with the font size unless manually changed.'
-
-// 'line-height: inherit' for textarea seems not to work; look at _boilerplate.scss
 
 function getRequiredHeight(ref: RefObject<any>) {
   if (!ref?.current) {
