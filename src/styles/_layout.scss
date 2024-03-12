@@ -1,5 +1,6 @@
 :root {
   --header-height: 60px;
+
   .flex-row-center {
     display: flex;
     flex-direction: row;
@@ -7,6 +8,7 @@
     align-items: center;
     justify-content: center;
   }
+
   .flex-column {
     display: flex;
     flex-direction: column;

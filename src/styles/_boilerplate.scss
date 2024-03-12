@@ -72,6 +72,7 @@ select:-webkit-autofill:focus {
   --color-success: var(--color-success-300);
   --color-info: var(--color-info-300);
   --color-outline-focus: var(--color-info-700);
+  --color-primary-shadow: color-mix(in srgb, var(--color-primary), transparent 50%);
 
   // text
   --color-text-normal: var(--color-light-100);
@@ -113,10 +114,11 @@ select:-webkit-autofill:focus {
     --color-primary-hover: var(--color-accent-700);
     --color-bg-secondary: var(--color-light-300);
     --color-bg-tertiary: var(--color-dark-100);
+    --color-bg-paper: var(--color-dark-300);
     --color-primary: var(--color-accent-500);
     --color-primary-disabled: var(--color-accent-100);
     --color-primary-active: var(--color-accent-100);
-
+    --color-primary-shadow: color-mix(in srgb, var(--color-primary), transparent 50%);
     // borders
     --color-border: var(--color-light-900);
     --color-border-highlighted: var(--color-dark-100);
