@@ -3,7 +3,7 @@ import type { DeckFormData } from '@/features/decks/edit-dialog/deck-form-schema
 import type { LearnDeckFormData } from '@/features/decks/learn-dialog/learn-deck-form-schema'
 import type { DeckItem } from '@/features/decks/types'
 
-import { useRef } from 'react'
+import { useCallback, useRef } from 'react'
 
 import { decksDialogList } from '@/common/dialog-types'
 import { useGetRandomCardFromDeckQuery, useRateCardAcquisitionMutation } from '@/features/cards/api'
@@ -94,7 +94,7 @@ export const DecksPageDialogs = (props: Props) => {
       })
   }
 
-  const handleNewDeckDataSubmit = async (data: DeckFormData) => {
+  const handleNewDeckDataSubmit = useCallback(async (data: DeckFormData) => {
     const submitData = await createSubmitData(data, {
       name: '',
       isPrivate: undefined,
@@ -124,9 +124,9 @@ export const DecksPageDialogs = (props: Props) => {
       onError && onError()
       throw new Error(error)
     }
-  }
+  }, [])
 
-  const handleDeckUpdatedDataSubmit = async (data: DeckFormData) => {
+  const handleDeckUpdatedDataSubmit = useCallback(async (data: DeckFormData) => {
     if (!selectedDeckData) {
       return
     }
@@ -160,7 +160,7 @@ export const DecksPageDialogs = (props: Props) => {
 
       throw new Error(error)
     }
-  }
+  }, [])
 
   const handleCardGradeSubmit = (data: LearnDeckFormData) => {
     if (!selectedDeckId || !cardToLearnCurrentData) {

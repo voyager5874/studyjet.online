@@ -2,7 +2,6 @@ import type { ComponentPropsWithoutRef, ElementRef } from 'react'
 import { forwardRef, useState } from 'react'
 
 import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
-import { flexCenter } from '@/common/flex-center'
 import { Button } from '@/ui/button'
 import { Typography } from '@/ui/typography'
 import { clsx } from 'clsx'
@@ -43,7 +42,9 @@ export const CardAndDeckImageSelector = forwardRef<
     const [localSourceImage, setLocalSourceImage] = useState('')
     const [localResultImage, setLocalResultImage] = useState('')
 
-    const showFileSize = localSourceImage && value && value !== IMAGE_WAS_ERASED
+    const showFileSize =
+      (localSourceImage && localSourceImage !== IMAGE_WAS_ERASED) ||
+      (value && value !== IMAGE_WAS_ERASED)
 
     const cn = {
       root: clsx(s.root),
@@ -96,7 +97,7 @@ export const CardAndDeckImageSelector = forwardRef<
             <ImageInputInfo className={cn.imageInfo} />
           </div>
         </div>
-        <div style={flexCenter}>
+        <div className={'flex-row-center'}>
           {showTriggerButton && (
             <ImageInputTrigger>
               <Button className={cn.button} variant={'secondary'}>

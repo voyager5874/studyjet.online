@@ -6,7 +6,7 @@ import type { ReactNode } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { Button } from '@/ui/button'
-import { Checkbox } from '@/ui/checkbox'
+import { CustomCheckbox } from '@/ui/custom-checkbox/custom-checkbox'
 import {
   Dialog,
   DialogClose,
@@ -16,10 +16,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/ui/dialog'
-import { Form, FormControl, FormField, FormItem } from '@/ui/form'
 import { CardAndDeckImageSelector } from '@/ui/image-input/card-and-deck-image-selector'
 import { TextField } from '@/ui/text-field'
 import { Typography } from '@/ui/typography'
+import { DevTool } from '@hookform/devtools'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { clsx } from 'clsx'
 import { X } from 'lucide-react'
@@ -38,7 +38,7 @@ export type EditDeckDialogProps = {
 export function EditDeckDialog(props: EditDeckDialogProps) {
   const { deck, trigger, disabled, onSubmit, title, ...restProps } = props
 
-  const form = useForm<DeckFormData>({
+  const { register, ...form } = useForm<DeckFormData>({
     resolver: zodResolver(deckFormSchema),
     defaultValues: {
       name: deck?.name || '',
@@ -48,7 +48,7 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
   })
 
   const submitButtonDisabled =
-    disabled || form.getValues().name === '' || form.formState.isValidating
+    disabled || form.formState.isValidating || Boolean(form.formState?.errors?.name)
 
   //todo: check for accessibility (id, aria-labels...)
   //todo: if name is '' (create dialog), focus corresponding TextField
@@ -59,17 +59,18 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
       .catch(err => console.warn(err))
   }
 
-  const classNames = {
+  const cn = {
     dialogContent: clsx(s.content),
     formSection: clsx(s.formSection),
     formItem: clsx(s.formItem),
   }
 
   return (
-    <Dialog {...restProps} modal>
-      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <Form {...form}>
-        <DialogContent asChild className={classNames.dialogContent}>
+    <>
+      {import.meta.env.DEV && <DevTool control={form.control} />}
+      <Dialog {...restProps} modal>
+        {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+        <DialogContent asChild className={cn.dialogContent}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogHeader>
               <Typography as={DialogTitle} variant={'h2'}>
@@ -81,54 +82,25 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
                 </Button>
               </DialogClose>
             </DialogHeader>
-            <section className={classNames.formSection}>
-              <FormField
-                control={form.control}
-                name={'name'}
-                render={({ field, fieldState }) => (
-                  <FormItem className={classNames.formItem}>
-                    <FormControl>
-                      <TextField
-                        label={'New deck name'}
-                        {...field}
-                        errorMessage={fieldState.error?.message}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name={'cover'}
-                render={({ field, fieldState }) => (
-                  <FormItem className={classNames.formItem}>
-                    <CardAndDeckImageSelector
-                      errorMessage={fieldState.error?.message}
-                      initialContent={deck?.cover || undefined}
-                      name={'cover'}
-                      onValueChange={field.onChange}
-                      triggerText={deck?.cover ? 'change cover image' : 'add cover image'}
-                      value={field.value || ''}
-                    />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name={'isPrivate'}
-                render={({ field }) => (
-                  <FormItem className={classNames.formItem}>
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        label={'Do not share this deck'}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+            <section className={cn.formSection}>
+              <div className={cn.formItem}>
+                <TextField
+                  errorMessage={form.formState.errors.name?.message}
+                  label={'New deck name'}
+                  {...register('name')}
+                />
+              </div>
+              <div className={cn.formItem}>
+                <CardAndDeckImageSelector
+                  errorMessage={form.formState.errors.cover?.message}
+                  initialContent={deck?.cover || undefined}
+                  triggerText={deck?.cover ? 'change cover image' : 'add cover image'}
+                  {...register('cover')}
+                />
+              </div>
+              <div className={cn.formItem}>
+                <CustomCheckbox label={'Do not share this deck'} {...register('isPrivate')} />
+              </div>
             </section>
             <DialogFooter>
               <DialogClose asChild>
@@ -142,7 +114,7 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
             </DialogFooter>
           </form>
         </DialogContent>
-      </Form>
-    </Dialog>
+      </Dialog>
+    </>
   )
 }
