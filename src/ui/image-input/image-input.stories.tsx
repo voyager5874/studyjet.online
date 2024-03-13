@@ -2,15 +2,16 @@ import type { ImageInputRef } from './image-input-base'
 import type { Meta, StoryObj } from '@storybook/react'
 
 import type { ChangeEvent } from 'react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
 import { flexCenter } from '@/common/flex-center'
 import { AspectRatio } from '@/ui/aspect-ratio'
 import { Button } from '@/ui/button'
 import { Card } from '@/ui/card'
+import { TextArea } from '@/ui/text-area'
 import { Typography } from '@/ui/typography'
-import { blobToString, getBase64DataUrl } from '@/utils'
+import { getBase64DataUrl } from '@/utils'
 import { useArgs } from '@storybook/preview-api'
 import { LucideImageOff, LucidePencil, LucideTrash, LucideUndo } from 'lucide-react'
 
@@ -55,14 +56,7 @@ const Template: Story = {
 
     return (
       <>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-start',
-            alignItems: 'flex-start',
-            gap: '100px',
-          }}
-        >
+        <div className={'flex-row-center'}>
           <Card style={{ width: '500px' }}>
             <ImageInput
               {...restArgs}
@@ -236,6 +230,70 @@ export const Uncontrolled: Story = {
   },
 }
 
+function RefTestCard({ reference }: { reference: ImageInputRef | null }) {
+  const [valueFromRef, setValueFromRef] = useState('')
+  const [initialContentFromRef, setInitialContentFromRef] = useState('')
+  const [inputFirstFileItem, setInputFirstFileItem] = useState<string>('')
+
+  const getDataFromImageInputRef = () => {
+    if (!reference) {
+      return
+    }
+    setValueFromRef(reference?.value || '')
+    setInitialContentFromRef(reference?.initialContent || '')
+
+    if (reference?.filesList && reference?.filesList?.length) {
+      const file = reference.filesList.item(0)
+
+      file && setInputFirstFileItem(file.name)
+    }
+  }
+
+  if (reference === null) {
+    return <Card>ref is null</Card>
+  }
+
+  return (
+    <Card style={{ width: '400px' }}>
+      <Typography as={'h1'} style={{ textAlign: 'center' }}>
+        Result:
+      </Typography>
+      <div className={'flex-row-center'} style={{ width: '100%', minHeight: '100px' }}>
+        <div style={{ width: '100px' }}>
+          {valueFromRef && valueFromRef !== IMAGE_WAS_ERASED && (
+            <AspectRatio ratio={1} shape={'round'} src={valueFromRef} />
+          )}
+        </div>
+      </div>
+      <Typography variant={'body2'}>ref.current.value: </Typography>
+
+      <TextArea autoHeight maxHeight={150} resizeable={'vertical'} rows={3} value={valueFromRef} />
+      {valueFromRef && valueFromRef.startsWith('data:image') && (
+        <Typography as={'a'} href={valueFromRef} style={{ fontSize: '12px' }} variant={'link2'}>
+          {valueFromRef.substring(16, 50) + '...'}
+        </Typography>
+      )}
+      <Typography variant={'body2'}>ref.current.initialContent</Typography>
+      <TextArea
+        autoHeight
+        maxHeight={150}
+        resizeable={'vertical'}
+        rows={3}
+        value={initialContentFromRef}
+      />
+      <Typography variant={'body2'}>ref.current.filesList[0].name</Typography>
+      <TextArea
+        autoHeight
+        maxHeight={150}
+        resizeable={'vertical'}
+        rows={3}
+        value={inputFirstFileItem}
+      />
+      <Button onClick={getDataFromImageInputRef}>Read current ref data</Button>
+    </Card>
+  )
+}
+
 export const RefTestOfUncontrolled: Story = {
   args: {
     initialContent: 'https://upload.wikimedia.org/wikipedia/en/c/c6/NeoTheMatrix.jpg',
@@ -245,11 +303,11 @@ export const RefTestOfUncontrolled: Story = {
 
     const { sourceImage, initialContent, value, onValueChange, ...restArgs } = args
 
-    const imageInputRef = useRef<ImageInputRef>(null)
+    useEffect(() => {
+      updateArgs({ value: initialContent })
+    }, [])
 
-    const [valueFromRef, setValueFromRef] = useState('')
-    const [initialContentFromRef, setInitialContentFromRef] = useState('')
-    const [inputFirstFileItem, setInputFirstFileItem] = useState<string>('')
+    const imageInputRef = useRef<ImageInputRef>(null)
 
     const handleValueChange = (newValue: string) => {
       updateArgs({ value: newValue })
@@ -257,20 +315,6 @@ export const RefTestOfUncontrolled: Story = {
 
     const handleSourceChange = (source: string) => {
       updateArgs({ sourceImage: source })
-    }
-
-    const getDataFromImageInputRef = () => {
-      if (!imageInputRef?.current) {
-        return
-      }
-      setValueFromRef(imageInputRef?.current?.value || '')
-      setInitialContentFromRef(imageInputRef?.current?.initialContent || '')
-
-      if (imageInputRef?.current?.files && imageInputRef?.current?.files?.length) {
-        const file = imageInputRef.current.files.item(0)
-
-        file && setInputFirstFileItem(file.name)
-      }
     }
 
     return (
@@ -336,46 +380,8 @@ export const RefTestOfUncontrolled: Story = {
                 </div>
               </div>
             </ImageInput>
-            <Button onClick={getDataFromImageInputRef}>Get current ref data</Button>
           </Card>
-          <Card>
-            <Typography as={'h3'}>Result:</Typography>
-            <div
-              style={{
-                position: 'relative',
-                minHeight: '100px',
-                width: '300px',
-                marginBottom: '50px',
-              }}
-            >
-              {valueFromRef && valueFromRef !== IMAGE_WAS_ERASED && (
-                <AspectRatio ratio={1} shape={'round'} src={valueFromRef} />
-              )}
-            </div>
-            <Typography variant={'body2'}>ref.current.value: </Typography>
-            {valueFromRef && valueFromRef.startsWith('data:image') && (
-              <Typography as={'a'} href={valueFromRef} variant={'link2'}>
-                {valueFromRef.substring(0, 30) + '...'}
-              </Typography>
-            )}
-            <textarea
-              style={{
-                width: '100%',
-                backgroundColor: 'transparent',
-                height: '300px',
-                resize: 'vertical',
-                fontSize: '10px',
-                marginBottom: '20px',
-              }}
-              value={valueFromRef}
-            />
-            <Typography variant={'body2'}>
-              ref.current.initialContent - {initialContentFromRef}
-            </Typography>
-            <Typography variant={'body2'}>
-              ref.current.files[0].name - {inputFirstFileItem}
-            </Typography>
-          </Card>
+          <RefTestCard reference={imageInputRef.current} />
         </div>
       </>
     )
@@ -390,36 +396,24 @@ export const RefTestOfControlled: Story = {
   },
   render: args => {
     const { defaultValue, sourceImage, initialContent, value, onValueChange, ...restArgs } = args
-    const [_, setArgs, _resetArgs] = useArgs()
+    const [_, updateArgs, _resetArgs] = useArgs()
+
+    useEffect(() => {
+      updateArgs({ value: initialContent })
+    }, [])
 
     const imageInputRef = useRef<ImageInputRef>(null)
 
-    const [valueFromRef, setValueFromRef] = useState('')
-    const [initialContentFromRef, setDefaultValueFromRef] = useState('')
-    const [inputFirstFileItem, setInputFirstFileItem] = useState<string>('')
-
-    console.log('story render', { value, initialContent, sourceImage })
     const handleValueChange = (newValue: string) => {
-      setArgs({ value: newValue })
+      updateArgs({ value: newValue })
     }
 
     const handleSourceChange = (source: string) => {
-      setArgs({ sourceImage: source })
+      updateArgs({ sourceImage: source })
     }
 
-    const getDataFromImageInputRef = () => {
-      if (!imageInputRef?.current) {
-        return
-      }
-
-      setValueFromRef(imageInputRef?.current?.value || '')
-      setDefaultValueFromRef(imageInputRef?.current?.initialContent || '')
-
-      if (imageInputRef?.current?.files && imageInputRef?.current?.files?.length) {
-        const file = imageInputRef.current.files.item(0)
-
-        file && setInputFirstFileItem(file.name)
-      }
+    const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      console.log(e.target)
     }
 
     return (
@@ -434,6 +428,7 @@ export const RefTestOfControlled: Story = {
         >
           <Card style={{ width: '500px' }}>
             <ImageInput
+              onChange={handleOnChange}
               ref={imageInputRef}
               {...restArgs}
               initialContent={initialContent}
@@ -487,43 +482,8 @@ export const RefTestOfControlled: Story = {
                 </div>
               </div>
             </ImageInput>
-            <Button onClick={getDataFromImageInputRef}>Get current data from component ref</Button>
           </Card>
-          <Card>
-            <Typography as={'h3'}>Result:</Typography>
-            <div
-              style={{
-                position: 'relative',
-                minHeight: '100px',
-                width: '300px',
-                marginBottom: '50px',
-              }}
-            >
-              {valueFromRef && valueFromRef !== IMAGE_WAS_ERASED && (
-                <AspectRatio ratio={1} shape={'round'} src={valueFromRef} />
-              )}
-            </div>
-            <Typography variant={'body2'}>ref.current.value:</Typography>
-            {valueFromRef && valueFromRef.startsWith('data:image') && (
-              <Typography as={'a'} href={valueFromRef} variant={'link2'}>
-                {valueFromRef.substring(0, 30) + '...'}
-              </Typography>
-            )}
-            <textarea
-              style={{
-                width: '100%',
-                backgroundColor: 'transparent',
-                height: '300px',
-                resize: 'vertical',
-                fontSize: '10px',
-              }}
-              value={valueFromRef}
-            />
-            <Typography variant={'body2'}>
-              ref.current.initialContent: {initialContentFromRef}
-            </Typography>
-            <Typography variant={'body2'}>ref.current.files[0]: {inputFirstFileItem}</Typography>
-          </Card>
+          <RefTestCard reference={imageInputRef.current} />
         </div>
       </>
     )
@@ -538,62 +498,26 @@ export const SourceMadeOutside: Story = {
   },
   render: args => {
     const { defaultValue, sourceImage, initialContent, value, onValueChange, ...restArgs } = args
-    const [_, setArgs, _resetArgs] = useArgs()
-    // const [src, setSrc] = useState('')
+    const [_, updateArgs, _resetArgs] = useArgs()
+
+    useEffect(() => {
+      updateArgs({ value: '' })
+    }, [])
 
     const imageInputRef = useRef<ImageInputRef>(null)
     const externalInputRef = useRef<HTMLInputElement>(null)
 
-    const [valueFromRef, setValueFromRef] = useState('')
-    const [initialContentFromRef, setDefaultValueFromRef] = useState('')
-    const [inputFileItem, setInputFileItem] = useState<string>('')
-
     const [externalSourceImageValue, setExternalSourceImageValue] = useState<string>('')
 
-    const [dataUrlFromFileList, setDataUrlFromFileList] = useState<string>('')
-
     const handleValueChange = (newValue: string) => {
-      setArgs({ value: newValue })
-      // setSrc(newValue)
+      updateArgs({ value: newValue })
     }
 
     const handleSourceChange = (source: string) => {
-      setArgs({ sourceImage: source })
+      updateArgs({ sourceImage: source })
       if (source === '' && externalInputRef?.current) {
         externalInputRef.current.value = ''
         setExternalSourceImageValue('')
-      }
-    }
-
-    const getDataFromImageInputRef = async () => {
-      if (!imageInputRef?.current) {
-        return
-      }
-
-      console.log('component ref', imageInputRef?.current)
-      if (imageInputRef?.current?.value === '') {
-        console.log('imageInputRef?.current?.value is empty string')
-      }
-      setValueFromRef(imageInputRef?.current?.value || '')
-      setDefaultValueFromRef(imageInputRef?.current?.initialContent || '')
-
-      if (imageInputRef?.current?.files?.length === 0) {
-        setInputFileItem('no files in input FileList')
-        setDataUrlFromFileList('')
-      }
-      // setFileListFromFromRef(imageInputRef?.current?.files)
-
-      if (imageInputRef?.current?.files && imageInputRef?.current?.files?.length) {
-        const file = imageInputRef.current.files.item(0)
-
-        console.log('imageInputRef', { file })
-        file && setInputFileItem(file.name)
-        file &&
-          blobToString(file).then(url => {
-            setDataUrlFromFileList(url)
-          })
-        if (file) {
-        }
       }
     }
 
@@ -614,15 +538,8 @@ export const SourceMadeOutside: Story = {
 
     return (
       <>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-start',
-            alignItems: 'flex-start',
-            gap: '100px',
-          }}
-        >
-          <Card style={{ width: '500px' }}>
+        <div className={'flex-row-center'}>
+          <Card style={{ width: '400px' }}>
             <ImageInput
               ref={imageInputRef}
               {...restArgs}
@@ -641,19 +558,22 @@ export const SourceMadeOutside: Story = {
                   marginBottom: '50px',
                 }}
               >
-                <div
-                  style={{
-                    position: 'relative',
-                  }}
-                >
-                  <ImageInputValuePreview cropShape={'round'} showGrid>
-                    <ImageInputPlaceholder>
-                      <LucideImageOff size={'30%'} />
-                    </ImageInputPlaceholder>
-                  </ImageInputValuePreview>
-                  {value !== initialContent && value !== IMAGE_WAS_ERASED && <ImageInputInfo />}
+                <div className={'flex-row-center'}>
+                  <div
+                    style={{
+                      width: '200px',
+                    }}
+                  >
+                    <ImageInputValuePreview cropShape={'round'} showGrid>
+                      <ImageInputPlaceholder>
+                        <LucideImageOff size={'30%'} />
+                      </ImageInputPlaceholder>
+                    </ImageInputValuePreview>
+                    {value !== initialContent && value !== IMAGE_WAS_ERASED && <ImageInputInfo />}
+                  </div>
                 </div>
-                <div style={flexCenter}>
+
+                <div className={'flex-row-center'}>
                   <ImageInputTrigger>
                     <Button size={'dense'} variant={'secondary'}>
                       <LucidePencil />
@@ -678,69 +598,48 @@ export const SourceMadeOutside: Story = {
                 </div>
               </div>
             </ImageInput>
-            <Button onClick={getDataFromImageInputRef}>Get current ref data</Button>
-          </Card>
-          <Card style={{ minWidth: '400px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                width: '100%',
-                minHeight: '300px',
-              }}
-            >
-              <div style={{ width: '150px' }}>
-                <h5>ref.current.value</h5>
-                {valueFromRef && valueFromRef !== IMAGE_WAS_ERASED && (
-                  <AspectRatio ratio={1} shape={'round'} src={valueFromRef} />
-                )}
-              </div>
-              <div style={{ width: '150px' }}>
-                <h5>ref.current.files[0] -{'>'} readAsDataUrl</h5>
-                {dataUrlFromFileList && dataUrlFromFileList.startsWith('data:image') && (
-                  <AspectRatio ratio={1} shape={'round'} src={dataUrlFromFileList} />
-                )}
-              </div>
-            </div>
-
-            <Typography variant={'body2'}>
-              externalInput -{'>'} onChange -{'>'} event.target.files[0] -{'>'} readAsDataUrl
-            </Typography>
-            {externalSourceImageValue && (
-              <Typography as={'a'} href={externalSourceImageValue} variant={'link2'}>
-                {externalSourceImageValue.substring(0, 30) + '...'}
-              </Typography>
-            )}
-            <textarea
-              style={{
-                width: '100%',
-                backgroundColor: 'transparent',
-                height: '50px',
-                resize: 'vertical',
-                fontSize: '10px',
-              }}
-              value={externalSourceImageValue}
-            />
             <Typography as={'div'} variant={'body2'}>
-              <span>initialContent from ref: </span>
-              <span style={{ wordWrap: 'break-word' }}>{initialContentFromRef}</span>
-            </Typography>
-            <Typography as={'div'} variant={'body2'}>
-              fileList firstItem from ref: {inputFileItem}
-            </Typography>
-            <Typography as={'div'} variant={'body2'}>
-              <span>value: </span>
-
+              <span>ImageInput -- onValueChange -- value: </span>
               {value && value !== IMAGE_WAS_ERASED && (
-                <Typography as={'a'} href={value} variant={'link2'}>
+                <Typography as={'a'} href={value} style={{ fontSize: '12px' }} variant={'link2'}>
                   {value.length < 100 ? value : value.substring(0, 30) + '...'}
                 </Typography>
               )}
-              {!value && <span>empty</span>}
-              {value === IMAGE_WAS_ERASED && <span>{value}</span>}
+              {value && value === IMAGE_WAS_ERASED && (
+                <Typography style={{ fontSize: '12px' }} variant={'body2'}>
+                  {value}
+                </Typography>
+              )}
             </Typography>
           </Card>
-          <input onChange={handleExternalInput} ref={externalInputRef} type={'file'} />
+          <Card style={{ width: '400px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <input
+              onChange={handleExternalInput}
+              ref={externalInputRef}
+              style={{ marginBottom: '20px' }}
+              type={'file'}
+            />
+
+            <Typography style={{ textAlign: 'center' }} variant={'h1'}>
+              external input info
+            </Typography>
+
+            {externalSourceImageValue && (
+              <Typography
+                as={'a'}
+                href={externalSourceImageValue}
+                style={{ fontSize: '12px' }}
+                variant={'link2'}
+              >
+                {externalSourceImageValue.substring(0, 30) + '...'}
+              </Typography>
+            )}
+            <Typography variant={'body2'}>
+              readAsDataUrl(externalInput.ref.current.files[0]):
+            </Typography>
+            <TextArea resizeable={'vertical'} rows={3} value={externalSourceImageValue} />
+          </Card>
+          <RefTestCard reference={imageInputRef.current} />
         </div>
       </>
     )
