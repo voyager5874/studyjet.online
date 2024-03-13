@@ -18,6 +18,7 @@ import {
 
 import { IMAGE_WAS_ERASED } from '@/common/const/function-arguments'
 import { ZERO_POINT } from '@/ui/image-input/const'
+import { triggerInputChange } from '@/ui/image-input/utils'
 import { Slider } from '@/ui/slider'
 import { Typography } from '@/ui/typography'
 import {
@@ -58,10 +59,12 @@ export type ImageInputProps = CustomComponentProps &
   Omit<ComponentPropsWithoutRef<'input'>, keyof CustomComponentProps>
 
 export type ImageInputRef = Omit<ElementRef<'input'>, keyof ImageInputProps> & {
-  fileInput: HTMLInputElement
+  fileInput?: HTMLInputElement
   fileName?: string
+  filesList?: FileList | null | undefined
   initialContent?: string
-  textInput: HTMLInputElement
+  sourceImage?: string
+  // textInput: HTMLInputElement
   value?: string
 }
 
@@ -137,6 +140,9 @@ const ImageInput = forwardRef<ImageInputRef, ImageInputProps>((props, forwardedR
           )
 
           onValueChange && onValueChange(croppedImageDataUrl || '')
+          if (textInputRef?.current && croppedImageDataUrl) {
+            triggerInputChange(textInputRef.current, croppedImageDataUrl)
+          }
         } catch (e) {
           console.error(e)
         }
@@ -159,6 +165,10 @@ const ImageInput = forwardRef<ImageInputRef, ImageInputProps>((props, forwardedR
 
           croppedImageDataUrl && setLocalValueDataUrl(croppedImageDataUrl)
           croppedImageDataUrl && onValueChange && onValueChange(croppedImageDataUrl)
+          if (textInputRef?.current && croppedImageDataUrl) {
+            triggerInputChange(textInputRef.current, croppedImageDataUrl)
+            // triggerInputChange(textInputRef.current, croppedImageDataUrl)
+          }
         } catch (e) {
           console.error(e)
         }
@@ -226,19 +236,21 @@ const ImageInput = forwardRef<ImageInputRef, ImageInputProps>((props, forwardedR
       } catch (e) {
         console.warn('failed to detect the orientation')
       }
-      imageDataUrl && onSourceImageChange && onSourceImageChange(imageDataUrl)
+      // imageDataUrl && onSourceImageChange && onSourceImageChange(imageDataUrl)
       imageDataUrl && onSourceImageChange && onSourceImageChange(imageDataUrl)
       imageDataUrl && onValueChange && onValueChange(imageDataUrl)
 
       !valueControlled && imageDataUrl && setLocalValueDataUrl(imageDataUrl)
       !valueControlled && imageDataUrl && setLocalSourceImageDataUrl(imageDataUrl)
+      if (textInputRef?.current && imageDataUrl) {
+        triggerInputChange(textInputRef.current, imageDataUrl)
+      }
     }
-    onChange && onChange(e)
+
     handleResetCrop()
   }
 
   useEffect(() => {
-    // handleReset sets value === initialContent, this is not consistent with the below
     // if (!textInputRef.current || valueControlled || !initialContent) {
     //   return
     // }
@@ -247,7 +259,8 @@ const ImageInput = forwardRef<ImageInputRef, ImageInputProps>((props, forwardedR
     }
     textInputRef.current.value = initialContent
     setLocalValueDataUrl(initialContent)
-    onValueChange && onValueChange(initialContent)
+    // doesn't align with react-hook-form --> prematurely sets 'isDirty'
+    // onValueChange && onValueChange(initialContent)
     // should be run only once
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -266,14 +279,23 @@ const ImageInput = forwardRef<ImageInputRef, ImageInputProps>((props, forwardedR
       if (initialContent) {
         setLocalValueDataUrl(initialContent)
         onValueChange && onValueChange(initialContent)
+        if (textInputRef?.current) {
+          textInputRef.current.value = initialContent
+          triggerInputChange(textInputRef.current, initialContent)
+        }
       }
       if (!initialContent) {
         setLocalValueDataUrl('')
         onValueChange && onValueChange('')
+        if (textInputRef?.current) {
+          textInputRef.current.value = ''
+          triggerInputChange(textInputRef.current, '')
+        }
       }
       setLocalSourceImageDataUrl('')
       onSourceImageChange && onSourceImageChange('')
     }
+
     handleResetCrop()
   }, [valueControlled, handleResetCrop, initialContent, onSourceImageChange, onValueChange])
 
@@ -289,11 +311,16 @@ const ImageInput = forwardRef<ImageInputRef, ImageInputProps>((props, forwardedR
       onSourceImageChange && onSourceImageChange('')
       setLocalSourceImageDataUrl('')
     }
+    if (textInputRef?.current) {
+      textInputRef.current.value = IMAGE_WAS_ERASED
+      triggerInputChange(textInputRef.current, IMAGE_WAS_ERASED)
+    }
     handleResetCrop()
   }, [handleResetCrop, valueControlled, onValueChange, onSourceImageChange])
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textInputRef = useRef<HTMLInputElement>(null)
+  const refForParent = useRef<ImageInputRef>({} as ImageInputRef)
 
   const changeZoom = useCallback(
     (p: number) => {
@@ -318,6 +345,11 @@ const ImageInput = forwardRef<ImageInputRef, ImageInputProps>((props, forwardedR
     },
     [centerPointControlled, onCropCenterChange]
   )
+
+  const handleTextInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    //triggered programmatically via .dispatchEvent
+    onChange && onChange(e)
+  }
 
   const contextValue: ImageInputContextType = useMemo(
     () => ({
@@ -426,20 +458,25 @@ const ImageInput = forwardRef<ImageInputRef, ImageInputProps>((props, forwardedR
       }
     }
 
-    // const fullFileInputRefContent = getRefContentFullCopy(fileInputRef)
+    // todo: 'current' is read only (when initial value is null instead of {})??
+    textInputRef?.current && (refForParent.current = textInputRef.current)
+    refForParent.current.fileName = fileName || localValueFile?.name
 
-    return {
-      // ...fullFileInputRefContent,
-      ...fileInputRef.current, //content of the ref is not fully visible in a parent
-      fileInput: fileInputRef.current,
-      textInput: textInputRef.current,
-      value: textInputRef.current?.value,
-      defaultValue: textInputRef.current?.defaultValue,
-      files: fileInputRef.current?.files,
-      initialContent: initialContent,
-      fileName: fileName || localValueFile?.name,
-      sourceImage: sourceImage,
-    } as ImageInputRef
+    // const dataTransfer = new DataTransfer()
+    // const file = fileInputRef?.current?.files?.item(0)
+    //
+    // file && dataTransfer.items.add(file)
+    // refForParent.current && (refForParent.current.files = dataTransfer.files)
+
+    // refForParent.current.filesList = dataTransfer.files
+    refForParent.current.filesList = fileInputRef?.current?.files
+    refForParent.current.files = fileInputRef?.current?.files as FileList | null // won't work, with dataTransfer either
+    // console.log('image-input file refForParent', refForParent?.current?.files)
+    refForParent.current.initialContent = initialContent
+    refForParent.current.sourceImage = sourceImage
+    fileInputRef.current && (refForParent.current.fileInput = fileInputRef.current)
+
+    return refForParent.current
   })
 
   return (
@@ -456,7 +493,7 @@ const ImageInput = forwardRef<ImageInputRef, ImageInputProps>((props, forwardedR
         {...restProps}
         defaultValue={defaultValue}
         hidden
-        onChange={() => {}}
+        onChange={handleTextInputChange}
         ref={textInputRef}
         type={'text'}
         value={value}
