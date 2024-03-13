@@ -94,73 +94,79 @@ export const DecksPageDialogs = (props: Props) => {
       })
   }
 
-  const handleNewDeckDataSubmit = useCallback(async (data: DeckFormData) => {
-    const submitData = await createSubmitData(data, {
-      name: '',
-      isPrivate: undefined,
-      cover: '',
-    } as Partial<DeckItem>)
+  const handleNewDeckDataSubmit = useCallback(
+    async (data: DeckFormData) => {
+      const submitData = await createSubmitData(data, {
+        name: '',
+        isPrivate: undefined,
+        cover: '',
+      } as Partial<DeckItem>)
 
-    setOpenedDialog(null)
-    try {
-      await createDeck(submitData).unwrap()
-      toast({
-        title: `Deck ${data.name} created`,
-        from: 'bottom',
-        variant: 'success',
-        type: 'foreground',
-      })
-      onSuccess && onSuccess('create-deck')
-    } catch (err) {
-      const error = typeof err === 'string' ? err : 'failed'
+      setOpenedDialog(null)
+      try {
+        await createDeck(submitData).unwrap()
+        toast({
+          title: `Deck ${data.name} created`,
+          from: 'bottom',
+          variant: 'success',
+          type: 'foreground',
+        })
+        onSuccess && onSuccess('create-deck')
+      } catch (err) {
+        const error = typeof err === 'string' ? err : 'failed'
 
-      toast({
-        title: 'Failed to create deck',
-        description: error,
-        variant: 'dangerColored',
-        type: 'foreground',
-      })
-      setOpenedDialog(decksDialogList.createDeck)
-      onError && onError()
-      throw new Error(error)
-    }
-  }, [])
+        toast({
+          title: 'Failed to create deck',
+          description: error,
+          variant: 'dangerColored',
+          type: 'foreground',
+        })
+        setOpenedDialog(decksDialogList.createDeck)
+        onError && onError()
+        throw new Error(error)
+      }
+    },
+    [createDeck, onError, onSuccess, setOpenedDialog, toast]
+  )
 
-  const handleDeckUpdatedDataSubmit = useCallback(async (data: DeckFormData) => {
-    if (!selectedDeckData) {
-      return
-    }
+  const handleDeckUpdatedDataSubmit = useCallback(
+    async (data: DeckFormData) => {
+      if (!selectedDeckData) {
+        return
+      }
 
-    const submitData = await createSubmitData(data, selectedDeckData)
+      const submitData = await createSubmitData(data, selectedDeckData)
 
-    setOpenedDialog(null)
-    try {
-      await updateDeck({ id: selectedDeckData.id, body: submitData }).unwrap()
-      toast({
-        title: 'Deck has been updated',
-        variant: 'success',
-        type: 'foreground',
-        position: 'bottomRight',
-        from: 'bottom',
-      })
-      onSuccess && onSuccess('update-deck')
-    } catch (err) {
-      const error = typeof err === 'string' ? err : 'failed'
+      setOpenedDialog(null)
+      try {
+        await updateDeck({ id: selectedDeckData.id, body: submitData }).unwrap()
+        toast({
+          title: 'Deck has been updated',
+          variant: 'success',
+          type: 'foreground',
+          position: 'bottomRight',
+          from: 'bottom',
+        })
+        onSuccess && onSuccess('update-deck')
+      } catch (err) {
+        const error = typeof err === 'string' ? err : 'failed'
 
-      toast({
-        title: 'Failed to update deck',
-        description: error,
-        variant: 'danger',
-        position: 'bottomRight',
-        from: 'bottom',
-        type: 'foreground',
-      })
-      setOpenedDialog(decksDialogList.updateDeck)
-      onError && onError()
+        toast({
+          title: 'Failed to update deck',
+          description: error,
+          variant: 'danger',
+          position: 'bottomRight',
+          from: 'bottom',
+          type: 'foreground',
+        })
+        setOpenedDialog(decksDialogList.updateDeck)
+        onError && onError()
 
-      throw new Error(error)
-    }
-  }, [])
+        throw new Error(error)
+      }
+    },
+    [onError, onSuccess, selectedDeckData, setOpenedDialog, toast, updateDeck]
+  )
 
   const handleCardGradeSubmit = (data: LearnDeckFormData) => {
     if (!selectedDeckId || !cardToLearnCurrentData) {
