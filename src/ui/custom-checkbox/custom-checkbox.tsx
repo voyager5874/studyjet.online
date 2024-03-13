@@ -14,14 +14,14 @@ type CustomProps = {
 type CustomCheckboxProps = CustomProps & Omit<ComponentPropsWithoutRef<'input'>, keyof CustomProps>
 export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
   (props, forwardedRef) => {
-    const { id, onChange, label, ...restProps } = props
+    const { checked, defaultChecked, id, onChange, label, ...restProps } = props
 
-    const [localChecked, setLocalChecked] = useState<boolean | undefined>(true)
+    const [localChecked, setLocalChecked] = useState<boolean | undefined>(defaultChecked)
     // const [localValue, setLocalValue] = useState<NativeInputValue | undefined>(
     //   props.defaultValue || ''
     // )
 
-    const [controlled, _setControlled] = useState(Boolean(props.checked || props.value))
+    const [controlled, _setControlled] = useState(typeof checked !== 'undefined')
 
     if (!controlled && props.value) {
       throw new Error('either controlled or uncontrolled - choose wisely')
@@ -32,17 +32,17 @@ export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
     const indicatorRef = useRef<HTMLLabelElement>(null)
 
     const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-      const checked = inputRef?.current?.checked
+      const eventChecked = e.target.checked
 
       if (!controlled) {
-        setLocalChecked(checked)
+        setLocalChecked(eventChecked)
       }
-      if (inputRef?.current && typeof checked !== 'undefined') {
-        inputRef.current.setAttribute('data-state', checked ? 'checked' : 'unchecked')
+      if (inputRef?.current && typeof eventChecked !== 'undefined') {
+        inputRef.current.setAttribute('data-state', eventChecked ? 'checked' : 'unchecked')
       }
 
-      if (indicatorRef?.current && typeof checked !== 'undefined') {
-        indicatorRef.current.setAttribute('data-state', checked ? 'checked' : 'unchecked')
+      if (indicatorRef?.current && typeof eventChecked !== 'undefined') {
+        indicatorRef.current.setAttribute('data-state', eventChecked ? 'checked' : 'unchecked')
       }
 
       // const value = inputRef?.current?.value
@@ -72,7 +72,17 @@ export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
           ? indicatorRef.current.setAttribute('data-disabled', '')
           : indicatorRef.current.removeAttribute('data-disabled')
       }
-    }, [controlled, localChecked, props.disabled])
+      if (indicatorRef?.current && controlled) {
+        indicatorRef.current.setAttribute('data-state', checked ? 'checked' : 'unchecked')
+      }
+    }, [checked, controlled, localChecked, props.disabled])
+
+    useEffect(() => {
+      if (indicatorRef?.current && !controlled) {
+        indicatorRef.current.setAttribute('data-state', localChecked ? 'checked' : 'unchecked')
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     useImperativeHandle(forwardedRef, () => {
       // ref probably should be passed by reference - spread operator makes a stale copy -
@@ -84,8 +94,7 @@ export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
       return inputRef.current as HTMLInputElement
     })
 
-    const showCheckSign =
-      (!controlled && localChecked) || (controlled && props.checked) || (controlled && props.value)
+    const showCheckSign = controlled ? checked : localChecked
 
     const cn = {
       container: clsx(s.container, props.disabled && s.disabled),
@@ -95,6 +104,8 @@ export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
       square: clsx(s.square),
       checkSign: clsx(s.checkSign, !showCheckSign && s.hidden),
     }
+
+    console.log({ checked, controlled })
 
     return (
       <div className={cn.container}>
@@ -108,6 +119,8 @@ export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
             ref={inputRef}
             type={'checkbox'}
             {...restProps}
+            checked={checked}
+            defaultChecked={localChecked}
             onChange={handleOnChange}
           />
         </label>
