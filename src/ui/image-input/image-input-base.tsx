@@ -695,7 +695,7 @@ const ImageInputInfo = ({ className, children, ...props }: ComponentPropsWithout
       <div className={cn.imageInfo} {...props}>
         {message && <Typography variant={'error'}>{message}</Typography>}
         {!message && cropFileSize && (
-          <Typography variant={'body2'}>{`${cropFileSize.toFixed(2)}MB`}</Typography>
+          <Typography variant={'body2'}>{`${cropFileSize.toFixed(3)}MB`}</Typography>
         )}
       </div>
     </>
