@@ -99,7 +99,11 @@ export function EditDeckDialog(props: EditDeckDialogProps) {
                 />
               </div>
               <div className={cn.formItem}>
-                <CustomCheckbox label={'Do not share this deck'} {...register('isPrivate')} />
+                <CustomCheckbox
+                  label={'Do not share this deck'}
+                  {...register('isPrivate')}
+                  defaultChecked={deck?.isPrivate || false}
+                />
               </div>
             </section>
             <DialogFooter>
