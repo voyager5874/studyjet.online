@@ -59,7 +59,7 @@ export async function getChangedDataFromTwoObjects<T extends object>(
     if (entry && entry instanceof File) {
       patch[key] = entry as T[keyof T]
     }
-    if (typeof entry !== 'undefined' && entry !== currentData[key]) {
+    if (typeof entry !== 'undefined' && entry !== currentData[key] && entry !== '') {
       let value = entry
 
       if (entry === IMAGE_WAS_ERASED) {
