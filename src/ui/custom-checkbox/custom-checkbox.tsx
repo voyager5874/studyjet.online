@@ -14,17 +14,25 @@ type CustomProps = {
 type CustomCheckboxProps = CustomProps & Omit<ComponentPropsWithoutRef<'input'>, keyof CustomProps>
 export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
   (props, forwardedRef) => {
-    const { checked, defaultChecked, id, onChange, label, ...restProps } = props
-
+    const { disabled, checked, defaultChecked, id, onChange, label, ...restProps } = props
+    const timerId = useRef<ReturnType<typeof setTimeout> | null>(null)
     const [localChecked, setLocalChecked] = useState<boolean | undefined>(defaultChecked)
     // const [localValue, setLocalValue] = useState<NativeInputValue | undefined>(
     //   props.defaultValue || ''
     // )
 
-    const [controlled, _setControlled] = useState(typeof checked !== 'undefined')
+    const [controlled] = useState(typeof checked !== 'undefined')
 
-    if (!controlled && props.value) {
-      throw new Error('either controlled or uncontrolled - choose wisely')
+    if (!controlled && checked) {
+      console.warn(
+        'You passed a value to an uncontrolled component. You cannot switch from uncontrolled to controlled'
+      )
+    }
+
+    if (controlled && defaultChecked) {
+      console.warn(
+        'You have passed defaultChecked and checked at the same time. You have to decide whether controlled or uncontrolled'
+      )
     }
 
     const autoId = useId()
@@ -37,19 +45,19 @@ export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
       if (!controlled) {
         setLocalChecked(eventChecked)
       }
-      if (inputRef?.current && typeof eventChecked !== 'undefined') {
-        inputRef.current.setAttribute('data-state', eventChecked ? 'checked' : 'unchecked')
-      }
 
       if (indicatorRef?.current && typeof eventChecked !== 'undefined') {
         indicatorRef.current.setAttribute('data-state', eventChecked ? 'checked' : 'unchecked')
       }
 
-      // const value = inputRef?.current?.value
-
-      // if (!controlled) {
-      //   setLocalValue(value)
-      // }
+      if (inputRef?.current) {
+        //for triggering animation and hover effect
+        inputRef.current.setAttribute('data-transition', '')
+        timerId?.current && clearTimeout(timerId.current)
+        timerId.current = setTimeout(() => {
+          inputRef?.current && inputRef.current.removeAttribute('data-transition')
+        }, 900)
+      }
 
       onChange && onChange(e)
     }
@@ -64,32 +72,39 @@ export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
 
     useEffect(() => {
       if (inputRef?.current) {
-        props.disabled && inputRef.current.setAttribute('data-disabled', '')
-        !props.disabled && inputRef.current.removeAttribute('data-disabled')
+        disabled && inputRef.current.setAttribute('data-disabled', '')
+        !disabled && inputRef.current.removeAttribute('data-disabled')
       }
       if (indicatorRef?.current) {
-        props.disabled
+        disabled
           ? indicatorRef.current.setAttribute('data-disabled', '')
           : indicatorRef.current.removeAttribute('data-disabled')
       }
-      if (indicatorRef?.current && controlled) {
-        indicatorRef.current.setAttribute('data-state', checked ? 'checked' : 'unchecked')
-      }
-    }, [checked, controlled, localChecked, props.disabled])
+    }, [disabled])
 
     useEffect(() => {
       if (indicatorRef?.current && !controlled) {
         indicatorRef.current.setAttribute('data-state', localChecked ? 'checked' : 'unchecked')
       }
+      // one-time: make input state to be in sync with passed 'defaultChecked' prop
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    useEffect(() => {
+      if (indicatorRef?.current && controlled) {
+        indicatorRef.current.setAttribute('data-state', checked ? 'checked' : 'unchecked')
+      }
+      //checked can be changed without onChange event from outside
+      // with onChange firing (click on component) there will be double .setAttribute()
+
+      //controlled cannot change
+    }, [checked, controlled])
+
     useImperativeHandle(forwardedRef, () => {
-      // ref probably should be passed by reference - spread operator makes a stale copy -
+      // spread operator seemingly makes a stale copy -
       // react-hook-form doesn't recognize value/checked from copied ref object -
 
-      // mutate before return if needed, then return it
-      // inputRef?.current && (inputRef.current.value = 'don')
+      // mutate if needed, then return it
 
       return inputRef.current as HTMLInputElement
     })
@@ -105,12 +120,10 @@ export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
       checkSign: clsx(s.checkSign, !showCheckSign && s.hidden),
     }
 
-    console.log({ checked, controlled })
-
     return (
       <div className={cn.container}>
         <label className={cn.indicatorContainer} ref={indicatorRef}>
-          <span aria-checked={localChecked} className={cn.square} role={'checkbox'}>
+          <span aria-checked={localChecked} className={cn.square}>
             <LucideCheck className={cn.checkSign} strokeWidth={3.5} />
           </span>
           <input
@@ -121,6 +134,7 @@ export const CustomCheckbox = forwardRef<HTMLInputElement, CustomCheckboxProps>(
             {...restProps}
             checked={checked}
             defaultChecked={localChecked}
+            disabled={disabled}
             onChange={handleOnChange}
           />
         </label>
