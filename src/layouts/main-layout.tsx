@@ -11,6 +11,7 @@ import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from '@/ui/drop
 import { Spinner } from '@/ui/spinner'
 import { Toaster, useToast } from '@/ui/toast'
 import { Typography } from '@/ui/typography'
+import { Analytics } from '@vercel/analytics/react'
 import { clsx } from 'clsx'
 import { LucideMoon, LucideSun } from 'lucide-react'
 
@@ -130,6 +131,7 @@ export const MainLayout = () => {
         <Outlet context={loggedOut} />
       </main>
       <Toaster />
+      <Analytics />
     </>
   )
 }
