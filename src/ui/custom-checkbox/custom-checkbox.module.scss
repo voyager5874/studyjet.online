@@ -23,10 +23,6 @@ label {
   position: absolute;
   z-index: 1;
 
-  // top: 50%;
-  // left: 50%;
-  // transform: translate(-50%, -50%);
-
   width: 100%;
   height: 100%;
   margin: 0;
@@ -40,7 +36,7 @@ label {
     z-index: 1;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(0);
 
     width: 100%;
     height: 100%;
@@ -51,23 +47,32 @@ label {
     transition: all 100ms;
   }
 
-  &:not([data-disabled]):hover::after {
-    z-index: 1;
-    transform: translate(-50%, -50%) scale(2.2);
-    background-color: var(--color-border);
-    transition: all 30ms;
+  &:focus,
+  &:focus-visible {
+    outline: 0;
+
+    // outline-color doesn't affect input outline
   }
 
-  &:not([data-disabled]):active::after {
-    z-index: 2;
-    background-color: var(--color-active);
-    transition: all 0ms;
-  }
+  &:not(:disabled) {
+    &:not([data-transition]):hover::after {
+      z-index: 1;
+      transform: translate(-50%, -50%) scale(2.2);
+      background-color: var(--color-border);
+      transition: all 30ms;
+    }
 
-  &:not([data-disabled]):focus-visible::after {
-    transform: translate(-50%, -50%) scale(2.2);
-    background-color: var(--color-border);
-    transition: all 0ms;
+    &:not([data-transition]):focus-visible::after {
+      transform: translate(-50%, -50%) scale(2.2);
+      background-color: var(--color-border);
+      transition: all 0ms;
+    }
+
+    &[data-transition]:focus::after {
+      z-index: 2;
+      background-color: var(--color-active);
+      animation: pulse 350ms ease-in-out;
+    }
   }
 }
 
@@ -105,7 +110,7 @@ label {
   &[data-state='checked'] {
     .checkSign {
       color: var(--color-text-inverted);
-      animation: rotate 250ms ease-out;
+      animation: zoom-in 200ms ease-out;
     }
 
     .square {
@@ -115,7 +120,7 @@ label {
 
   &[data-state='unchecked'] {
     .checkSign {
-      animation: uncheck 100ms ease-in;
+      animation: zoom-out 100ms ease-in;
     }
 
     .square {
@@ -169,5 +174,46 @@ label {
   to {
     transform: rotate(0deg);
     opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(2.6);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes zoom-in {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes zoom-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  to {
+    transform: scale(0);
+    opacity: 0;
   }
 }

@@ -5,7 +5,7 @@ import { getFileFromUrl } from '@/utils'
 import * as z from 'zod'
 
 export const deckFormSchema = z.object({
-  name: z.string().min(3, { message: '3 or more' }).max(30, { message: '30 or less' }),
+  name: z.string().min(3).max(30),
   cover: z
     .string()
     .optional()

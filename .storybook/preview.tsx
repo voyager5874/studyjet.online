@@ -9,7 +9,16 @@ import { CurrentThemeProvider } from '../src/storybook-utils'
 import '../src/styles/index.scss'
 
 const preview: Preview = {
-  decorators: [Story => <CurrentThemeProvider>{Story()}</CurrentThemeProvider>],
+  decorators: [
+    (Story, context) => (
+      <CurrentThemeProvider
+        currentBackground={context?.globals.backgrounds?.value}
+        backgrounds={context.parameters?.backgrounds?.values}
+      >
+        {Story()}
+      </CurrentThemeProvider>
+    ),
+  ],
   parameters: {
     backgrounds: {
       default: 'dark',

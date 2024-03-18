@@ -1,5 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
+import { useForm } from 'react-hook-form'
+
+import { Button } from '@/ui/button'
+import { Card } from '@/ui/card'
+import { Typography } from '@/ui/typography'
+import { faker } from '@faker-js/faker'
+import { useArgs } from '@storybook/preview-api'
+
 import { Select, SelectItem } from './select'
 
 const meta = {
@@ -13,23 +21,16 @@ const meta = {
     label: {
       control: 'text',
     },
+    value: {
+      control: 'text',
+    },
+    // value: {
+    //   control: {
+    //     type: 'radio',
+    //     options: ['item1', 'item2', 'item3', 'item4'],
+    //   },
+    // },
   },
-  decorators: [
-    Story => (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '300px',
-          height: '100px',
-          outline: '1px solid grey',
-        }}
-      >
-        <Story />
-      </div>
-    ),
-  ],
 } satisfies Meta<typeof Select>
 
 type Story = StoryObj<typeof meta>
@@ -86,6 +87,77 @@ export const WithDisabledItems: Story = {
           item 4
         </SelectItem>
       </Select>
+    )
+  },
+}
+
+const generateSelectItems = (count: number) => {
+  const arr = []
+
+  for (let i = 0; i < count; i++) {
+    arr.push({
+      name: `${faker.word.adjective()} ${faker.word.noun()}`,
+      value: `${faker.word.adjective()} ${faker.word.noun()}`,
+    })
+  }
+
+  return arr
+}
+
+const withFormSelectItem = generateSelectItems(5)
+
+export const UncontrolledWithinForm: Story = {
+  args: {
+    value: 'item1',
+  },
+  render: function Render(args) {
+    const { onValueChange, onChange, value, ...restArgs } = args
+
+    const [_args, updateArgs] = useArgs()
+
+    const { register, control, ...form } = useForm({
+      defaultValues: {
+        selectValue: '',
+      },
+    })
+    const makeSubmit = (data: any) => {
+      console.log({ submitData: data })
+      // setSubmitted(data?.selectValue)
+      updateArgs({ value: data?.selectValue })
+      // onSubmit && onSubmit(data)
+    }
+
+    const handleValueChange = (value: any) => {
+      console.log(value)
+    }
+
+    // DevTools conflicts with useArgs - the page hangs
+    return (
+      <div>
+        {/*<DevTool control={control} />*/}
+        <Card style={{ width: '400px' }}>
+          <Typography variant={'h1'}>Form</Typography>
+          <form
+            className={'flex-column'}
+            onSubmit={form.handleSubmit(makeSubmit)}
+            style={{ gap: '20px' }}
+          >
+            <Select
+              {...restArgs}
+              placeholder={'Select an item'}
+              {...register('selectValue')}
+              onValueChange={handleValueChange}
+            >
+              {withFormSelectItem.map(item => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.name}
+                </SelectItem>
+              ))}
+            </Select>
+            <Button type={'submit'}>submit</Button>
+          </form>
+        </Card>
+      </div>
     )
   },
 }
