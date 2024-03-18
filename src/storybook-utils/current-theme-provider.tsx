@@ -1,6 +1,8 @@
 import type { ComponentPropsWithoutRef } from 'react'
 import { useEffect } from 'react'
 
+import { Analytics } from '@vercel/analytics/react'
+
 import s from './custom-css-provider.module.scss'
 
 // export const StorybookThemeContext = createContext<'dark' | 'light'>('dark')
@@ -21,8 +23,11 @@ export const CurrentThemeProvider = ({ currentBackground, backgrounds, ...rest }
   }, [currentBackground])
 
   return (
-    // <StorybookThemeContext.Provider value={storybookTheme}>
-    <div {...rest} className={s.root} />
-    // </StorybookThemeContext.Provider>
+    <>
+      <Analytics />
+      {/*<StorybookThemeContext.Provider value={storybookTheme}>*/}
+      <div {...rest} className={s.root} />
+      {/*</StorybookThemeContext.Provider>*/}
+    </>
   )
 }
