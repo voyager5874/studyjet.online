@@ -6,7 +6,7 @@ const config: StorybookConfig = {
   addons: [
     '@storybook/addon-links',
     '@storybook/addon-essentials',
-    '@storybook/addon-onboarding',
+    // '@storybook/addon-onboarding',
     '@storybook/addon-interactions',
     'storybook-theme-css-vars',
     'storybook-addon-react-router-v6',
